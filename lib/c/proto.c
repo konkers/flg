@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <proto.h>
 #include <crc8.h>
 
-void proto_init(struct proto_state *p, uint8_t addr)
+void proto_init(struct proto *p, uint8_t addr)
 {
 	p->addr = addr;
 	p->state = PROTO_STATE_IDLE;
 }
 
-struct proto_packet *proto_recv(struct proto_state *p, uint8_t byte)
+struct proto_packet *proto_recv(struct proto *p, uint8_t data)
 {
 	struct proto_packet *ret = NULL;
 
 	switch (p->state) {
 	case PROTO_STATE_IDLE:
-		if (byte == PROTO_SOF) {
+		if (data == PROTO_SOF) {
 			p->crc = crc8_start();
 			p->state = PROTO_STATE_ADDR;
 		}
@@ -44,12 +47,12 @@ struct proto_packet *proto_recv(struct proto_state *p, uint8_t byte)
 	case PROTO_STATE_CMD:
 		p->crc = crc8_calc(p->crc, data);
 		p->packet.cmd = data;
-		p->state = PROTO_STATE_CAL;
+		p->state = PROTO_STATE_VAL;
 		break;
 
 	case PROTO_STATE_VAL:
 		p->crc = crc8_calc(p->crc, data);
-		p->packet.cal = data;
+		p->packet.val = data;
 		p->state = PROTO_STATE_CRC;
 		break;
 

@@ -21,39 +21,39 @@
 #define __crc8_h__
 
 #ifdef AVR
-typedef prog_uint8_t crc_table_t;
+typedef prog_uint8_t crc8_table_t;
 #else
-typedef const uint8_t crc_table_t;
+typedef const uint8_t crc8_table_t;
 #endif
 
-extern crc_table_t crc_table[];
+extern crc8_table_t crc8_table[];
 
 #ifdef AVR
-static inline uint8_t crc_table_get(uint8_t idx)
+static inline uint8_t crc8_table_get(uint8_t idx)
 {
-	return pgm_read_byte(crc_table + idx);
+	return pgm_read_byte(crc8_table + idx);
 }
 #else
-static inline uint8_t crc_table_get(uint8_t idx)
+static inline uint8_t crc8_table_get(uint8_t idx)
 {
-	return crc_table[idx];
+	return crc8_table[idx];
 }
 #endif
 
 
-static inline uint8_t crc_start()
+static inline uint8_t crc8_start()
 {
 	return 0x00;
 }
 
-static inline uint8_t crc_calc(uint8_t crc, uint8_t data)
+static inline uint8_t crc8_calc(uint8_t crc, uint8_t data)
 {
-	return crc_table_get(crc ^ data);
+	return crc8_table_get(crc ^ data);
 }
 
-static inline uint8_t crc_end(crc)
+static inline uint8_t crc8_end(crc)
 {
 	return crc;
 }
 
-#define /* __crc8_h__ */
+#endif /* __crc8_h__ */

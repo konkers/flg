@@ -25,7 +25,7 @@ struct proto_packet {
 	uint8_t	cmd;
 	uint8_t	val;
 	uint8_t	crc;
-};
+} __attribute__((packed));
 
 enum proto_state {
 	PROTO_STATE_IDLE,
@@ -36,13 +36,17 @@ enum proto_state {
 	PROTO_STATE_EOF,
 };
 
-struct proto_state {
-	struct short_packet	packet;
+struct proto {
+	struct proto_packet	packet;
 	enum proto_state	state;
+	uint8_t addr;
+	uint8_t crc;
 };
 
-void proto_init(struct proto_state *p);
-struct proto_packet *proto_recv(struct proto_state *p, uint8_t byte);
+
+
+void proto_init(struct proto *p, uint8_t addr);
+struct proto_packet *proto_recv(struct proto *p, uint8_t proto);
 
 
 #endif /* __proto_h__ */
