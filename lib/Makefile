@@ -1,4 +1,4 @@
-DIRS = c
+DIRS = c cxx
 
 all: dirs
 

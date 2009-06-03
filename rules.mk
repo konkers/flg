@@ -5,6 +5,7 @@ endif
 
 OPT = -g -O2
 CFLAGS += ${OPT} -Wall -Werror -I${FLG_DIR}/lib/c/include
+CXXFLAGS += ${CFLAGS} -I${FLG_DIR}/lib/cxx/include
 LIBS += -lflg
 LDFLAGS += -L${FLG_DIR}
 
