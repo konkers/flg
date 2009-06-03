@@ -7,9 +7,13 @@ OPT = -g -O2
 CFLAGS += ${OPT} -Wall -Werror -I${FLG_DIR}/lib/c/include
 CXXFLAGS += ${CFLAGS} -I${FLG_DIR}/lib/cxx/include
 LIBS += -lflg
-LDFLAGS += -L${FLG_DIR}
+LIBSXX += ${LIBS} -lflgxx
+LDFLAGS += -L${FLG_DIR}/lib/c
+LDXXFLAGS += ${LDFLAGS} -L${FLG_DIR}/lib/cxx
 
-LINK = ${CC} ${LDFLAGS} -o $@
+LINK = ${CC} ${LDFLAGS} -o $@ $^ ${LIBS}
+LINKXX = ${CXX} ${LDXXFLAGS} -o $@ $^ ${LIBSXX}
+
 MKLIB=rm -f $@; ${AR} -cr $@ $^
 
 .PHONY: dirs clean clean-here

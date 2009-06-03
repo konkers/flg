@@ -1,4 +1,4 @@
-DIRS = lib
+DIRS = lib utils
 
 all: dirs
 

@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -87,6 +88,23 @@ bool UdpLink::send(uint8_t *data, int len)
 
 int UdpLink::wait(int timeout)
 {
+	struct pollfd fds;
+	int retval;
+
+	fds.fd = fd;
+	fds.events = POLLIN | POLLERR | POLLHUP;
+	retval = poll( &fds, 1, timeout);
+
+	if (retval < 0) {
+		return -1;
+	}
+	if (fds.revents & (POLLERR | POLLHUP)) {
+		return -1;
+	}
+	if (retval == 0) {
+		return 0;
+	}
+
 	return timeout;
 }
 

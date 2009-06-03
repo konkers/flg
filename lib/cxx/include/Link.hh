@@ -25,7 +25,7 @@ public:
 
 	virtual bool send(uint8_t *data, int len) = 0;
 	virtual int wait(int timeout) = 0;
-	virtual bool recv(uint8_t *data, int len) = 0;
+	virtual bool recv(uint8_t *data, int *len) = 0;
 };
 
 #endif /* __Link_hh__ */
