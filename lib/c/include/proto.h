@@ -17,14 +17,20 @@
 #ifndef __proto_h__
 #define __proto_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PROTO_SOF	0x53
 #define PROTO_EOF	0x45
 
 struct proto_packet {
+	uint8_t sof;
 	uint8_t	addr;
 	uint8_t	cmd;
 	uint8_t	val;
 	uint8_t	crc;
+	uint8_t eof;
 } __attribute__((packed));
 
 enum proto_state {
@@ -46,8 +52,12 @@ struct proto {
 
 
 void proto_init(struct proto *p, uint8_t addr);
+void proto_packet_seal(struct proto_packet *packet);
 struct proto_packet *proto_recv(struct proto *p, uint8_t proto);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __proto_h__ */
 

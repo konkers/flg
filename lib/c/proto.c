@@ -26,6 +26,18 @@ void proto_init(struct proto *p, uint8_t addr)
 	p->state = PROTO_STATE_IDLE;
 }
 
+void proto_packet_seal(struct proto_packet *packet)
+{
+	packet->sof = PROTO_SOF;
+	packet->crc = crc8_start();
+	packet->crc = crc8_calc(packet->crc, packet->addr);
+	packet->crc = crc8_calc(packet->crc, packet->cmd);
+	packet->crc = crc8_calc(packet->crc, packet->val);
+	packet->crc = crc8_end(packet->crc);
+	packet->eof = PROTO_EOF;
+}
+
+
 struct proto_packet *proto_recv(struct proto *p, uint8_t data)
 {
 	struct proto_packet *ret = NULL;

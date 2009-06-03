@@ -1,5 +1,6 @@
 WAITER_OBJS=waiter.o
 SENDER_OBJS=sender.o
+OBJS=${WAITER_OBJS} ${SENDER_OBJS}
 
 TARGETS=waiter sender
 

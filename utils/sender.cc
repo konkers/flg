@@ -3,15 +3,15 @@
 #include <string.h>
 
 #include <UdpLink.hh>
+#include <Proto.hh>
 
 
 int main(int argc, char *argv[])
 {
-	char data[256];
 	UdpLink link(8051, "localhost", 6502);
+	Proto p(&link, 1);
 
-	strcpy(data, "test");
-	if (!link.send((uint8_t *)data,strlen(data))) {
-		printf("error sending data\n");
-	}
+	p.sendMsg(0, 0xca, 0xfe);
+
+	return 0;
 }

@@ -2,25 +2,26 @@
 #include <stdio.h>
 
 #include <UdpLink.hh>
+#include <Proto.hh>
 
 
 int main(int argc, char *argv[])
 {
-	uint8_t data[256];
-	int len;
 	UdpLink link(6502, "localhost", 8051);
+	Proto p(&link, 0);
+	struct proto_packet pkt;
 	int err;
 
 	while (1) {
-		len = 256;
-		err = link.wait(1000);
+		err = p.waitForMsg(&pkt, 1000);
 		if (err <= 0) {
 			printf("timeout %d\n", err);
 			continue;
 		}
 
-		if (link.recv(data,&len)) {
-			printf("received %d bytes\n", len);
-		}
+		printf("msg a:%02x c:%02x v:%02x\n", 
+		       pkt.addr, pkt.cmd, pkt.val);
 	}
+
+	return 0;
 }

@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef __Link_hh__
-#define __Link_hh__
+#ifndef __Proto_hh__
+#define __Proto_hh__
 
 #include <stdint.h>
 
-class Link {
-public:
-	virtual ~Link() {}
+#include <proto.h>
 
-	virtual bool send(const void *data, int len) = 0;
-	virtual int wait(int timeout) = 0;
-	virtual bool recv(void *data, int *len) = 0;
+#include <Link.hh>
+
+class Proto {
+private:
+	struct proto p;
+	Link *link;
+
+public:
+	Proto(Link *link, uint8_t addr);
+
+	bool sendMsg(uint8_t addr, uint8_t cmd, uint8_t val);
+	int waitForMsg(struct proto_packet *p, int timeout);
 };
 
-#endif /* __Link_hh__ */
 
+#endif /* __Proto_hh__ */

@@ -32,9 +32,9 @@ public:
 	UdpLink(int localPort, const char *remoteAddr, int remotePort);
 	virtual ~UdpLink();
 
-	virtual bool send(uint8_t *data, int len);
+	virtual bool send(const void *data, int len);
 	virtual int wait(int timeout);
-	virtual bool recv(uint8_t *data, int *len);
+	virtual bool recv(void *data, int *len);
 };
 
 #endif /* __UdpLink_hh__ */

@@ -69,11 +69,11 @@ UdpLink::~UdpLink()
 }
 
 
-bool UdpLink::send(uint8_t *data, int len)
+bool UdpLink::send(const void *data, int len)
 {
 	ssize_t retval;
 
-	retval = sendto(fd, data, len, 0, 
+	retval = sendto(fd, data, len, 0,
 			(struct sockaddr *) &remoteAddr,
 			sizeof(remoteAddr));
 	if (retval < 0) {
@@ -108,7 +108,7 @@ int UdpLink::wait(int timeout)
 	return timeout;
 }
 
-bool UdpLink::recv(uint8_t *data, int *len)
+bool UdpLink::recv(void *data, int *len)
 {
 	ssize_t retval;
 	struct sockaddr_in addr;
