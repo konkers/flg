@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Flaming Lotus Girls
+ * Copyright 2009 Erik Gilling
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#if 0
+} /* stupid trick to balance out above */
+#endif
 
 #define PROTO_SOF	0x53
 #define PROTO_EOF	0x45
+
+enum proto_cmd {
+	PROTO_CMD_SET =		0x00,
+	PROTO_CMD_CLEAR =	0x01,
+	PROTO_CMD_SWITCH =	0x80,
+};
 
 struct proto_packet {
 	uint8_t sof;
@@ -55,6 +64,9 @@ void proto_init(struct proto *p, uint8_t addr);
 void proto_packet_seal(struct proto_packet *packet);
 struct proto_packet *proto_recv(struct proto *p, uint8_t proto);
 
+#if 0
+} /* stupid trick to balance out below */
+#endif
 #ifdef __cplusplus
 }
 #endif

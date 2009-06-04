@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Flaming Lotus Girls
+ * Copyright 2009 Erik Gilling
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

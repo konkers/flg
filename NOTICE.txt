@@ -1,4 +1,4 @@
-Copyright 2009 Flaming Lotus Girls
+Copyright 2009 Erik Gilling
 
 See also the file LICENSE.txt
 
