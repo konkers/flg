@@ -3,13 +3,11 @@ ifeq ("${FLG_DIR}","")
 FLG_DIR = ${shell pwd}
 endif
 
-OPT = -g -O2
-CFLAGS += ${OPT} -Wall -Werror -I${FLG_DIR}/lib/c/include
-CXXFLAGS += ${CFLAGS} -I${FLG_DIR}/lib/cxx/include
-LIBS += -lflg
-LIBSXX += -lflgxx ${LIBS} 
-LDFLAGS += -L${FLG_DIR}/lib/c
-LDXXFLAGS += ${LDFLAGS} -L${FLG_DIR}/lib/cxx
+ifeq ("${CROSS}","avr")
+include ${FLG_DIR}/rules-avr.mk
+else
+include ${FLG_DIR}/rules-host.mk
+endif
 
 LINK = ${CC} ${LDFLAGS} -o $@ $^ ${LIBS}
 LINKXX = ${CXX} ${LDXXFLAGS} -o $@ $^ ${LIBSXX}
