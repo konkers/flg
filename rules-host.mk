@@ -5,3 +5,4 @@ LIBS += -lflg
 LIBSXX += -lflgxx ${LIBS} 
 LDFLAGS += -L${FLG_DIR}/lib/c
 LDXXFLAGS += ${LDFLAGS} -L${FLG_DIR}/lib/cxx
+RANLIB = ranlib

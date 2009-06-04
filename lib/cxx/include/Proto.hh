@@ -22,17 +22,30 @@
 #include <proto.h>
 
 #include <Link.hh>
+#include <ProtoHandler.hh>
 
 class Proto {
 private:
 	struct proto p;
 	Link *link;
-
-public:
-	Proto(Link *link, uint8_t addr);
+	ProtoHandler *protoHandler;
+	struct proto_handlers handlers;
 
 	bool sendMsg(uint8_t addr, uint8_t cmd, uint8_t val);
-	int waitForMsg(struct proto_packet *p, int timeout);
+
+public:
+	Proto(Link *link, ProtoHandler *protoHander,
+	     struct proto_widget *widgets, int n_widgets,
+	     uint8_t addr);
+
+	void handleLight(uint8_t idx, uint8_t val);
+
+	bool setRelay(uint8_t addr, uint8_t relay);
+	bool clearRelay(uint8_t addr, uint8_t relay);
+	bool setLight(uint8_t addr, int light, uint8_t cal);
+
+	int waitForMsg(int timeout);
+	void ping(void);
 };
 
 

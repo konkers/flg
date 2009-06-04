@@ -9,9 +9,12 @@
 int main(int argc, char *argv[])
 {
 	UdpLink link(8051, "localhost", 6502);
-	Proto p(&link, 1);
+	Proto p(&link, NULL, NULL, 0, 1);
 
-	p.sendMsg(0, 0xca, 0xfe);
+	p.setRelay(0, 0x5a);
+	p.setLight(0, 0, 0xde);
+	p.setLight(0, 1, 0xad);
+	p.setLight(0, 2, 0x5a);
 
 	return 0;
 }

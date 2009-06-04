@@ -12,4 +12,8 @@ waiter: ${WAITER_OBJS}
 sender: ${SENDER_OBJS}
 	${LINKXX}
 
+waiter: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a
+sender: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a
+
+
 include ${FLG_DIR}/rules.mk

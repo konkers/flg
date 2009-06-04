@@ -1,13 +1,11 @@
 CROSS=avr
 CROSS_CPU=atmega8
 
-
-OBJS=main.o ${LIBAVR_OBJS} ${LIBFLG_OBJS}
+OBJS=main.o
 
 TARGETS=relay8-old.elf relay8-old.bin
 
-
-all: ${TARGETS}
+all: libflg.a libavr.a ${TARGETS}
 
 include ${FLG_DIR}/rules.mk
 

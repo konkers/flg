@@ -42,8 +42,8 @@ struct proto_widget {
 } __attribute__((packed));
 
 struct proto_handlers {
-	void (* relay)(uint8_t idx, uint8_t state);
-	void (* light)(uint8_t idx, uint8_t val);
+	void (* relay)(void *data, uint8_t idx, uint8_t state);
+	void (* light)(void *data, uint8_t idx, uint8_t val);
 };
 
 enum proto_cmd {
@@ -90,6 +90,7 @@ enum proto_state {
 };
 
 struct proto {
+	void			*handler_data;
 	struct proto_handlers	*handlers;
 	struct proto_widget	*widgets;
 	uint8_t			n_widgets;

@@ -44,10 +44,10 @@ static void proto_set_relay(struct proto *p, uint8_t mask)
 	for (i = 0; i < p->n_widgets; i++) {
 		struct proto_widget *w = &p->widgets[i];
 
-		if (w->type == PROTO_WIDGET_RELAY && (_BV(w->idx) & mask)) {
+		if (w->type == PROTO_WIDGET_RELAY && ((1 << w->idx) & mask)) {
 			w->counter = w->timeout;
 			if (p->handlers->relay)
-				p->handlers->relay(w->idx,1);
+				p->handlers->relay(p->handler_data, w->idx,1);
 		}
 	}
 }
@@ -59,10 +59,10 @@ static void proto_clear_relay(struct proto *p, uint8_t mask)
 	for (i = 0; i < p->n_widgets; i++) {
 		struct proto_widget *w = &p->widgets[i];
 
-		if (w->type == PROTO_WIDGET_RELAY && (_BV(w->idx) & mask)) {
+		if (w->type == PROTO_WIDGET_RELAY && ((1 << w->idx) & mask)) {
 			w->counter = 0;
 			if (p->handlers->relay)
-				p->handlers->relay(w->idx,0);
+				p->handlers->relay(p->handler_data, w->idx,0);
 		}
 	}
 }
@@ -76,7 +76,7 @@ static void proto_set_light(struct proto *p, uint8_t idx, uint8_t val)
 
 		if (w->type == PROTO_WIDGET_LIGHT && (w->idx == idx)) {
 			if( p->handlers->light )
-				p->handlers->light(idx, val);
+				p->handlers->light(p->handler_data, idx, val);
 		}
 	}
 }
@@ -148,7 +148,7 @@ void proto_ping(struct proto *p)
 		if (w->type == PROTO_WIDGET_RELAY && w->counter > 0) {
 			w->counter--;
 			if (w->counter == 0 && p->handlers->relay) {
-				p->handlers->relay(w->idx, 0);
+				p->handlers->relay(p->handler_data, w->idx, 0);
 			}
 		}
 	}

@@ -1,13 +1,14 @@
 CROSS=avr
 CROSS_CPU=atmega88
 
-OBJS=main.o libavr-uart.o
+OBJS=main.o
 
-TARGET=relay1.elf
+TARGETS=relay1.elf relay1.bin
 
-all: ${TARGET}
-
-${TARGET}: ${OBJS}
-	${LINK}
+all: libflg.a libavr.a ${TARGETS}
 
 include ${FLG_DIR}/rules.mk
+
+#must be after include for LIBAVR_OBJS and LIBFLG_OBJS to work
+relay1.elf: ${OBJS}
+	${LINK}

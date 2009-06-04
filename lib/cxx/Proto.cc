@@ -19,9 +19,37 @@
 
 #include <Proto.hh>
 
-Proto::Proto(Link *link, uint8_t addr)
+extern "C" void handle_relay(void *data, uint8_t idx, uint8_t state)
+{
+	ProtoHandler *p = (ProtoHandler *)data;
+
+	if (p)
+		p->relay(idx, state);
+
+}
+
+extern "C" void handle_light(void *data, uint8_t idx, uint8_t val)
+{
+	ProtoHandler *p = (ProtoHandler *)data;
+
+	if (p)
+		p->light(idx, val);
+}
+
+Proto::Proto(Link *link, ProtoHandler *ph,
+	     struct proto_widget *widgets, int n_widgets,
+	     uint8_t addr)
 {
 	this->link = link;
+
+	handlers.relay = handle_relay;
+	handlers.light = handle_light;
+
+	p.handlers = &handlers;
+	p.handler_data = ph;
+	p.widgets = widgets;
+	p.n_widgets = n_widgets;
+
 	proto_init(&p, addr);
 }
 
@@ -36,38 +64,49 @@ bool Proto::sendMsg(uint8_t addr, uint8_t cmd, uint8_t val)
 	return link->send(&pkt, sizeof(pkt));
 }
 
-int Proto::waitForMsg(struct proto_packet *pkt, int timeout)
+bool Proto::setRelay(uint8_t addr, uint8_t relay)
+{
+	return sendMsg(addr, PROTO_CMD_RELAY_SET, relay);
+}
+
+bool Proto::clearRelay(uint8_t addr, uint8_t relay)
+{
+	return sendMsg(addr, PROTO_CMD_RELAY_CLEAR, relay);
+}
+
+bool Proto::setLight(uint8_t addr, int light, uint8_t val)
+{
+	if (light < 0 || light > 0xf)
+		return false;
+
+	return sendMsg(addr, PROTO_CMD_LIGHT0_SET + light, val);
+}
+
+
+int Proto::waitForMsg(int timeout)
 {
 	int len;
 	int err;
 	uint8_t data[32];
 	uint8_t *dp = data;
-	struct proto_packet *ret_pkt;
 
-	err = link->wait(1000);
+	err = link->wait(timeout);
 	if (err <= 0) {
 		return err;
 	}
 
 	len = 32;
 	if (link->recv(data,&len)) {
-		while (len--) {
-			ret_pkt = proto_recv(&p, *dp++);
-			if (ret_pkt) {
-				memcpy(pkt, ret_pkt, sizeof(*pkt));
-				if (len)
-					printf("warning: dropping %d bytes of data\n",
-					       len);
-				return err;
-			}
-		}
-		return -1;
+		while (len--)
+			proto_recv(&p, *dp++);
 	} else {
 		return -1;
 	}
+
+	return timeout;
 }
 
-
-
-
-
+void Proto::ping()
+{
+	proto_ping(&p);
+}

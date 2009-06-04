@@ -7,6 +7,8 @@ CC=avr-gcc
 OBJCOPY=avr-objcopy
 OBJDUMP=avr-objdump
 SIZE=avr-size
+AR=avr-ar
+RANLIB=avr-ranlib
 
 OPT=-O2 -g
 
@@ -14,10 +16,12 @@ CFLAGS=-mmcu=${CROSS_CPU} ${OPT} -Wall -Werror \
 	-I${FLG_DIR}/lib/c/include \
 	-I${FLG_DIR}/avr/lib/include
 
-LDFLAGS=-mmcu=${CROSS_CPU} 
+LDFLAGS=-mmcu=${CROSS_CPU} -L.
 
 LIBFLG_OBJS = libflg-proto.o libflg-crc8.o
 LIBAVR_OBJS = libavr-uart.o
+
+LIBS=-lflg -lavr
 
 libavr-%.o: ${FLG_DIR}/avr/lib/%.c
 	${CC} -c ${CFLAGS} -o $@ $^
@@ -25,8 +29,18 @@ libavr-%.o: ${FLG_DIR}/avr/lib/%.c
 libflg-%.o: ${FLG_DIR}/lib/c/%.c
 	${CC} -c ${CFLAGS} -o $@ $^
 
+libflg.a: ${LIBFLG_OBJS}
+	${MKLIB}
+
+libavr.a: ${LIBAVR_OBJS}
+	${MKLIB}
+
 %.bin: %.elf
 	${OBJCOPY} -O binary $^ $@
 
 %.lst: %.elf
 	${OBJDUMP} --disassemble-all --source $^ > $@
+
+clean-host:
+	rm -f ${LIBFLG_OBJS} ${LIBAVR_OBJS} libflg.a libavr.a
+

@@ -43,7 +43,7 @@ struct relay_cfg relays[] = {
 	{&PORTB, RELAY7},
 };
 
-void handle_relay(uint8_t idx, uint8_t state)
+void handle_relay(void *data, uint8_t idx, uint8_t state)
 {
 	if (state)
 		*relays[idx].port |= _BV(relays[idx].pin);
