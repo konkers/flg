@@ -24,13 +24,51 @@ extern "C" {
 } /* stupid trick to balance out above */
 #endif
 
+#include <stdint.h>
+
 #define PROTO_SOF	0x53
 #define PROTO_EOF	0x45
 
+enum proto_widget_type {
+	PROTO_WIDGET_RELAY,
+	PROTO_WIDGET_LIGHT,
+};
+
+struct proto_widget {
+	uint8_t	type;
+	uint8_t	idx;
+	uint8_t	timeout;
+	uint8_t	counter;
+} __attribute__((packed));
+
+struct proto_handlers {
+	void (* relay)(uint8_t idx, uint8_t state);
+	void (* light)(uint8_t idx, uint8_t val);
+};
+
 enum proto_cmd {
-	PROTO_CMD_SET =		0x00,
-	PROTO_CMD_CLEAR =	0x01,
-	PROTO_CMD_SWITCH =	0x80,
+	PROTO_CMD_RELAY_SET =		0x00,
+	PROTO_CMD_RELAY_CLEAR =		0x01,
+
+	PROTO_CMD_LIGHT0_SET =		0x20,
+	PROTO_CMD_LIGHT1_SET =		0x21,
+	PROTO_CMD_LIGHT2_SET =		0x22,
+	PROTO_CMD_LIGHT3_SET =		0x23,
+	PROTO_CMD_LIGHT4_SET =		0x24,
+	PROTO_CMD_LIGHT5_SET =		0x25,
+	PROTO_CMD_LIGHT6_SET =		0x26,
+	PROTO_CMD_LIGHT7_SET =		0x27,
+	PROTO_CMD_LIGHT8_SET =		0x28,
+	PROTO_CMD_LIGHT9_SET =		0x29,
+	PROTO_CMD_LIGHTA_SET =		0x2a,
+	PROTO_CMD_LIGHTB_SET =		0x2b,
+	PROTO_CMD_LIGHTC_SET =		0x2c,
+	PROTO_CMD_LIGHTD_SET =		0x2d,
+	PROTO_CMD_LIGHTE_SET =		0x2e,
+	PROTO_CMD_LIGHTF_SET =		0x2f,
+
+	PROTO_CMD_SWITCH_SET =		0x80,
+	PROTO_CMD_SWITCH_CLEAR =	0x80,
 };
 
 struct proto_packet {
@@ -52,6 +90,10 @@ enum proto_state {
 };
 
 struct proto {
+	struct proto_handlers	*handlers;
+	struct proto_widget	*widgets;
+	uint8_t			n_widgets;
+
 	struct proto_packet	packet;
 	enum proto_state	state;
 	uint8_t addr;
@@ -62,7 +104,8 @@ struct proto {
 
 void proto_init(struct proto *p, uint8_t addr);
 void proto_packet_seal(struct proto_packet *packet);
-struct proto_packet *proto_recv(struct proto *p, uint8_t proto);
+void proto_recv(struct proto *p, uint8_t proto);
+void proto_ping(struct proto *p);
 
 #if 0
 } /* stupid trick to balance out below */

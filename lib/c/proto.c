@@ -37,11 +37,66 @@ void proto_packet_seal(struct proto_packet *packet)
 	packet->eof = PROTO_EOF;
 }
 
-
-struct proto_packet *proto_recv(struct proto *p, uint8_t data)
+static void proto_set_relay(struct proto *p, uint8_t mask)
 {
-	struct proto_packet *ret = NULL;
+	uint8_t i;
 
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+
+		if (w->type == PROTO_WIDGET_RELAY && (_BV(w->idx) & mask)) {
+			w->counter = w->timeout;
+			if (p->handlers->relay)
+				p->handlers->relay(w->idx,1);
+		}
+	}
+}
+
+static void proto_clear_relay(struct proto *p, uint8_t mask)
+{
+	uint8_t i;
+
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+
+		if (w->type == PROTO_WIDGET_RELAY && (_BV(w->idx) & mask)) {
+			w->counter = 0;
+			if (p->handlers->relay)
+				p->handlers->relay(w->idx,0);
+		}
+	}
+}
+
+static void proto_set_light(struct proto *p, uint8_t idx, uint8_t val)
+{
+	uint8_t i;
+
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+
+		if (w->type == PROTO_WIDGET_LIGHT && (w->idx == idx)) {
+			if( p->handlers->light )
+				p->handlers->light(idx, val);
+		}
+	}
+}
+
+static void proto_handle_packet(struct proto *p)
+{
+	struct proto_packet *pkt = &p->packet;
+
+	if (pkt->cmd == PROTO_CMD_RELAY_SET)
+		proto_set_relay(p,pkt->val);
+	else if (pkt->cmd == PROTO_CMD_RELAY_CLEAR)
+		proto_clear_relay(p,pkt->val);
+	else if (pkt->cmd >= PROTO_CMD_LIGHT0_SET &&
+		 pkt->cmd <= PROTO_CMD_LIGHTF_SET)
+		proto_set_light(p, pkt->cmd - PROTO_CMD_LIGHT0_SET, pkt->val);
+}
+
+
+void proto_recv(struct proto *p, uint8_t data)
+{
 	switch (p->state) {
 	case PROTO_STATE_IDLE:
 		if (data == PROTO_SOF) {
@@ -75,13 +130,27 @@ struct proto_packet *proto_recv(struct proto *p, uint8_t data)
 		break;
 
 	case PROTO_STATE_EOF:
-		if (data == PROTO_EOF && p->crc == p->packet.crc) {
-			ret = &p->packet;
-		}
+		if (data == PROTO_EOF && p->crc == p->packet.crc)
+			proto_handle_packet(p);
+
 		p->state = PROTO_STATE_IDLE;
 		break;
 	}
+}
 
-	return ret;
+void proto_ping(struct proto *p)
+{
+	uint8_t i;
+
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+
+		if (w->type == PROTO_WIDGET_RELAY && w->counter > 0) {
+			w->counter--;
+			if (w->counter == 0 && p->handlers->relay) {
+				p->handlers->relay(w->idx, 0);
+			}
+		}
+	}
 }
 

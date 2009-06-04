@@ -16,10 +16,13 @@ CFLAGS=-mmcu=${CROSS_CPU} ${OPT} -Wall -Werror \
 
 LDFLAGS=-mmcu=${CROSS_CPU} 
 
+LIBFLG_OBJS = libflg-proto.o libflg-crc8.o
+LIBAVR_OBJS = libavr-uart.o
+
 libavr-%.o: ${FLG_DIR}/avr/lib/%.c
 	${CC} -c ${CFLAGS} -o $@ $^
 
-libflg-%.o: ${FLG_DIR}/c/lib/%.c
+libflg-%.o: ${FLG_DIR}/lib/c/%.c
 	${CC} -c ${CFLAGS} -o $@ $^
 
 %.bin: %.elf

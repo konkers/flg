@@ -21,6 +21,7 @@
 #define __crc8_h__
 
 #ifdef AVR
+#include <avr/pgmspace.h>
 typedef prog_uint8_t crc8_table_t;
 #else
 typedef const uint8_t crc8_table_t;
