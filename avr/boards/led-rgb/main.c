@@ -36,9 +36,9 @@ void handle_led(void *data, uint8_t idx, uint8_t val)
 
 
 struct proto_widget widgets[] = {
-	{ .type = PROTO_WIDGET_LIGHT, .idx = 0 },
-	{ .type = PROTO_WIDGET_LIGHT, .idx = 1 },
-	{ .type = PROTO_WIDGET_LIGHT, .idx = 2 },
+	PROTO_WIDGET_LIGHT(0),
+	PROTO_WIDGET_LIGHT(1),
+	PROTO_WIDGET_LIGHT(2),
 };
 
 struct proto_handlers handlers = {
@@ -89,12 +89,12 @@ ISR( TIMER2_COMPA_vect )
 	else
 		port &= ~_BV(B_LED_G);
 
-	PORTB = port;
-
 	if (led_val[2] & bam_mask)
 		PORTD |= _BV(D_LED_B);
 	else
 		PORTD &= ~_BV(D_LED_B);
+
+	PORTB = port;
 }
 
 int main( void )

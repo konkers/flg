@@ -37,6 +37,15 @@ void proto_packet_seal(struct proto_packet *packet)
 	packet->eof = PROTO_EOF;
 }
 
+static void proto_packet_send(struct proto *p)
+{
+	proto_packet_seal(&p->packet);
+	if (p->handlers->send)
+		p->handlers->send(p->handler_data, (uint8_t *)&p->packet,
+				  sizeof(p->packet));
+}
+
+
 static void proto_set_relay(struct proto *p, uint8_t mask)
 {
 	uint8_t i;
@@ -44,8 +53,8 @@ static void proto_set_relay(struct proto *p, uint8_t mask)
 	for (i = 0; i < p->n_widgets; i++) {
 		struct proto_widget *w = &p->widgets[i];
 
-		if (w->type == PROTO_WIDGET_RELAY && ((1 << w->idx) & mask)) {
-			w->counter = w->timeout;
+		if (w->type == PROTO_WIDGET_TYPE_RELAY && ((1 << w->idx) & mask)) {
+			w->relay.counter = w->relay.timeout;
 			if (p->handlers->relay)
 				p->handlers->relay(p->handler_data, w->idx,1);
 		}
@@ -59,8 +68,8 @@ static void proto_clear_relay(struct proto *p, uint8_t mask)
 	for (i = 0; i < p->n_widgets; i++) {
 		struct proto_widget *w = &p->widgets[i];
 
-		if (w->type == PROTO_WIDGET_RELAY && ((1 << w->idx) & mask)) {
-			w->counter = 0;
+		if (w->type == PROTO_WIDGET_TYPE_RELAY && ((1 << w->idx) & mask)) {
+			w->relay.counter = 0;
 			if (p->handlers->relay)
 				p->handlers->relay(p->handler_data, w->idx,0);
 		}
@@ -74,9 +83,25 @@ static void proto_set_light(struct proto *p, uint8_t idx, uint8_t val)
 	for (i = 0; i < p->n_widgets; i++) {
 		struct proto_widget *w = &p->widgets[i];
 
-		if (w->type == PROTO_WIDGET_LIGHT && (w->idx == idx)) {
+		if (w->type == PROTO_WIDGET_TYPE_LIGHT && (w->idx == idx)) {
 			if( p->handlers->light )
 				p->handlers->light(p->handler_data, idx, val);
+		}
+	}
+}
+
+static void proto_query_switch(struct proto *p, uint8_t idx)
+{
+	uint8_t i;
+
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+		if (w->type == PROTO_WIDGET_TYPE_SWITCH && (w->idx == idx)) {
+			struct proto_packet *pkt = &p->packet;
+			pkt->addr = 0;
+			pkt->cmd = PROTO_CMD_SWITCH_QUERY;
+			pkt->val = w->sw.state;
+			proto_packet_send(p);
 		}
 	}
 }
@@ -92,6 +117,8 @@ static void proto_handle_packet(struct proto *p)
 	else if (pkt->cmd >= PROTO_CMD_LIGHT0_SET &&
 		 pkt->cmd <= PROTO_CMD_LIGHTF_SET)
 		proto_set_light(p, pkt->cmd - PROTO_CMD_LIGHT0_SET, pkt->val);
+	else if (pkt->cmd == PROTO_CMD_SWITCH_QUERY)
+		proto_query_switch(p, pkt->val);
 }
 
 
@@ -145,9 +172,9 @@ void proto_ping(struct proto *p)
 	for (i = 0; i < p->n_widgets; i++) {
 		struct proto_widget *w = &p->widgets[i];
 
-		if (w->type == PROTO_WIDGET_RELAY && w->counter > 0) {
-			w->counter--;
-			if (w->counter == 0 && p->handlers->relay) {
+		if (w->type == PROTO_WIDGET_TYPE_RELAY && w->relay.counter > 0) {
+			w->relay.counter--;
+			if (w->relay.counter == 0 && p->handlers->relay) {
 				p->handlers->relay(p->handler_data, w->idx, 0);
 			}
 		}

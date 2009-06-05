@@ -53,14 +53,14 @@ void handle_relay(void *data, uint8_t idx, uint8_t state)
 
 
 struct proto_widget widgets[] = {
-	{ .type = PROTO_WIDGET_RELAY, .idx = 0, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 1, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 2, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 3, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 4, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 5, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 6, .timeout = 10 },
-	{ .type = PROTO_WIDGET_RELAY, .idx = 7, .timeout = 10 },
+	PROTO_WIDGET_RELAY(0,10),
+	PROTO_WIDGET_RELAY(1,10),
+	PROTO_WIDGET_RELAY(2,10),
+	PROTO_WIDGET_RELAY(3,10),
+	PROTO_WIDGET_RELAY(4,10),
+	PROTO_WIDGET_RELAY(5,10),
+	PROTO_WIDGET_RELAY(6,10),
+	PROTO_WIDGET_RELAY(7,10),
 };
 
 struct proto_handlers handlers = {

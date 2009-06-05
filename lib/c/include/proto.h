@@ -30,20 +30,43 @@ extern "C" {
 #define PROTO_EOF	0x45
 
 enum proto_widget_type {
-	PROTO_WIDGET_RELAY,
-	PROTO_WIDGET_LIGHT,
+	PROTO_WIDGET_TYPE_RELAY,
+	PROTO_WIDGET_TYPE_LIGHT,
+	PROTO_WIDGET_TYPE_SWITCH,
 };
 
 struct proto_widget {
 	uint8_t	type;
 	uint8_t	idx;
-	uint8_t	timeout;
-	uint8_t	counter;
+	union {
+		struct {
+			uint8_t	timeout;
+			uint8_t	counter;
+		} relay;
+		struct {
+			uint8_t	state;
+		} sw;
+	};
 } __attribute__((packed));
+
+/*
+ * these do no used named element initializaion as to make them
+ * compatible with C++.  Care must be taken to align them with
+ * the struct above
+ */
+#define PROTO_WIDGET_RELAY(idx, timeout) \
+	{ PROTO_WIDGET_TYPE_RELAY, (idx), {{(timeout), 0}} }
+#define PROTO_WIDGET_LIGHT(idx)	\
+	{ PROTO_WIDGET_TYPE_LIGHT, (idx) }
+#define PROTO_WIDGET_SWITCH(idx)	\
+	{ PROTO_WIDGET_TYPE_SWITCH, (idx), {{0}} }
+
 
 struct proto_handlers {
 	void (* relay)(void *data, uint8_t idx, uint8_t state);
 	void (* light)(void *data, uint8_t idx, uint8_t val);
+
+	void (* send)(void *data, uint8_t *pkt_data, int len);
 };
 
 enum proto_cmd {
@@ -67,8 +90,7 @@ enum proto_cmd {
 	PROTO_CMD_LIGHTE_SET =		0x2e,
 	PROTO_CMD_LIGHTF_SET =		0x2f,
 
-	PROTO_CMD_SWITCH_SET =		0x80,
-	PROTO_CMD_SWITCH_CLEAR =	0x80,
+	PROTO_CMD_SWITCH_QUERY=		0x30,
 };
 
 struct proto_packet {
@@ -101,12 +123,20 @@ struct proto {
 	uint8_t crc;
 };
 
-
-
 void proto_init(struct proto *p, uint8_t addr);
 void proto_packet_seal(struct proto_packet *packet);
 void proto_recv(struct proto *p, uint8_t proto);
 void proto_ping(struct proto *p);
+
+static inline void proto_switch_set(struct proto_widget *w, int sw)
+{
+	w->sw.state |= 1 << (sw & 0x7);
+}
+
+static inline void proto_clear_switch(struct proto_widget *w, int sw)
+{
+	w->sw.state &= ~(1 << (sw & 0x7));
+}
 
 #if 0
 } /* stupid trick to balance out below */
