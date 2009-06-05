@@ -93,7 +93,7 @@ int main( void )
 	cli();
 
 	DDRB = _BV(DATALED) | _BV(RELAY6) | _BV(RELAY7);
-	PORTB = 0;
+	PORTB = _BV(SWITCH6) | _BV(SWITCH7) | _BV(SWITCH8);
 
 	DDRC = _BV(RELAY0) | _BV(RELAY1) |
 		_BV(RELAY2) | _BV(RELAY3) |
@@ -118,6 +118,7 @@ int main( void )
 	OCR2 = 72;
 
 	addr = (~(PIND >> SWITCH_SHIFT)) & SWITCH_MASK;
+	addr |= (~PINB << 2) & 0xe;
 
 	uart_init(uart_baud(FOSC, 115200));
 	proto_init(&p, addr);
