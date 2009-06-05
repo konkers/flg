@@ -1,4 +1,4 @@
-DIRS = relay1 relay8-old
+DIRS = relay1 relay8-old led-rgb
 
 all: dirs
 
