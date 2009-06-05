@@ -23,11 +23,13 @@ LIBAVR_OBJS = libavr-uart.o
 
 LIBS=-lflg -lavr
 
-libavr-%.o: ${FLG_DIR}/avr/lib/%.c
-	${CC} -c ${CFLAGS} -o $@ $^
+libavr-%.o: ${FLG_DIR}/avr/lib/%.c dirname
+	@echo "  CC     " `basename $<`
+	@${CC} -c ${CFLAGS} -o $@ $<
 
-libflg-%.o: ${FLG_DIR}/lib/c/%.c
-	${CC} -c ${CFLAGS} -o $@ $^
+libflg-%.o: ${FLG_DIR}/lib/c/%.c dirname
+	@echo "  CC     " `basename $<`
+	@${CC} -c ${CFLAGS} -o $@ $<
 
 libflg.a: ${LIBFLG_OBJS}
 	${MKLIB}
@@ -36,11 +38,11 @@ libavr.a: ${LIBAVR_OBJS}
 	${MKLIB}
 
 %.bin: %.elf
-	${OBJCOPY} -O binary $^ $@
+	@echo "  OBJCPY " $@; ${OBJCOPY} -O binary $^ $@
 
 %.lst: %.elf
 	${OBJDUMP} --disassemble-all --source $^ > $@
 
 clean-host:
-	rm -f ${LIBFLG_OBJS} ${LIBAVR_OBJS} libflg.a libavr.a
+	@rm -f ${LIBFLG_OBJS} ${LIBAVR_OBJS} libflg.a libavr.a
 
