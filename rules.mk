@@ -1,10 +1,16 @@
 
 ifeq ("${FLG_DIR}","")
 FLG_DIR = ${shell pwd}
+else
+ifeq ("${SUBDIR}","")
+SUBDIR := "${shell basename $$PWD}"
+endif
 endif
 
 ifeq ("${SUBDIR}","")
-SUBDIR := "${shell basename $$PWD}"
+NEWSUBDIR=""
+else
+NEWSUBDIR="${SUBDIR}/"
 endif
 
 ifeq ("${CROSS}","avr")
@@ -18,7 +24,7 @@ LINKXX = @echo "  LINK++ " $@; ${CXX} ${LDXXFLAGS} -o $@ $^ ${LIBSXX}
 
 MKLIB=@echo "  MKLIB  " $@; rm -f $@; ${AR} -cr $@ $^; ${RANLIB} $@; echo
 
-.PHONY: dirs clean clean-here clean-host dirname
+.PHONY: dirs clean clean-here clean-host dirname sizes sizes-here
 
 dirname:
 ifeq ("${DIRPRINTED}","")
@@ -37,12 +43,23 @@ endif
 
 dirs:
 	@for dir in ${DIRS}; do \
-		make FLG_DIR=${FLG_DIR} SUBDIR="${SUBDIR}/$$dir" -C $$dir all || exit 1;\
+		make FLG_DIR=${FLG_DIR} SUBDIR="${NEWSUBDIR}$$dir" -C $$dir all || exit 1;\
 	done
 
 clean: clean-here clean-host
 	@echo "CLEAN  ${SUBDIR}"
 	@rm -f ${OBJS} ${TARGETS}
 	@for dir in ${DIRS}; do \
-		make FLG_DIR=${FLG_DIR} SUBDIR="${SUBDIR}/$$dir" -C $$dir clean || exit 1;\
+		make FLG_DIR=${FLG_DIR} SUBDIR="${NEWSUBDIR}$$dir" -C $$dir clean || exit 1;\
+	done
+
+sizes: sizes-here
+	@for target in ${basename ${filter %.elf,${TARGETS}}}; do \
+		printf "%-15s %6d %6d\n" \
+			"$$target:" \
+			`${SIZE} $$target.elf | tail -1 | awk '{print $$1 + $$2}'` \
+			`${SIZE} $$target.elf | tail -1 | awk '{print $$2 + $$3}'`; \
+	done
+	@for dir in ${DIRS}; do \
+		make FLG_DIR=${FLG_DIR} SUBDIR="${NEWSUBDIR}$$dir" -C $$dir sizes || exit 1;\
 	done
