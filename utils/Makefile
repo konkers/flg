@@ -1,8 +1,9 @@
 WAITER_OBJS=waiter.o
 SENDER_OBJS=sender.o
-OBJS=${WAITER_OBJS} ${SENDER_OBJS}
+BRAIN_OBJS=brain.o
+OBJS=${WAITER_OBJS} ${SENDER_OBJS} ${BRAIN_OBJS}
 
-TARGETS=waiter sender
+TARGETS=waiter sender brain
 
 all: ${TARGETS}
 
@@ -12,8 +13,11 @@ waiter: ${WAITER_OBJS}
 sender: ${SENDER_OBJS}
 	${LINKXX}
 
-waiter: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a
-sender: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a
+brain: ${BRAIN_OBJS}
+	${LINKXX}
 
+waiter: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
+sender: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
+brain: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 
 include ${FLG_DIR}/rules.mk

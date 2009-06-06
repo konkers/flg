@@ -1,4 +1,4 @@
-OBJS=UdpLink.o Proto.o
+OBJS=UdpLink.o Proto.o Brain.o
 TARGETS=libflgxx.a
 
 all: ${TARGETS}
