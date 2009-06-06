@@ -1,4 +1,4 @@
-DIRS = c cxx
+DIRS = c cxx lua
 
 all: dirs
 
