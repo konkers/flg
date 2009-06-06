@@ -27,23 +27,23 @@ MKLIB=@echo "  MKLIB  " $@; rm -f $@; ${AR} -cr $@ $^; ${RANLIB} $@; echo
 .PHONY: dirs clean clean-here clean-host dirname sizes sizes-here
 
 dirname:
-ifeq ("${DIRPRINTED}","")
-	@echo 
-	@echo "${SUBDIR}:"
-	@DIRPRINTED=1
-endif
+	@if [ "${TARGETS}" != "" ]; then \
+		echo ;\
+		echo "${SUBDIR}:";\
+	fi
 
-%.o: %.c dirname
+%.o: %.c
 	@echo "  CC     " `basename $<`
 	@${CC} -c ${CFLAGS} -o $@ $<
 
-%.o: %.cc dirname
+%.o: %.cc
 	@echo "  C++    " `basename $<`
 	@${CXX} -c ${CXXFLAGS} -o $@ $<
 
 dirs:
+
 	@for dir in ${DIRS}; do \
-		make FLG_DIR=${FLG_DIR} SUBDIR="${NEWSUBDIR}$$dir" -C $$dir all || exit 1;\
+		make FLG_DIR=${FLG_DIR} SUBDIR="${NEWSUBDIR}$$dir" -C $$dir dirname all || exit 1;\
 	done
 
 clean: clean-here clean-host

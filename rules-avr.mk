@@ -23,11 +23,11 @@ LIBAVR_OBJS = libavr-uart.o
 
 LIBS=-lflg -lavr
 
-libavr-%.o: ${FLG_DIR}/avr/lib/%.c dirname
+libavr-%.o: ${FLG_DIR}/avr/lib/%.c
 	@echo "  CC     " `basename $<`
 	@${CC} -c ${CFLAGS} -o $@ $<
 
-libflg-%.o: ${FLG_DIR}/lib/c/%.c dirname
+libflg-%.o: ${FLG_DIR}/lib/c/%.c
 	@echo "  CC     " `basename $<`
 	@${CC} -c ${CFLAGS} -o $@ $<
 
