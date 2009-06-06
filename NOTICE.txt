@@ -9,3 +9,6 @@ accompanying products have an attribution requirement, so see below.
 Other accompanying products do not require attribution, so are not listed.
 
 ------------------------------------------------------------------------
+
+lib/lua: Copyright (C) 1994-2008 Lua.org, PUC-Rio.
+	see lib/lua/COPYRIGHT for licence
