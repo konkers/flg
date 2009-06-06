@@ -29,8 +29,14 @@ class Brain {
 private:
 	lua_State *l;
 	friend int brain_poof(lua_State *l);
+	friend int brain_led(lua_State *l);
+	friend int brain_sw(lua_State *l);
 
 	void poof(uint8_t addr, uint8_t relay, int duration);
+	void led(uint8_t addr, uint8_t red, uint8_t green, uint8_t blue);
+	int sw(uint8_t addr, uint8_t idx);
+
+	void registerFunction(lua_CFunction func, const char *name);
 
 public:
 	Brain();

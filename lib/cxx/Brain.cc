@@ -19,23 +19,65 @@
 int brain_poof(lua_State *l)
 {
 	Brain *b = (Brain *)lua_tointeger(l, lua_upvalueindex(1));
-	b->poof(lua_tointeger(l, 1),lua_tointeger(l, 2),lua_tointeger(l, 3));
+	b->poof(lua_tointeger(l, 1),
+		lua_tointeger(l, 2),
+		lua_tointeger(l, 3));
 	return 0;
 }
 
-void Brain::poof(uint8_t addr, uint8_t relay, int duration)
+int brain_led(lua_State *l)
 {
-	printf("poof(%02x, %d, %d)\n", addr, relay, duration);
+	Brain *b = (Brain *)lua_tointeger(l, lua_upvalueindex(1));
+	b->led(lua_tointeger(l, 1),
+	       lua_tointeger(l, 2),
+	       lua_tointeger(l, 3),
+	       lua_tointeger(l, 4));
+	return 0;
 }
 
+int brain_sw(lua_State *l)
+{
+	Brain *b = (Brain *)lua_tointeger(l, lua_upvalueindex(1));
+	lua_pushboolean(l, b->sw(lua_tointeger(l, 1),
+				 lua_tointeger(l, 2)));
+	return 1;
+}
+
+
+void Brain::poof(uint8_t addr, uint8_t relay, int duration)
+{
+	printf("poof(addr=%02x, relay=%d, duration=%d)\n", addr, relay, duration);
+}
+
+void Brain::led(uint8_t addr, uint8_t red, uint8_t green, uint8_t blue)
+{
+	printf("led(addr=%02x, red=%02x green=%02x, blue=%02x)\n",
+	       addr, red, green, blue);
+}
+
+int Brain::sw(uint8_t addr, uint8_t idx)
+{
+	printf("sw(addr=%02x, idx=%02x)\n", addr, idx);
+	return idx & 0x1;
+}
+
+
+void Brain::registerFunction(lua_CFunction func, const char *name)
+{
+	lua_pushinteger(l, (unsigned int)this);
+	lua_pushcclosure(l, func, 1);
+	lua_setglobal(l, name);
+}
 
 Brain::Brain()
 {
 	l = luaL_newstate();
 	luaL_openlibs(l);
-	lua_pushinteger(l, (unsigned int)this);
-	lua_pushcclosure(l, brain_poof, 1);
-	lua_setglobal(l, "poof");
+
+	registerFunction(brain_poof, "poof");
+	registerFunction(brain_led, "led");
+	registerFunction(brain_sw, "switch");
+
 	lua_settop(l, 0);
 }
 
