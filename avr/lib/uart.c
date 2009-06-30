@@ -21,6 +21,7 @@
 #include "uart.h"
 
 #ifdef UBRR0H
+#define NEW_UART
 #define UDR	UDR0
 #define UCSRA	UCSR0A
 #define UCSRB	UCSR0B
@@ -67,10 +68,14 @@ void uart_init(uint16_t ubrr)
 	UBRRL = (uint8_t)ubrr;
 
 	/* enable receiver, transmitter, and reciever interrupt */
-	UCSRB = _BV(RXEN)|_BV(TXEN)|_BV(RXCIE);
+	UCSRB = _BV(RXEN) | _BV(TXEN) | _BV(RXCIE);
 
 	/* Set frame format: 8data, 1stop bit */
-	UCSRC = _BV(USBS)|_BV(UCSZ0);
+#ifdef NEW_UART
+	UCSRC = _BV(UCSZ1) | _BV(UCSZ0);
+#else
+	UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0);
+#endif
 }
 
 
