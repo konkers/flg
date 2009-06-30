@@ -16,6 +16,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 
 #include <uart.h>
 #include <config.h>
@@ -46,6 +47,16 @@ void handle_relay(void *data, uint8_t idx, uint8_t state)
 		*relays[idx].port &= ~_BV(relays[idx].pin);
 }
 
+void set_addr(void *data, uint8_t addr)
+{
+	config.addr = addr;
+	config_write();
+	cli();
+	wdt_disable();
+	wdt_enable(WDTO_15MS);
+	while(1) {}
+}
+
 struct proto_widget widgets[] = {
 	PROTO_WIDGET_RELAY(0,10),
 	PROTO_WIDGET_RELAY(1,10),
@@ -70,6 +81,7 @@ ISR( USART_RX_vect )
 
 ISR( TIMER0_COMPA_vect )
 {
+	wdt_reset();
 	proto_ping(&p);
 	PORTD &= ~_BV(D_DATA_LED);
 }
@@ -101,6 +113,8 @@ int main( void )
 	proto_init(&p, config.addr);
 
 	sei();
+
+	wdt_enable(WDTO_1S);
 
 	while (1) {
 	}
