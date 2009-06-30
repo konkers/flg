@@ -3,7 +3,7 @@ CROSS_CPU=atmega88
 
 OBJS=main.o
 
-TARGET=switch8
+TARGET=input
 TARGETS=${TARGET}.elf ${TARGET}.bin
 
 all: libflg.a libavr.a ${TARGETS}

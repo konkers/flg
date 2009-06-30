@@ -16,8 +16,10 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 
 #include <uart.h>
+#include <config.h>
 
 #include <util.h>
 #include <proto.h>
@@ -59,13 +61,22 @@ void queue_pkt(void *data, uint8_t *pkt_data, int len)
 	UDR0 = *pkt_data;
 }
 
-
+void set_addr(void *data, uint8_t addr)
+{
+	config.addr = addr;
+	config_write();
+	cli();
+	wdt_disable();
+	wdt_enable(WDTO_15MS);
+	while(1) {}
+}
 
 struct proto_widget widgets[] = {
 	PROTO_WIDGET_SWITCH(0),
 };
 
 struct proto_handlers handlers = {
+	.set_addr = &set_addr,
 	.send = &queue_pkt,
 };
 
@@ -97,6 +108,7 @@ ISR( TIMER0_COMPA_vect )
 {
 	uint8_t sw;
 
+	wdt_reset();
 	proto_ping(&p);
 
 	for(sw = 0; sw < 8; sw++) {
@@ -110,20 +122,16 @@ ISR( TIMER0_COMPA_vect )
 
 int main( void )
 {
-	uint8_t addr;
-
 	cli();
 
 	DDRB = 0;
-	PORTB = _BV(B_SWITCH0) | _BV(B_SWITCH1) | _BV(B_SWITCH2) |
-		_BV(B_ADDR5) | _BV(B_ADDR6) | _BV(B_ADDR7);
+	PORTB = _BV(B_SWITCH0) | _BV(B_SWITCH1) | _BV(B_SWITCH2);
 
 	DDRC = 0;
-	PORTC = _BV(C_ADDR0) | _BV(C_ADDR1) | _BV(C_ADDR2) | _BV(C_ADDR3) |
-		_BV(C_SWITCH6) | _BV(C_SWITCH7);
+	PORTC = _BV(C_SWITCH6) | _BV(C_SWITCH7);
 
 	DDRD = _BV(D_TX_EN) | _BV(D_DATA_LED);
-	PORTD = _BV(D_ADDR4) | _BV(D_SWITCH3) | _BV(D_SWITCH4) | _BV(D_SWITCH5);
+	PORTD = _BV(D_SWITCH3) | _BV(D_SWITCH4) | _BV(D_SWITCH5);
 
 	/*
 	 * Fosc = 18432000
@@ -137,14 +145,13 @@ int main( void )
 	TIMSK2 = _BV(OCIE0A);
 	OCR0A = 180;
 
-	addr  = ~PINC & 0xf;
-	addr |= ~PIND & _BV(D_ADDR4);
-	addr |= (~PIND << 2) & 0xe0;
-
+	config_init();
 	uart_init(uart_baud(FOSC, 115200));
-	proto_init(&p, addr);
+	proto_init(&p, config.addr);
 
 	sei();
+
+	wdt_enable(WDTO_1S);
 
 	while (1) {
 	}

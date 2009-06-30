@@ -18,17 +18,17 @@
 #define B_SWITCH0	PB0
 #define B_SWITCH1	PB1
 #define B_SWITCH2	PB2
-#define B_ADDR5		PB3
-#define B_ADDR6		PB4
-#define B_ADDR7		PB5
+/* unused 		PB3 */
+/* unused 		PB4 */
+/* unused 		PB5 */
 #define B_XTAL1		PB6
 #define B_XTAL2		PB7
 
 /* Port C */
-#define C_ADDR0		PC0
-#define C_ADDR1		PC1
-#define C_ADDR2		PC2
-#define C_ADDR3		PC3
+/* unused 		PC0 */
+/* unused 		PC1 */
+/* unused 		PC2 */
+/* unused 		PC3 */
 #define C_SWITCH6	PC4
 #define C_SWITCH7	PC5
 #define C_RESET		PC6
@@ -38,7 +38,7 @@
 #define D_TXD		PD1
 #define D_TX_EN		PD2
 #define D_DATA_LED	PD3
-#define D_ADDR4		PD4
+/* unused 		PD4 */
 #define D_SWITCH3	PD5
 #define D_SWITCH4	PD6
 #define D_SWITCH5	PD7
