@@ -26,7 +26,7 @@
 
 #define FOSC 18432000UL
 
-uint8_t led_val[2];
+uint8_t led_val[3];
 uint8_t bam_mask;
 
 void handle_led(void *data, uint8_t idx, uint8_t val)
