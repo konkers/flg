@@ -1,9 +1,10 @@
 WAITER_OBJS=waiter.o
 SENDER_OBJS=sender.o
+SENDER485_OBJS=sender485.o
 BRAIN_OBJS=brain.o
 OBJS=${WAITER_OBJS} ${SENDER_OBJS} ${BRAIN_OBJS}
 
-TARGETS=waiter sender brain
+TARGETS=waiter sender sender485 brain
 
 all: ${TARGETS}
 
@@ -11,6 +12,9 @@ waiter: ${WAITER_OBJS}
 	${LINKXX}
 
 sender: ${SENDER_OBJS}
+	${LINKXX}
+
+sender485: ${SENDER485_OBJS}
 	${LINKXX}
 
 brain: ${BRAIN_OBJS}
