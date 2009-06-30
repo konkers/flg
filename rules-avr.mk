@@ -43,6 +43,22 @@ libavr.a: ${LIBAVR_OBJS}
 %.lst: %.elf
 	${OBJDUMP} --disassemble-all --source $^ > $@
 
+ifeq ("${CROSS_CPU}","atmega48")
+AVRDUDE_CPU=m48
+else ifeq ("${CROSS_CPU}","atmega88")
+AVRDUDE_CPU=m88
+else ifeq ("${CROSS_CPU}","atmega168")
+AVRDUDE_CPU=m168
+else ifeq ("${CROSS_CPU}","atmega8")
+AVRDUDE_CPU=m8
+FUSES=
+endif
+
+flash: flash-${basename ${firstword ${filter %.bin, ${TARGETS}}}}
+
+flash-%: %.bin
+	avrdude -p ${AVRDUDE_CPU} -c fg -e -U flash:w:$< ${FUSES}
+
 clean-host:
 	@rm -f ${LIBFLG_OBJS} ${LIBAVR_OBJS} libflg.a libavr.a
 

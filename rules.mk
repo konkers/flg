@@ -19,8 +19,8 @@ else
 include ${FLG_DIR}/rules-host.mk
 endif
 
-LINK =   @echo "  LINK   " $@; ${CC} ${LDFLAGS} -o $@ $^ ${LIBS}
-LINKXX = @echo "  LINK++ " $@; ${CXX} ${LDXXFLAGS} -o $@ $^ ${LIBSXX}
+LINK =   @echo "  LINK   " $@; ${CC} ${LDFLAGS} -o $@ ${filter-out %.a, $^} ${LIBS}
+LINKXX = @echo "  LINK++ " $@; ${CXX} ${LDXXFLAGS} -o $@ ${filter-out %.a, $^} ${LIBSXX}
 
 MKLIB=@echo "  MKLIB  " $@; rm -f $@; ${AR} -cr $@ $^; ${RANLIB} $@; echo
 
