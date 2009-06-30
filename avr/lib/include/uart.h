@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef __libavr_uart_h__
+#define __libavr_uart_h__
+
 #include <avr/pgmspace.h>
 
 static inline uint16_t uart_baud(uint32_t fosc, uint32_t baud)
@@ -29,3 +32,4 @@ void uart_printhex(uint8_t val);
 int uart_has_data(void);
 unsigned char uart_poll_getchar(void);
 
+#endif /* __libavr_uart_h__ */
