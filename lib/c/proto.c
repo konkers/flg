@@ -106,9 +106,20 @@ static void proto_query_switch(struct proto *p, uint8_t idx)
 	}
 }
 
+static void proto_set_addr(struct proto *p, uint8_t addr)
+{
+	if (p->handlers->set_addr)
+		p->handlers->set_addr(p->handler_data, addr);
+}
+
+
+
 static void proto_handle_packet(struct proto *p)
 {
 	struct proto_packet *pkt = &p->packet;
+
+	if (pkt->addr != 0 && pkt->addr != p->addr)
+		return;
 
 	if (pkt->cmd == PROTO_CMD_RELAY_SET)
 		proto_set_relay(p,pkt->val);
@@ -119,6 +130,8 @@ static void proto_handle_packet(struct proto *p)
 		proto_set_light(p, pkt->cmd - PROTO_CMD_LIGHT0_SET, pkt->val);
 	else if (pkt->cmd == PROTO_CMD_SWITCH_QUERY)
 		proto_query_switch(p, pkt->val);
+	else if (pkt->cmd == PROTO_CMD_SET_ADDR)
+		proto_set_addr(p, pkt->val);
 }
 
 
