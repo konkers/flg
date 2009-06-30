@@ -18,6 +18,7 @@
 #include <avr/interrupt.h>
 
 #include <uart.h>
+#include <config.h>
 
 #include <util.h>
 #include <proto.h>
@@ -35,11 +36,6 @@ struct relay_cfg relays[] = {
 	{&PORTB, B_RELAY0},
 	{&PORTB, B_RELAY1},
 	{&PORTB, B_RELAY2},
-	{&PORTD, D_RELAY3},
-	{&PORTD, D_RELAY4},
-	{&PORTD, D_RELAY5},
-	{&PORTC, C_RELAY6},
-	{&PORTC, C_RELAY7},
 };
 
 void handle_relay(void *data, uint8_t idx, uint8_t state)
@@ -54,11 +50,6 @@ struct proto_widget widgets[] = {
 	PROTO_WIDGET_RELAY(0,10),
 	PROTO_WIDGET_RELAY(1,10),
 	PROTO_WIDGET_RELAY(2,10),
-	PROTO_WIDGET_RELAY(3,10),
-	PROTO_WIDGET_RELAY(4,10),
-	PROTO_WIDGET_RELAY(5,10),
-	PROTO_WIDGET_RELAY(6,10),
-	PROTO_WIDGET_RELAY(7,10),
 };
 
 struct proto_handlers handlers = {
@@ -85,19 +76,13 @@ ISR( TIMER0_COMPA_vect )
 
 int main( void )
 {
-	uint8_t addr;
-
 	cli();
 
 	DDRB =  _BV(B_RELAY0) | _BV(B_RELAY1) | _BV(B_RELAY2);
-	PORTB = _BV(B_ADDR5) | _BV(B_ADDR6) | _BV(B_ADDR7);
 
-	DDRC = _BV(C_RELAY6) | _BV(C_RELAY7);
-	PORTC = _BV(C_ADDR0) | _BV(C_ADDR1) | _BV(C_ADDR2) | _BV(C_ADDR3);
+	DDRC = 0;
 
-	DDRD = _BV(D_TX_EN) | _BV(D_DATA_LED) |
-		_BV(D_RELAY3) | _BV(D_RELAY4) | _BV(D_RELAY5);
-	PORTD = _BV(D_ADDR4);
+	DDRD = _BV(D_TX_EN) | _BV(D_DATA_LED);
 
 	/*
 	 * Fosc = 18432000
@@ -111,12 +96,9 @@ int main( void )
 	TIMSK2 = _BV(OCIE0A);
 	OCR0A = 180;
 
-	addr  = ~PINC & 0xf;
-	addr |= ~PIND & _BV(D_ADDR4);
-	addr |= (~PIND << 2) & 0xe0;
-
+	config_init();
 	uart_init(uart_baud(FOSC, 115200));
-	proto_init(&p, addr);
+	proto_init(&p, config.addr);
 
 	sei();
 
