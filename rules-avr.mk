@@ -19,7 +19,7 @@ CFLAGS=-mmcu=${CROSS_CPU} ${OPT} -Wall -Werror \
 LDFLAGS=-mmcu=${CROSS_CPU} -L.
 
 LIBFLG_OBJS = libflg-proto.o libflg-crc8.o
-LIBAVR_OBJS = libavr-uart.o
+LIBAVR_OBJS = libavr-uart.o libavr-config.o
 
 LIBS=-lflg -lavr
 
