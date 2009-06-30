@@ -100,7 +100,7 @@ int main( void )
 		_BV(RELAY4) | _BV(RELAY5);
 	PORTC = 0;
 
-	DDRD = (1 << RS485TRANSMIT);
+	DDRD = _BV(RS485TRANSMIT);
 	/* enable pullups on switches */
 	PORTD = _BV(SWITCH1) |
 		_BV(SWITCH2) |
@@ -116,6 +116,7 @@ int main( void )
 	 */
 	TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
 	OCR2 = 72;
+	TIMSK |= _BV(OCIE2);
 
 	addr = (~(PIND >> SWITCH_SHIFT)) & SWITCH_MASK;
 	addr |= (~PINB << 2) & 0xe;
@@ -123,7 +124,7 @@ int main( void )
 	uart_init(uart_baud(FOSC, 115200));
 	proto_init(&p, addr);
 
-	sei();
+	sei();	
 
 	while (1) {
 	}
