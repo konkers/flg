@@ -18,18 +18,13 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
-#include <uart.h>
-#include <config.h>
-
 #include <util.h>
 #include <proto.h>
 
+#include <flgmain.h>
+
 #include "pins.h"
 
-#define FOSC 18432000UL
-
-uint8_t *pkt;
-uint8_t pkt_len;
 
 struct switch_cfg {
 	volatile uint8_t *pinx;
@@ -47,30 +42,6 @@ struct switch_cfg switches[] = {
 	{&PINC, C_SWITCH7},
 };
 
-void queue_pkt(void *data, uint8_t *pkt_data, int len)
-{
-	if (pkt_len > 0)
-		return;
-
-
-	pkt = pkt_data;
-	pkt_len = len;
-
-	UCSR0B |= _BV(UDRE0);
-
-	UDR0 = *pkt_data;
-}
-
-void set_addr(void *data, uint8_t addr)
-{
-	config.addr = addr;
-	config_write();
-	cli();
-	wdt_disable();
-	wdt_enable(WDTO_15MS);
-	while(1) {}
-}
-
 struct proto_widget widgets[] = {
 	PROTO_WIDGET_SWITCH(0),
 	PROTO_WIDGET_ADC(0),
@@ -78,40 +49,25 @@ struct proto_widget widgets[] = {
 };
 
 struct proto_handlers handlers = {
-	.set_addr = &set_addr,
-	.send = &queue_pkt,
+	.set_addr = &flg_set_addr,
+	.send = &flg_queue_pkt,
 };
 
 
-struct proto p = {
+struct proto flg_proto = {
 	.handlers = &handlers,
 	.widgets = widgets,
 	.n_widgets = ARRAY_SIZE(widgets),
 };
 
-ISR( USART_UDRE_vect )
+void flg_recv(uint8_t c)
 {
-	pkt++;
-	pkt_len--;
-	if (pkt_len > 0)
-		UDR0 = *pkt;
-	else
-		UCSR0B &= _BV(UDRE0);
-}
-
-
-ISR( USART_RX_vect )
-{
-	proto_recv(&p, UDR0);
 	PORTD |= _BV(D_DATA_LED);
 }
 
-ISR( TIMER0_COMPA_vect )
+void flg_ping(void)
 {
 	uint8_t sw;
-
-	wdt_reset();
-	proto_ping(&p);
 
 	for(sw = 0; sw < 8; sw++) {
 		if (*switches[sw].pinx & _BV(switches[sw].pin))
@@ -119,6 +75,7 @@ ISR( TIMER0_COMPA_vect )
 		else
 			proto_switch_set(&widgets[0], sw);
 	}
+
 	PORTD &= ~_BV(D_DATA_LED);
 }
 
@@ -132,10 +89,8 @@ uint16_t adc_sample(uint8_t ch)
 	return ADCL | (ADCH << 8);
 }
 
-int main( void )
+void flg_pin_setup()
 {
-	cli();
-
 	DDRB = 0;
 	PORTB = _BV(B_SWITCH0) | _BV(B_SWITCH1) | _BV(B_SWITCH2);
 
@@ -144,38 +99,19 @@ int main( void )
 
 	DDRD = _BV(D_TX_EN) | _BV(D_DATA_LED);
 	PORTD = _BV(D_SWITCH3) | _BV(D_SWITCH4) | _BV(D_SWITCH5);
+}
 
-	/*
-	 * Fosc = 18432000
-	 * Fping = 100 Hz
-	 *
-	 * Fosc / Fping / 1024 = 180;
-	 */
-	TCCR0A = _BV(CS22) | _BV(CS21) | _BV(CS20);
-	/* set TC into CTC mode */
-	TCCR0A = _BV(WGM01);
-	TIMSK2 = _BV(OCIE0A);
-	OCR0A = 180;
+void flg_work(void)
+{
+	uint16_t val;
 
-	config_init();
-	uart_init(uart_baud(FOSC, 115200));
-	proto_init(&p, config.addr);
-
+	val = adc_sample(0x6);
+	cli();
+	proto_adc_set(&widgets[1], val);
 	sei();
 
-	wdt_enable(WDTO_1S);
-
-	while (1) {
-		uint16_t val;
-
-		val = adc_sample(0x6);
-		cli();
-		proto_adc_set(&widgets[1], val);
-		sei();
-
-		val = adc_sample(0x7);
-		cli();
-		proto_adc_set(&widgets[2], val);
-		sei();
-	}
+	val = adc_sample(0x7);
+	cli();
+	proto_adc_set(&widgets[2], val);
+	sei();
 }
