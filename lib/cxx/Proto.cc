@@ -36,6 +36,14 @@ extern "C" void handle_light(void *data, uint8_t idx, uint8_t val)
 		p->light(idx, val);
 }
 
+extern "C" void handle_resp(void *data, struct proto_packet *pkt)
+{
+	ProtoHandler *p = (ProtoHandler *)data;
+
+	if (p)
+		p->resp(pkt);
+}
+
 Proto::Proto(Link *link, ProtoHandler *ph,
 	     struct proto_widget *widgets, int n_widgets,
 	     uint8_t addr)
@@ -44,6 +52,7 @@ Proto::Proto(Link *link, ProtoHandler *ph,
 
 	handlers.relay = handle_relay;
 	handlers.light = handle_light;
+	handlers.resp = handle_resp;
 
 	p.handlers = &handlers;
 	p.handler_data = ph;
@@ -87,6 +96,10 @@ bool Proto::setAddr(uint8_t addr, uint8_t newAddr)
 	return sendMsg(addr, PROTO_CMD_SET_ADDR, newAddr);
 }
 
+bool Proto::getStatus(uint8_t addr)
+{
+	return sendMsg(addr, PROTO_CMD_GET_STATUS, 0x0);
+}
 
 int Proto::waitForMsg(int timeout)
 {
@@ -99,7 +112,6 @@ int Proto::waitForMsg(int timeout)
 	if (err <= 0) {
 		return err;
 	}
-
 	len = 32;
 	if (link->recv(data,&len)) {
 		while (len--)

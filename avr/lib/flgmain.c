@@ -32,7 +32,7 @@
 
 static uint8_t *pkt;
 static uint8_t pkt_len;
-
+static uint8_t ignore;
 
 void flg_queue_pkt(void *data, uint8_t *pkt_data, int len)
 {
@@ -45,7 +45,6 @@ void flg_queue_pkt(void *data, uint8_t *pkt_data, int len)
 	flg_set_txen(1);
 
 	uart_enable_udre();
-	uart_write_dr(*pkt_data);
 }
 
 void flg_set_addr(void *data, uint8_t addr)
@@ -61,15 +60,29 @@ void flg_set_addr(void *data, uint8_t addr)
 
 ISR( USART_UDRE_vect )
 {
-	pkt++;
-	pkt_len--;
-	if (pkt_len > 0) {
-		uart_write_dr(*pkt);
-	} else {
-		flg_set_txen(0);
+	if (pkt_len-- > 0) {
+#ifdef RS458ECHO
+		ignore++;
+#endif
+		uart_write_dr(*pkt++);
+	}
+
+	if (pkt_len == 0) {
 		uart_disable_udre();
+		uart_enable_tx();
 	}
 }
+
+#ifdef NEW_UART
+ISR( USART_TX_vect )
+#else
+ISR( USART_TXC_vect )
+#endif
+{
+	uart_disable_tx();
+	flg_set_txen(0);
+}
+
 
 #ifdef NEW_UART
 ISR( USART_RX_vect )
@@ -78,8 +91,12 @@ ISR( USART_RXC_vect )
 #endif
 {
 	uint8_t c = uart_read_dr();
-	proto_recv(&flg_proto, c);
-	flg_recv(c);
+	if (ignore) {
+		ignore--;
+	} else {
+		proto_recv(&flg_proto, c);
+		flg_recv(c);
+	}
 }
 
 #ifdef TIMER0_COMPA_vect

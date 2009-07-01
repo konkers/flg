@@ -33,6 +33,9 @@ public:
 	virtual void light(uint8_t idx, uint8_t val) {
 		printf("light %d set to %02x\n", idx, val);
 	}
+
+	virtual void resp(struct proto_packet *pkt) {
+	}
 };
 
 int main(int argc, char *argv[])

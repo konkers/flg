@@ -65,6 +65,23 @@ static inline void uart_disable_udre(void)
 #endif
 }
 
+static inline void uart_enable_tx(void)
+{
+#ifdef NEW_UART
+	UCSR0B |= _BV(TXCIE0);
+#else
+	UCSRB |= _BV(TXCIE);
+#endif
+}
+
+static inline void uart_disable_tx(void)
+{
+#ifdef NEW_UART
+	UCSR0B &= ~_BV(TXCIE0);
+#else
+	UCSRB &= ~_BV(TXCIE);
+#endif
+}
 
 void uart_init(uint16_t ubrr);
 void uart_putc(unsigned char data);

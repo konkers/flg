@@ -68,12 +68,22 @@ struct proto_widget {
 	{ PROTO_WIDGET_TYPE_ADC, (idx), {{0}} }
 
 
+struct proto_packet {
+	uint8_t sof;
+	uint8_t	addr;
+	uint8_t	cmd;
+	uint8_t	val;
+	uint8_t	crc;
+	uint8_t eof;
+} __attribute__((packed));
+
 struct proto_handlers {
 	void (* relay)(void *data, uint8_t idx, uint8_t state);
 	void (* light)(void *data, uint8_t idx, uint8_t val);
 	void (* set_addr)(void *data, uint8_t addr);
 
 	void (* send)(void *data, uint8_t *pkt_data, int len);
+	void (* resp)(void *data, struct proto_packet *pkt);
 };
 
 enum proto_cmd {
@@ -101,16 +111,9 @@ enum proto_cmd {
 	PROTO_CMD_ADC_QUERY=		0x31,
 
 	PROTO_CMD_SET_ADDR=		0x40,
-};
 
-struct proto_packet {
-	uint8_t sof;
-	uint8_t	addr;
-	uint8_t	cmd;
-	uint8_t	val;
-	uint8_t	crc;
-	uint8_t eof;
-} __attribute__((packed));
+	PROTO_CMD_GET_STATUS=		0x50,
+};
 
 enum proto_state {
 	PROTO_STATE_IDLE,
@@ -126,6 +129,7 @@ struct proto {
 	struct proto_handlers	*handlers;
 	struct proto_widget	*widgets;
 	uint8_t			n_widgets;
+	uint8_t			status;
 
 	struct proto_packet	packet;
 	enum proto_state	state;
@@ -153,10 +157,14 @@ static inline void proto_adc_set(struct proto_widget *w, uint16_t val)
 	w->adc.val = val;
 }
 
+static inline void proto_set_status(struct proto *p, uint8_t status)
+{
+	p->status = status;
+}
 
 
 #if 0
-} /* stupid trick to balance out below */
+{ /* stupid trick to balance out below */
 #endif
 #ifdef __cplusplus
 }

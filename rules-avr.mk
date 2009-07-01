@@ -2,11 +2,14 @@
 ifeq ("${CROSS_CPU}","")
 CROSS_CPU=atmega88
 endif
+ifneq ("${FOSC}","")
+FOSCCFLAG=-DFOSC=${FOSC}
+endif
 ifeq ("${FLGMAIN}","yes")
 FLGMAINCFLAG=-DFLGMAIN
 endif
-ifneq ("${FOSC}","")
-FOSCCFLAG=-DFOSC=${FOSC}
+ifeq ("${RS485ECHO}","yes")
+RS485ECHOCFLAG=-DRS485ECHO
 endif
 
 CC=avr-gcc
@@ -18,7 +21,7 @@ RANLIB=avr-ranlib
 
 OPT=-O2 -g
 
-CFLAGS=-mmcu=${CROSS_CPU} ${FOSCCFLAG} ${FLGMAINCFLAG} \
+CFLAGS=-mmcu=${CROSS_CPU} ${FOSCCFLAG} ${FLGMAINCFLAG} ${RS485ECHOCFLAG} \
 	${OPT} -Wall -Werror \
 	-I${FLG_DIR}/lib/c/include \
 	-I${FLG_DIR}/avr/lib/include

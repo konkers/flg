@@ -110,4 +110,5 @@ void flg_hw_setup(void)
 
 void flg_work(void)
 {
+	proto_set_status(&flg_proto, 0x5a);
 }

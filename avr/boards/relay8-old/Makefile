@@ -3,6 +3,7 @@ CROSS_CPU=atmega8
 
 FOSC=7372800UL
 FLGMAIN=yes
+RS485ECHO=yes
 
 OBJS=main.o
 

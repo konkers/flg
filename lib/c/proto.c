@@ -133,7 +133,14 @@ static void proto_set_addr(struct proto *p, uint8_t addr)
 		p->handlers->set_addr(p->handler_data, addr);
 }
 
-
+static void proto_get_status(struct proto *p)
+{
+	struct proto_packet *pkt = &p->packet;
+	pkt->addr = 0;
+	pkt->cmd = PROTO_CMD_GET_STATUS;
+	pkt->val = p->status;
+	proto_packet_send(p);
+}
 
 static void proto_handle_packet(struct proto *p)
 {
@@ -142,7 +149,13 @@ static void proto_handle_packet(struct proto *p)
 	if (pkt->addr != 0 && pkt->addr != p->addr)
 		return;
 
-	if (pkt->cmd == PROTO_CMD_RELAY_SET)
+	if (pkt->addr == 0 &&
+	    p->handlers->resp &&
+	    (pkt->cmd == PROTO_CMD_SWITCH_QUERY ||
+	     pkt->cmd == PROTO_CMD_ADC_QUERY ||
+	     pkt->cmd == PROTO_CMD_GET_STATUS))
+		p->handlers->resp(p->handler_data, pkt);
+	else if (pkt->cmd == PROTO_CMD_RELAY_SET)
 		proto_set_relay(p,pkt->val);
 	else if (pkt->cmd == PROTO_CMD_RELAY_CLEAR)
 		proto_clear_relay(p,pkt->val);
@@ -155,6 +168,8 @@ static void proto_handle_packet(struct proto *p)
 		proto_query_adc(p, pkt->val);
 	else if (pkt->cmd == PROTO_CMD_SET_ADDR)
 		proto_set_addr(p, pkt->val);
+	else if (pkt->cmd == PROTO_CMD_GET_STATUS)
+		proto_get_status(p);
 }
 
 

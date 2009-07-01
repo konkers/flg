@@ -14,6 +14,6 @@ all: libflg.a libavr.a ${TARGETS}
 include ${FLG_DIR}/rules.mk
 
 # must be after include for LIBAVR_OBJS and LIBFLG_OBJS to work
-${TARGET}.elf: ${OBJS}
+${TARGET}.elf: ${OBJS} libflg.a libavr.a
 	${LINK}
 
