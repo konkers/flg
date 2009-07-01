@@ -73,6 +73,8 @@ void set_addr(void *data, uint8_t addr)
 
 struct proto_widget widgets[] = {
 	PROTO_WIDGET_SWITCH(0),
+	PROTO_WIDGET_ADC(0),
+	PROTO_WIDGET_ADC(1),
 };
 
 struct proto_handlers handlers = {
@@ -120,6 +122,16 @@ ISR( TIMER0_COMPA_vect )
 	PORTD &= ~_BV(D_DATA_LED);
 }
 
+uint16_t adc_sample(uint8_t ch)
+{
+	ADMUX = ch | _BV(REFS0);
+	ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADPS2) | _BV(ADPS1) |_BV(ADPS0);
+
+	while((ADCSRA & _BV(ADSC))) {}
+
+	return ADCL | (ADCH << 8);
+}
+
 int main( void )
 {
 	cli();
@@ -154,5 +166,16 @@ int main( void )
 	wdt_enable(WDTO_1S);
 
 	while (1) {
+		uint16_t val;
+
+		val = adc_sample(0x6);
+		cli();
+		proto_adc_set(&widgets[1], val);
+		sei();
+
+		val = adc_sample(0x7);
+		cli();
+		proto_adc_set(&widgets[2], val);
+		sei();
 	}
 }
