@@ -33,6 +33,7 @@ enum proto_widget_type {
 	PROTO_WIDGET_TYPE_RELAY,
 	PROTO_WIDGET_TYPE_LIGHT,
 	PROTO_WIDGET_TYPE_SWITCH,
+	PROTO_WIDGET_TYPE_ADC,
 };
 
 struct proto_widget {
@@ -46,6 +47,9 @@ struct proto_widget {
 		struct {
 			uint8_t	state;
 		} sw;
+		struct {
+			uint16_t val;
+		} adc;
 	};
 } __attribute__((packed));
 
@@ -60,6 +64,8 @@ struct proto_widget {
 	{ PROTO_WIDGET_TYPE_LIGHT, (idx) }
 #define PROTO_WIDGET_SWITCH(idx)	\
 	{ PROTO_WIDGET_TYPE_SWITCH, (idx), {{0}} }
+#define PROTO_WIDGET_ADC(idx)		\
+	{ PROTO_WIDGET_TYPE_ADC, (idx), {{0}} }
 
 
 struct proto_handlers {
@@ -92,6 +98,7 @@ enum proto_cmd {
 	PROTO_CMD_LIGHTF_SET =		0x2f,
 
 	PROTO_CMD_SWITCH_QUERY=		0x30,
+	PROTO_CMD_ADC_QUERY=		0x31,
 
 	PROTO_CMD_SET_ADDR=		0x40,
 };
@@ -140,6 +147,13 @@ static inline void proto_clear_switch(struct proto_widget *w, int sw)
 {
 	w->sw.state &= ~(1 << (sw & 0x7));
 }
+
+static inline void proto_adc_set(struct proto_widget *w, uint16_t val)
+{
+	w->adc.val = val;
+}
+
+
 
 #if 0
 } /* stupid trick to balance out below */
