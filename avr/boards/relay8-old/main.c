@@ -17,15 +17,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include <uart.h>
-
 #include <util.h>
 #include <proto.h>
 
+#include <flgmain.h>
+
 #include "pins.h"
-
-#define FOSC 7372800UL
-
 
 struct relay_cfg {
 	volatile uint8_t *port;
@@ -68,30 +65,32 @@ struct proto_handlers handlers = {
 };
 
 
-struct proto p = {
+struct proto flg_proto = {
 	.handlers = &handlers,
 	.widgets = widgets,
 	.n_widgets = ARRAY_SIZE(widgets),
 };
 
-ISR( USART_RXC_vect )
+void flg_recv(uint8_t c)
 {
-	proto_recv(&p, UDR);
 	PORTB |= _BV(DATALED);
 }
 
-ISR( TIMER2_COMP_vect )
+void flg_ping(void)
 {
-	proto_ping(&p);
 	PORTB &= ~_BV(DATALED);
 }
 
-int main( void )
+void flg_set_txen(uint8_t en)
 {
-	uint8_t addr;
+	if (en)
+		PORTD |= _BV(RS485TRANSMIT);
+	else
+		PORTD &= ~_BV(RS485TRANSMIT);
+}
 
-	cli();
-
+void flg_pin_setup(void)
+{
 	DDRB = _BV(DATALED) | _BV(RELAY6) | _BV(RELAY7);
 	PORTB = _BV(SWITCH6) | _BV(SWITCH7) | _BV(SWITCH8);
 
@@ -107,25 +106,8 @@ int main( void )
 		_BV(SWITCH3) |
 		_BV(SWITCH4) |
 		_BV(SWITCH5);
+}
 
-	/*
-	 * Fosc = 7372800
-	 * Fping = 100 Hz
-	 *
-	 * Fosc / Fping / 1024 = 72;
-	 */
-	TCCR2 = _BV(CS22) | _BV(CS21) | _BV(CS20);
-	OCR2 = 72;
-	TIMSK |= _BV(OCIE2);
-
-	addr = (~(PIND >> SWITCH_SHIFT)) & SWITCH_MASK;
-	addr |= (~PINB << 2) & 0xe;
-
-	uart_init(uart_baud(FOSC, 115200));
-	proto_init(&p, addr);
-
-	sei();	
-
-	while (1) {
-	}
+void flg_work(void)
+{
 }

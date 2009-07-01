@@ -1,6 +1,9 @@
 CROSS=avr
 CROSS_CPU=atmega8
 
+FOSC=7372800UL
+FLGMAIN=yes
+
 OBJS=main.o
 
 TARGETS=relay8-old.elf relay8-old.bin
