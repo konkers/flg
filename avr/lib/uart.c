@@ -20,8 +20,7 @@
 
 #include "uart.h"
 
-#ifdef UBRR0H
-#define NEW_UART
+#ifdef NEW_UART
 #define UDR	UDR0
 #define UCSRA	UCSR0A
 #define UCSRB	UCSR0B

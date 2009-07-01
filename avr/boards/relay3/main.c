@@ -50,7 +50,6 @@ struct proto_widget widgets[] = {
 
 struct proto_handlers handlers = {
 	.relay = &handle_relay,
-	.set_addr = &flg_set_addr,
 };
 
 struct proto flg_proto = {
@@ -58,6 +57,14 @@ struct proto flg_proto = {
 	.widgets = widgets,
 	.n_widgets = ARRAY_SIZE(widgets),
 };
+
+void flg_set_txen(uint8_t en)
+{
+	if (en)
+		PORTD |= _BV(D_TX_EN);
+	else
+		PORTD &= ~_BV(D_TX_EN);
+}
 
 void flg_pin_setup(void)
 {

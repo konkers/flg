@@ -18,11 +18,53 @@
 #define __libavr_uart_h__
 
 #include <avr/pgmspace.h>
+#include <avr/io.h>
+
+#ifdef UBRR0H
+#define NEW_UART
+#endif
 
 static inline uint16_t uart_baud(uint32_t fosc, uint32_t baud)
 {
 	return fosc / 16 / baud - 1;
 }
+
+static inline uint8_t uart_read_dr(void)
+{
+#ifdef NEW_UART
+	return UDR0;
+#else
+	return UDR;
+#endif
+}
+
+static inline void uart_write_dr(uint8_t d)
+{
+#ifdef NEW_UART
+	UDR0 = d;
+#else
+	UDR = d;
+#endif
+}
+
+static inline void uart_enable_udre(void)
+{
+#ifdef NEW_UART
+	UCSR0B |= _BV(UDRE0);
+#else
+	UCSRB |= _BV(UDRE);
+#endif
+}
+
+static inline void uart_disable_udre(void)
+{
+#ifdef NEW_UART
+	UCSR0B &= ~_BV(UDRE0);
+#else
+	UCSRB &= ~_BV(UDRE);
+#endif
+}
+
 
 void uart_init(uint16_t ubrr);
 void uart_putc(unsigned char data);

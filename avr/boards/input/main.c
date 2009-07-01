@@ -49,8 +49,6 @@ struct proto_widget widgets[] = {
 };
 
 struct proto_handlers handlers = {
-	.set_addr = &flg_set_addr,
-	.send = &flg_queue_pkt,
 };
 
 
@@ -87,6 +85,14 @@ uint16_t adc_sample(uint8_t ch)
 	while((ADCSRA & _BV(ADSC))) {}
 
 	return ADCL | (ADCH << 8);
+}
+
+void flg_set_txen(uint8_t en)
+{
+	if (en)
+		PORTD |= _BV(D_TX_EN);
+	else
+		PORTD &= ~_BV(D_TX_EN);
 }
 
 void flg_pin_setup()
