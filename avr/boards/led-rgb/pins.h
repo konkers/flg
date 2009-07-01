@@ -15,30 +15,30 @@
  */
 
 /* Port B */
-#define B_DATA_LED	PB0
-#define B_LED_R		PB1
-#define B_LED_G		PB2
-#define B_ADDR5		PB3
-#define B_ADDR6		PB4
-#define B_ADDR7		PB5
+/* unused		PB0 */
+/* unused		PB1 */
+/* unused		PB2 */
+#define B_MOSI		PB3
+#define B_MISO		PB4
+#define B_SCK		PB5
 #define B_XTAL1		PB6
 #define B_XTAL2		PB7
 
 /* Port C */
-#define C_ADDR0		PC0
-#define C_ADDR1		PC1
-#define C_ADDR2		PC2
-#define C_ADDR3		PC3
-/* unused		PC4 */
-/* unused		PC5 */
+#define C_RED		PC0
+#define C_GREEN		PC1
+#define C_BLUE		PC2
+#define C_RED_OD	PC3
+#define C_GREEN_OD	PC4
+#define C_BLUE_OD	PC5
 #define C_RESET		PC6
 
 /* Port D */
-#define D_RXD		PD0
-#define D_TXD		PD1
-#define D_TX_EN		PD2
-#define D_LED_B		PD3
-#define D_ADDR4		PD4
+#define D_RECV		PD0
+/* unused 		PD1 */
+#define D_DATA_LED	PD2
+#define D_GREEN_OD2	PD3
+#define D_BLUE_OD2	PD4
 /* unused		PD5 */
 /* unused		PD6 */
 /* unused		PD7 */

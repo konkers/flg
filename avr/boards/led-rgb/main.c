@@ -52,12 +52,12 @@ struct proto flg_proto = {
 
 void flg_recv(uint8_t c)
 {
-	PORTB |= _BV(B_DATA_LED);
+	PORTD |= _BV(D_DATA_LED);
 }
 
 void flg_ping(void)
 {
-	PORTB &= ~_BV(B_DATA_LED);
+	PORTD &= ~_BV(D_DATA_LED);
 }
 
 ISR( TIMER2_COMPA_vect )
@@ -73,41 +73,38 @@ ISR( TIMER2_COMPA_vect )
 
 	OCR2A = bam_mask;
 
-	port = PORTB;
+	port = PORTC;
 
 	if (led_val[0] & bam_mask)
-		port |= _BV(B_LED_R);
+		port |= _BV(C_RED);
 	else
-		port &= ~_BV(B_LED_R);
+		port &= ~_BV(C_RED);
 
 	if (led_val[1] & bam_mask)
-		port |= _BV(B_LED_G);
+		port |= _BV(C_GREEN);
 	else
-		port &= ~_BV(B_LED_G);
+		port &= ~_BV(C_GREEN);
 
 	if (led_val[2] & bam_mask)
-		PORTD |= _BV(D_LED_B);
+		port |= _BV(C_BLUE);
 	else
-		PORTD &= ~_BV(D_LED_B);
+		port &= ~_BV(C_BLUE);
 
-	PORTB = port;
+	PORTC = port;
 }
 
 void flg_set_txen(uint8_t en)
 {
-	if (en)
-		PORTD |= _BV(D_TX_EN);
-	else
-		PORTD &= ~_BV(D_TX_EN);
 }
 
 void flg_hw_setup(void)
 {
-	DDRB = _BV(B_DATA_LED) | _BV(B_LED_R) | _BV(B_LED_G);
+	DDRB = 0;
 
-	DDRC = 0;
+	DDRC = _BV(C_RED) | _BV(C_GREEN) | _BV(C_BLUE) |
+		_BV(C_RED_OD) | _BV(C_GREEN_OD) | _BV(C_BLUE_OD);
 
-	DDRD = _BV(D_TX_EN) | _BV(D_LED_B);
+	DDRD = _BV(D_DATA_LED) | _BV(D_GREEN_OD2) | _BV(D_BLUE_OD2);
 
 	bam_mask = 0x01;
 	OCR2A = bam_mask;
