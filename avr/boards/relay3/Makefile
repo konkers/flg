@@ -1,6 +1,9 @@
 CROSS=avr
 CROSS_CPU=atmega88
 
+FLGMAIN=yes
+FOSC=18432000UL
+
 OBJS=main.o
 
 TARGET=relay3
