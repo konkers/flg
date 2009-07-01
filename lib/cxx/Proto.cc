@@ -82,6 +82,11 @@ bool Proto::setLight(uint8_t addr, int light, uint8_t val)
 	return sendMsg(addr, PROTO_CMD_LIGHT0_SET + light, val);
 }
 
+bool Proto::setAddr(uint8_t addr, uint8_t newAddr)
+{
+	return sendMsg(addr, PROTO_CMD_SET_ADDR, newAddr);
+}
+
 
 int Proto::waitForMsg(int timeout)
 {
