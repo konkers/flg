@@ -14,4 +14,7 @@ sizes-here:
 	@printf " ----------------------------\n" "target" "flash" "sram"
 	@make FLG_DIR=${FLG_DIR} -C avr sizes || exit 1
 
+flash-%: avr/boards/%
+	@make FLG_DIR=${FLG_DIR} -C $^ flash || exit 1
+
 include rules.mk
