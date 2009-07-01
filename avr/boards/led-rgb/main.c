@@ -24,8 +24,6 @@
 
 #include "pins.h"
 
-#define FOSC 18432000UL
-
 uint8_t led_val[3];
 uint8_t bam_mask;
 
@@ -46,21 +44,19 @@ struct proto_handlers handlers = {
 };
 
 
-struct proto p = {
+struct proto flg_proto = {
 	.handlers = &handlers,
 	.widgets = widgets,
 	.n_widgets = ARRAY_SIZE(widgets),
 };
 
-ISR( USART_RX_vect )
+void flg_recv(uint8_t c)
 {
-	proto_recv(&p, UDR0);
 	PORTB |= _BV(B_DATA_LED);
 }
 
-ISR( TIMER0_COMPA_vect )
+void flg_ping(void)
 {
-	proto_ping(&p);
 	PORTB &= ~_BV(B_DATA_LED);
 }
 
@@ -97,33 +93,21 @@ ISR( TIMER2_COMPA_vect )
 	PORTB = port;
 }
 
-int main( void )
+void flg_set_txen(uint8_t en)
 {
-	uint8_t addr;
+	if (en)
+		PORTD |= _BV(D_TX_EN);
+	else
+		PORTD &= ~_BV(D_TX_EN);
+}
 
-	cli();
-
+void flg_hw_setup(void)
+{
 	DDRB = _BV(B_DATA_LED) | _BV(B_LED_R) | _BV(B_LED_G);
-	PORTB = _BV(B_ADDR5) | _BV(B_ADDR6) | _BV(B_ADDR7);
 
 	DDRC = 0;
-	PORTC = _BV(C_ADDR0) | _BV(C_ADDR1) | _BV(C_ADDR2) | _BV(C_ADDR3);
 
 	DDRD = _BV(D_TX_EN) | _BV(D_LED_B);
-	PORTD = _BV(D_ADDR4);
-
-
-	/*
-	 * Fosc = 18432000
-	 * Fping = 100 Hz
-	 *
-	 * Fosc / Fping / 1024 = 180;
-	 */
-	TCCR0A = _BV(CS22) | _BV(CS21) | _BV(CS20);
-	/* set TC into CTC mode */
-	TCCR0A = _BV(WGM01);
-	TIMSK2 = _BV(OCIE0A);
-	OCR0A = 180;
 
 	bam_mask = 0x01;
 	OCR2A = bam_mask;
@@ -134,18 +118,8 @@ int main( void )
 	TIMSK2 = _BV(OCIE2A);
 	/* use 64 prescalar giving us a minimum frequency of 244Hz */
 	TCCR2B = _BV(CS21) | _BV(CS20);
+}
 
-
-
-	addr  = ~PINC & 0xf;
-	addr |= ~PIND & _BV(D_ADDR4);
-	addr |= (~PIND << 2) & 0xe0;
-
-	uart_init(uart_baud(FOSC, 115200));
-	proto_init(&p, addr);
-
-	sei();
-
-	while (1) {
-	}
+void flg_work(void)
+{
 }
