@@ -6,7 +6,7 @@ void flg_queue_pkt(void *data, uint8_t *pkt_data, int len);
 extern struct proto flg_proto;
 
 /* callbacks */
-void flg_pin_setup(void);
+void flg_hw_setup(void);
 void flg_set_txen(uint8_t en);
 void flg_recv(uint8_t c);
 void flg_ping(void);

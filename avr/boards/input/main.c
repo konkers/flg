@@ -95,7 +95,7 @@ void flg_set_txen(uint8_t en)
 		PORTD &= ~_BV(D_TX_EN);
 }
 
-void flg_pin_setup()
+void flg_hw_setup()
 {
 	DDRB = 0;
 	PORTB = _BV(B_SWITCH0) | _BV(B_SWITCH1) | _BV(B_SWITCH2);

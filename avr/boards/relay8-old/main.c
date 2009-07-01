@@ -89,7 +89,7 @@ void flg_set_txen(uint8_t en)
 		PORTD &= ~_BV(RS485TRANSMIT);
 }
 
-void flg_pin_setup(void)
+void flg_hw_setup(void)
 {
 	DDRB = _BV(DATALED) | _BV(RELAY6) | _BV(RELAY7);
 	PORTB = _BV(SWITCH6) | _BV(SWITCH7) | _BV(SWITCH8);

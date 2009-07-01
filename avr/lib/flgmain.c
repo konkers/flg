@@ -109,11 +109,11 @@ static void set_timer2(uint8_t cs, uint8_t oc)
 }
 
 
-int main( void )
+int main(void)
 {
 	cli();
 
-	flg_pin_setup();
+	flg_hw_setup();
 #if (FOSC == 18432000UL)
 	/*
 	 * Fosc = 18432000

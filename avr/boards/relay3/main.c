@@ -66,7 +66,7 @@ void flg_set_txen(uint8_t en)
 		PORTD &= ~_BV(D_TX_EN);
 }
 
-void flg_pin_setup(void)
+void flg_hw_setup(void)
 {
 	DDRB =  _BV(B_RELAY0) | _BV(B_RELAY1) | _BV(B_RELAY2);
 
