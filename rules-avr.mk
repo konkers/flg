@@ -2,6 +2,12 @@
 ifeq ("${CROSS_CPU}","")
 CROSS_CPU=atmega88
 endif
+ifeq ("${FLGMAIN}","yes")
+FLGMAINCFLAG=-DFLGMAIN
+endif
+ifneq ("${FOSC}","")
+FOSCCFLAG=-DFOSC=${FOSC}
+endif
 
 CC=avr-gcc
 OBJCOPY=avr-objcopy
@@ -12,16 +18,17 @@ RANLIB=avr-ranlib
 
 OPT=-O2 -g
 
-CFLAGS=-mmcu=${CROSS_CPU} ${OPT} -Wall -Werror \
+CFLAGS=-mmcu=${CROSS_CPU} ${FOSCCFLAG} ${FLGMAINCFLAG} \
+	${OPT} -Wall -Werror \
 	-I${FLG_DIR}/lib/c/include \
 	-I${FLG_DIR}/avr/lib/include
 
 LDFLAGS=-mmcu=${CROSS_CPU} -L.
 
 LIBFLG_OBJS = libflg-proto.o libflg-crc8.o
-LIBAVR_OBJS = libavr-uart.o libavr-config.o
+LIBAVR_OBJS = libavr-uart.o libavr-config.o libavr-flgmain.o
 
-LIBS=-lflg -lavr
+LIBS=-lavr -lflg 
 
 libavr-%.o: ${FLG_DIR}/avr/lib/%.c
 	@echo "  CC     " `basename $<`
@@ -60,5 +67,5 @@ flash-%: %.bin
 	avrdude -p ${AVRDUDE_CPU} -c fg -e -U flash:w:$< ${FUSES}
 
 clean-host:
-	@rm -f ${LIBFLG_OBJS} ${LIBAVR_OBJS} libflg.a libavr.a
+	@rm -f ${LIBFLG_OBJS} ${LIBAVR_OBJS} libavr.a libflg.a 
 
