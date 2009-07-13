@@ -60,7 +60,7 @@ void flg_ping(void)
 	PORTD &= ~_BV(D_DATA_LED);
 }
 
-ISR( TIMER2_COMPA_vect )
+ISR( TIMER0_COMPA_vect )
 {
 	uint8_t port;
 
@@ -71,7 +71,7 @@ ISR( TIMER2_COMPA_vect )
 	if(!bam_mask)
 		bam_mask= 0x01;
 
-	OCR2A = bam_mask;
+	OCR0A = bam_mask;
 
 	port = PORTC;
 
@@ -110,11 +110,11 @@ void flg_hw_setup(void)
 	OCR2A = bam_mask;
 
 	/* set TC into CTC mode */
-	TCCR2A = _BV(WGM21);
+	TCCR0A = _BV(WGM01);
 	/* enable output compare interrupt */
-	TIMSK2 = _BV(OCIE2A);
+	TIMSK0 = _BV(OCIE0A);
 	/* use 64 prescalar giving us a minimum frequency of 244Hz */
-	TCCR2B = _BV(CS21) | _BV(CS20);
+	TCCR0B = _BV(CS01) | _BV(CS00);
 }
 
 void flg_work(void)
