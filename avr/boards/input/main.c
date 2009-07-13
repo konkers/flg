@@ -71,7 +71,7 @@ void flg_ping(void)
 		if (*switches[sw].pinx & _BV(switches[sw].pin))
 			proto_switch_set(&widgets[0], sw);
 		else
-			proto_switch_set(&widgets[0], sw);
+			proto_switch_clear(&widgets[0], sw);
 	}
 
 	PORTD &= ~_BV(D_DATA_LED);
