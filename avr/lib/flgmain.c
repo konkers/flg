@@ -113,9 +113,9 @@ ISR( TIMER2_COMP_vect )
 static void set_timer2(uint8_t cs, uint8_t oc)
 {
 #ifdef TCCR2A
-	TCCR2A = cs;
+	TCCR2B = cs;
 	/* set TC into CTC mode */
-	TCCR2B = _BV(WGM21);
+	TCCR2A = _BV(WGM21);
 	OCR2A = oc;
 	TIMSK2 |= _BV(OCIE2A);
 #else
