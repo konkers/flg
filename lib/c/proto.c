@@ -106,7 +106,7 @@ static void proto_query_switch(struct proto *p, uint8_t idx)
 	}
 }
 
-static void proto_query_adc(struct proto *p, uint8_t idx)
+static void proto_query_adc(struct proto *p, uint8_t idx, uint8_t byte)
 {
 	uint8_t i;
 
@@ -114,15 +114,17 @@ static void proto_query_adc(struct proto *p, uint8_t idx)
 		struct proto_widget *w = &p->widgets[i];
 		if (w->type == PROTO_WIDGET_TYPE_ADC && (w->idx == idx)) {
 			struct proto_packet *pkt = &p->packet;
-			pkt->addr = 0;
-			pkt->cmd = PROTO_CMD_ADC_QUERY;
-			pkt->val = w->adc.val >> 8;
-			proto_packet_send(p);
-
-			pkt->addr = 0;
-			pkt->cmd = PROTO_CMD_ADC_QUERY;
-			pkt->val = w->adc.val & 0xff;
-			proto_packet_send(p);
+			if (byte) {
+				pkt->addr = 0;
+				pkt->cmd = PROTO_CMD_ADC_QUERY_HI;
+				pkt->val = w->adc.val >> 8;
+				proto_packet_send(p);
+			} else {
+				pkt->addr = 0;
+				pkt->cmd = PROTO_CMD_ADC_QUERY_LO;
+				pkt->val = w->adc.val & 0xff;
+				proto_packet_send(p);
+			}
 		}
 	}
 }
@@ -152,7 +154,8 @@ static void proto_handle_packet(struct proto *p)
 	if (pkt->addr == 0 &&
 	    p->handlers->resp &&
 	    (pkt->cmd == PROTO_CMD_SWITCH_QUERY ||
-	     pkt->cmd == PROTO_CMD_ADC_QUERY ||
+	     pkt->cmd == PROTO_CMD_ADC_QUERY_LO ||
+	     pkt->cmd == PROTO_CMD_ADC_QUERY_HI ||
 	     pkt->cmd == PROTO_CMD_GET_STATUS))
 		p->handlers->resp(p->handler_data, pkt);
 	else if (pkt->cmd == PROTO_CMD_RELAY_SET)
@@ -164,8 +167,10 @@ static void proto_handle_packet(struct proto *p)
 		proto_set_light(p, pkt->cmd - PROTO_CMD_LIGHT0_SET, pkt->val);
 	else if (pkt->cmd == PROTO_CMD_SWITCH_QUERY)
 		proto_query_switch(p, pkt->val);
-	else if (pkt->cmd == PROTO_CMD_ADC_QUERY)
-		proto_query_adc(p, pkt->val);
+	else if (pkt->cmd == PROTO_CMD_ADC_QUERY_LO)
+		proto_query_adc(p, pkt->val, 0);
+	else if (pkt->cmd == PROTO_CMD_ADC_QUERY_HI)
+		proto_query_adc(p, pkt->val, 1);
 	else if (pkt->cmd == PROTO_CMD_SET_ADDR)
 		proto_set_addr(p, pkt->val);
 	else if (pkt->cmd == PROTO_CMD_GET_STATUS)

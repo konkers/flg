@@ -108,7 +108,8 @@ enum proto_cmd {
 	PROTO_CMD_LIGHTF_SET =		0x2f,
 
 	PROTO_CMD_SWITCH_QUERY=		0x30,
-	PROTO_CMD_ADC_QUERY=		0x31,
+	PROTO_CMD_ADC_QUERY_LO=		0x38,
+	PROTO_CMD_ADC_QUERY_HI=		0x39,
 
 	PROTO_CMD_SET_ADDR=		0x40,
 
@@ -147,7 +148,7 @@ static inline void proto_switch_set(struct proto_widget *w, int sw)
 	w->sw.state |= 1 << (sw & 0x7);
 }
 
-static inline void proto_clear_switch(struct proto_widget *w, int sw)
+static inline void proto_switch_clear(struct proto_widget *w, int sw)
 {
 	w->sw.state &= ~(1 << (sw & 0x7));
 }
