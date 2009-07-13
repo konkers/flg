@@ -57,6 +57,7 @@ ifeq ("${CROSS_CPU}","atmega48")
 AVRDUDE_CPU=m48
 else ifeq ("${CROSS_CPU}","atmega88")
 AVRDUDE_CPU=m88
+FUSES=-U lfuse:w:0xe7:m -U hfuse:w:0xdf:m -U efuse:w:0x01:m
 else ifeq ("${CROSS_CPU}","atmega168")
 AVRDUDE_CPU=m168
 else ifeq ("${CROSS_CPU}","atmega8")
