@@ -43,9 +43,9 @@ void handle_relay(void *data, uint8_t idx, uint8_t state)
 }
 
 struct proto_widget widgets[] = {
-	PROTO_WIDGET_RELAY(0,10),
-	PROTO_WIDGET_RELAY(1,10),
-	PROTO_WIDGET_RELAY(2,10),
+	PROTO_WIDGET_RELAY(0,100),
+	PROTO_WIDGET_RELAY(1,100),
+	PROTO_WIDGET_RELAY(2,100),
 };
 
 struct proto_handlers handlers = {
@@ -75,17 +75,24 @@ void flg_hw_setup(void)
 	DDRD = _BV(D_TX_EN) | _BV(D_DATA_LED);
 }
 
+static uint8_t data_led;
+
 void flg_recv(uint8_t c)
 {
 	PORTD |= _BV(D_DATA_LED);
+	data_led = 50;
 }
 
 void flg_ping(void)
 {
-	PORTD &= ~_BV(D_DATA_LED);
+	if (data_led)
+		data_led--;
+	else
+		PORTD &= ~_BV(D_DATA_LED);
 }
 
 void flg_work(void)
 {
+	proto_set_status(&flg_proto, PORTB);
 }
 
