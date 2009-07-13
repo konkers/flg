@@ -99,8 +99,8 @@ ISR( USART_RXC_vect )
 	}
 }
 
-#ifdef TIMER0_COMPA_vect
-ISR( TIMER0_COMPA_vect )
+#ifdef TIMER2_COMPA_vect
+ISR( TIMER2_COMPA_vect )
 #else
 ISR( TIMER2_COMP_vect )
 #endif
@@ -112,12 +112,12 @@ ISR( TIMER2_COMP_vect )
 
 static void set_timer2(uint8_t cs, uint8_t oc)
 {
-#ifdef TCCR0A
-	TCCR0A = cs;
+#ifdef TCCR2A
+	TCCR2A = cs;
 	/* set TC into CTC mode */
-	TCCR0A = _BV(WGM01);
-	TIMSK2 = _BV(OCIE0A);
-	OCR0A = oc;
+	TCCR2B = _BV(WGM21);
+	OCR2A = oc;
+	TIMSK2 |= _BV(OCIE2A);
 #else
 	TCCR2 = cs;
 	OCR2 = oc;
