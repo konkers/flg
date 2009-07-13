@@ -101,6 +101,21 @@ bool Proto::getStatus(uint8_t addr)
 	return sendMsg(addr, PROTO_CMD_GET_STATUS, 0x0);
 }
 
+bool Proto::getSwitch(uint8_t addr)
+{
+	return sendMsg(addr, PROTO_CMD_SWITCH_QUERY, 0x0);
+}
+
+bool Proto::getAdcLo(uint8_t addr, uint8_t idx)
+{
+	return sendMsg(addr, PROTO_CMD_ADC_QUERY_LO, idx);
+}
+
+bool Proto::getAdcHi(uint8_t addr, uint8_t idx)
+{
+	return sendMsg(addr, PROTO_CMD_ADC_QUERY_HI, idx);
+}
+
 int Proto::waitForMsg(int timeout)
 {
 	int len;

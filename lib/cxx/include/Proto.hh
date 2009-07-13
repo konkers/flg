@@ -45,6 +45,9 @@ public:
 	bool setLight(uint8_t addr, int light, uint8_t cal);
 	bool setAddr(uint8_t addr, uint8_t newAddr);
 	bool getStatus(uint8_t addr);
+	bool getSwitch(uint8_t addr);
+	bool getAdcLo(uint8_t addr, uint8_t idx);
+	bool getAdcHi(uint8_t addr, uint8_t idx);
 
 	int waitForMsg(int timeout);
 	void ping(void);
