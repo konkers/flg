@@ -24,9 +24,10 @@
 class TtyLink : public Link {
 private:
 	int fd;
+	bool linkEcho;
 
 public:
-	TtyLink(char *devName);
+	TtyLink(char *devName, bool echo = true);
 	virtual ~TtyLink();
 
 	virtual bool send(const void *data, int len);

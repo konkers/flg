@@ -26,10 +26,12 @@
 
 #include <TtyLink.hh>
 
-TtyLink::TtyLink(char *devName)
+TtyLink::TtyLink(char *devName, bool echo)
 {
 	struct termios tio;
 	int fdflags;
+
+	linkEcho = echo;
 
 	fd = open(devName, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd < 0) {
@@ -67,15 +69,26 @@ TtyLink::~TtyLink()
 bool TtyLink::send(const void *data, int len)
 {
 	ssize_t retval;
+	bool status = true;
 
 	retval = write(fd, data, len);
 	if (retval < 0) {
 		perror("write failed");
 		return false;
-	} else if (retval != len) {
-		perror("short write");
-		return false;
 	}
+
+	if (retval != len) {
+		perror("short write");
+		status = false;
+	}
+
+	if (linkEcho) {
+		while (retval--) {
+			uint8_t c;
+			read(fd, &c, 1);
+		}
+	}
+
 	return true;
 }
 
