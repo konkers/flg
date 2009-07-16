@@ -34,6 +34,7 @@ enum proto_widget_type {
 	PROTO_WIDGET_TYPE_LIGHT,
 	PROTO_WIDGET_TYPE_SWITCH,
 	PROTO_WIDGET_TYPE_ADC,
+	PROTO_WIDGET_TYPE_DPOT,
 };
 
 struct proto_widget {
@@ -66,6 +67,8 @@ struct proto_widget {
 	{ PROTO_WIDGET_TYPE_SWITCH, (idx), {{0}} }
 #define PROTO_WIDGET_ADC(idx)		\
 	{ PROTO_WIDGET_TYPE_ADC, (idx), {{0}} }
+#define PROTO_WIDGET_DPOT(idx)	\
+	{ PROTO_WIDGET_TYPE_DPOT, (idx) }
 
 
 struct proto_packet {
@@ -80,6 +83,7 @@ struct proto_packet {
 struct proto_handlers {
 	void (* relay)(void *data, uint8_t idx, uint8_t state);
 	void (* light)(void *data, uint8_t idx, uint8_t val);
+	void (* dpot)(void *data, uint8_t idx, uint8_t val);
 	void (* set_addr)(void *data, uint8_t addr);
 
 	void (* send)(void *data, uint8_t *pkt_data, int len);
@@ -111,9 +115,12 @@ enum proto_cmd {
 	PROTO_CMD_ADC_QUERY_LO=		0x38,
 	PROTO_CMD_ADC_QUERY_HI=		0x39,
 
-	PROTO_CMD_SET_ADDR=		0x40,
+	PROTO_CMD_SET_ADDR =		0x40,
 
-	PROTO_CMD_GET_STATUS=		0x50,
+	PROTO_CMD_GET_STATUS =		0x50,
+
+	PROTO_CMD_DPOT0_SET =		0x60,
+	PROTO_CMD_DPOT1_SET =		0x61,
 };
 
 enum proto_state {

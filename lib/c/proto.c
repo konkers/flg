@@ -144,6 +144,20 @@ static void proto_get_status(struct proto *p)
 	proto_packet_send(p);
 }
 
+static void proto_set_dpot(struct proto *p, uint8_t idx, uint8_t val)
+{
+	uint8_t i;
+
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+
+		if (w->type == PROTO_WIDGET_TYPE_DPOT && (w->idx == idx)) {
+			if( p->handlers->dpot )
+				p->handlers->dpot(p->handler_data, idx, val);
+		}
+	}
+}
+
 static void proto_handle_packet(struct proto *p)
 {
 	struct proto_packet *pkt = &p->packet;
@@ -175,6 +189,9 @@ static void proto_handle_packet(struct proto *p)
 		proto_set_addr(p, pkt->val);
 	else if (pkt->cmd == PROTO_CMD_GET_STATUS)
 		proto_get_status(p);
+	else if (pkt->cmd >= PROTO_CMD_DPOT0_SET &&
+		 pkt->cmd <= PROTO_CMD_DPOT1_SET)
+		proto_set_dpot(p, pkt->cmd - PROTO_CMD_DPOT0_SET, pkt->val);
 }
 
 
