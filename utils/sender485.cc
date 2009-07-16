@@ -31,6 +31,9 @@ public:
 	virtual void light(uint8_t idx, uint8_t val) {
 	}
 
+	virtual void dpot(uint8_t idx, uint8_t val) {
+	}
+
 	virtual void resp(struct proto_packet *pkt) {
 		switch (pkt->cmd) {
 		case PROTO_CMD_GET_STATUS:
@@ -54,7 +57,8 @@ public:
 	   "    get_switch <addr>\n"
 	   "    get_adc <addr> <idx>\n"
 	   "    set_relay <addr> <val>\n"
-	   "    set_clear <addr> <val>\n"
+	   "    clear_relay <addr> <val>\n"
+	   "    set_dpot <addr> <idx> <val>\n"
 	   "    set_addr <addr> <new_addr>\n");
  }
 
@@ -75,10 +79,11 @@ public:
 
 int main(int argc, char *argv[])
 {
-	TtyLink link("/dev/tty.usbserial-FTDW2WJ3");
+	TtyLink link("/dev/tty.usbserial-0000201AA");
 	Handler h;
 	Proto p(&link, &h, NULL, 0, 1);
 	uint8_t addr;
+	uint8_t idx;
 	uint8_t val;
 
 	argv++;
@@ -118,6 +123,23 @@ int main(int argc, char *argv[])
 			printf( "clearRelay(0x%02x, 0x%02x)\n", addr, val);
 			p.clearRelay(addr, val);
 			argc -= 3;
+		} else if (!strcmp("set_dpot", argv[0])) {
+			if (argc < 4) {
+				usage();
+				return 1;
+			}
+
+			if (!get_uint8(argv[1], &addr) ||
+			    !get_uint8(argv[2], &idx) ||
+			    !get_uint8(argv[3], &val)) {
+				usage();
+				return 1;
+			}
+
+			printf( "setDpot(0x%02x, 0x%02x, 0x%02x)\n",
+				addr, idx, val);
+			p.setDpot(addr, idx, val);
+			argc -= 4;
 		} else if (!strcmp("set_addr", argv[0])) {
 			if (argc < 3) {
 				usage();
