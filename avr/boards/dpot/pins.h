@@ -15,12 +15,12 @@
  */
 
 /* Port B */
-#define B_RELAY0	PB0
-#define B_RELAY1	PB1
-#define B_RELAY2	PB2
-/* unused		PB3 */
-/* unused		PB4 */
-/* unused		PB5 */
+/* unused		PB0 */
+#define B_SSEL0		PB1
+#define B_SSEL1		PB2
+#define B_MOSI		PB3
+#define B_MISO		PB4
+#define B_SCK		PB5
 #define B_XTAL1		PB6
 #define B_XTAL2		PB7
 

@@ -23,33 +23,31 @@
 
 #include "pins.h"
 
-struct relay_cfg {
-	volatile uint8_t *port;
-	uint8_t pin;
-} __attribute__((packed));
-
-struct relay_cfg relays[] = {
-	{&PORTB, B_RELAY0},
-	{&PORTB, B_RELAY1},
-	{&PORTB, B_RELAY2},
-};
-
-void handle_relay(void *data, uint8_t idx, uint8_t state)
+void handle_dpot(void *data, uint8_t idx, uint8_t val)
 {
-	if (state)
-		*relays[idx].port |= _BV(relays[idx].pin);
-	else
-		*relays[idx].port &= ~_BV(relays[idx].pin);
+	if (idx == 0) {
+		PORTB &= ~_BV(B_SSEL0);
+	} else {
+		PORTB &= ~_BV(B_SSEL1);
+	}
+	SPDR = val;
+	while( !(SPSR & _BV(SPIF)) ) {
+	}
+	val = SPDR;
+	if (idx == 0) {
+		PORTB |= _BV(B_SSEL0);
+	} else {
+		PORTB |= _BV(B_SSEL1);
+	}
 }
 
 struct proto_widget widgets[] = {
-	PROTO_WIDGET_RELAY(0,10),
-	PROTO_WIDGET_RELAY(1,10),
-	PROTO_WIDGET_RELAY(2,10),
+	PROTO_WIDGET_DPOT(0),
+	PROTO_WIDGET_DPOT(1),
 };
 
 struct proto_handlers handlers = {
-	.relay = &handle_relay,
+	.dpot = handle_dpot,
 };
 
 struct proto flg_proto = {
@@ -68,11 +66,16 @@ void flg_set_txen(uint8_t en)
 
 void flg_hw_setup(void)
 {
-	DDRB =  0;
+	DDRB = _BV(B_SSEL0) | _BV(B_SSEL1) | _BV(B_MOSI) | _BV(B_SCK);
+	PORTB = _BV(B_SSEL0) | _BV(B_SSEL1);
 
 	DDRC = 0;
 
 	DDRD = _BV(D_TX_EN) | _BV(D_DATA_LED);
+
+	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1);//|_BV(CPOL);//|_BV(CPHA);
+
+
 
 }
 
