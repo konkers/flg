@@ -26,6 +26,7 @@ public:
 
 	virtual void relay(uint8_t idx, uint8_t state) = 0;
 	virtual void light(uint8_t idx, uint8_t val) = 0;
+	virtual void dpot(uint8_t idx, uint8_t val) = 0;
 
 	virtual void resp(struct proto_packet *pkt) = 0;
 };

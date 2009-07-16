@@ -36,6 +36,14 @@ extern "C" void handle_light(void *data, uint8_t idx, uint8_t val)
 		p->light(idx, val);
 }
 
+extern "C" void handle_dpot(void *data, uint8_t idx, uint8_t val)
+{
+	ProtoHandler *p = (ProtoHandler *)data;
+
+	if (p)
+		p->dpot(idx, val);
+}
+
 extern "C" void handle_resp(void *data, struct proto_packet *pkt)
 {
 	ProtoHandler *p = (ProtoHandler *)data;
@@ -52,6 +60,7 @@ Proto::Proto(Link *link, ProtoHandler *ph,
 
 	handlers.relay = handle_relay;
 	handlers.light = handle_light;
+	handlers.dpot = handle_dpot;
 	handlers.resp = handle_resp;
 
 	p.handlers = &handlers;
@@ -89,6 +98,14 @@ bool Proto::setLight(uint8_t addr, int light, uint8_t val)
 		return false;
 
 	return sendMsg(addr, PROTO_CMD_LIGHT0_SET + light, val);
+}
+
+bool Proto::setDpot(uint8_t addr, int dpot, uint8_t val)
+{
+	if (dpot < 0 || dpot > 0x1)
+		return false;
+
+	return sendMsg(addr, PROTO_CMD_DPOT0_SET + dpot, val);
 }
 
 bool Proto::setAddr(uint8_t addr, uint8_t newAddr)
