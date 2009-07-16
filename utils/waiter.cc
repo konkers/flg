@@ -34,6 +34,10 @@ public:
 		printf("light %d set to %02x\n", idx, val);
 	}
 
+	virtual void dpot(uint8_t idx, uint8_t val) {
+		printf("dpot %d set to %02x\n", idx, val);
+	}
+
 	virtual void resp(struct proto_packet *pkt) {
 	}
 };
