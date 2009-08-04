@@ -162,10 +162,10 @@ static void proto_handle_packet(struct proto *p)
 {
 	struct proto_packet *pkt = &p->packet;
 
-	if (pkt->addr != 0 && pkt->addr != p->addr)
+	if (pkt->addr != PROTO_ADDR_BCAST && pkt->addr != p->addr)
 		return;
 
-	if (pkt->addr == 0 &&
+	if (pkt->addr == PROTO_ADDR_MASTER &&
 	    p->handlers->resp &&
 	    (pkt->cmd == PROTO_CMD_SWITCH_QUERY ||
 	     pkt->cmd == PROTO_CMD_ADC_QUERY_LO ||

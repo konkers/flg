@@ -26,6 +26,9 @@ extern "C" {
 
 #include <stdint.h>
 
+#define PROTO_ADDR_MASTER	0x00
+#define PROTO_ADDR_BCAST	0xff
+
 #define PROTO_SOF	0x53
 #define PROTO_EOF	0x45
 
