@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+@reds   = (1, 1, 0, 0, 0, 1);
+@greens = (0, 1, 1, 1, 0, 0);
+@blues  = (0, 0, 0, 1, 1, 1);
+$steps = 15;
+#$steps = 5;
+#  for ($i = 0; $i < 6; ++$i) { print "$reds[$i]\n"; } print "=======\n";
+#  for ($i = 0; $i < 6; ++$i) { print "$greens[$i]\n"; } print "=======\n";
+#  for ($i = 0; $i < 6; ++$i) { print "$blues[$i]\n"; } print "=======\n";
+
+for (;;) {
+  for ($i = 0; $i < 6; ++$i) {
+    $ii = ($i + 1) % 6;
+    #print $i, " and ",$ii, "\n";
+    interp($reds[$i], $greens[$i], $blues[$i],
+      $reds[$ii], $greens[$ii], $blues[$ii]);
+  }
+}
+
+sub interp {
+  my ($r1, $g1, $b1, $r2, $g2, $b2) = @_;
+  #printf "interp %d - %d  %d - %d  %d - %d\n",$r1,$r2,$g1,$g2,$b1,$b2;
+
+
+  for ($s = 0; $s < $steps; ++$s) {
+    $r = 255 * ($r1 + ($r2 - $r1) * ($s/$steps));
+    $g = 255 * ($g1 + ($g2 - $g1) * ($s/$steps));
+    $b = 255 * ($b1 + ($b2 - $b1) * ($s/$steps));
+    $str = sprintf "%d 0 %d 0 0 %d 0 0\n", $r, $g, $b;
+    syswrite STDOUT, $str;
+    select undef, undef, undef, 0.02;
+  }
+}

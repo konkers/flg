@@ -2,9 +2,10 @@ WAITER_OBJS=waiter.o
 SENDER_OBJS=sender.o
 SENDER485_OBJS=sender485.o
 BRAIN_OBJS=brain.o
-OBJS=${WAITER_OBJS} ${SENDER_OBJS} ${SENDER485_OBJS} ${BRAIN_OBJS}
+LEDSEND_OBJS=ledsend.o
+OBJS=${WAITER_OBJS} ${SENDER_OBJS} ${SENDER485_OBJS} ${BRAIN_OBJS} ${LEDSEND_OBJS}
 
-TARGETS=waiter sender sender485 brain
+TARGETS=waiter sender sender485 brain ledsend
 
 all: ${TARGETS}
 
@@ -20,9 +21,15 @@ sender485: ${SENDER485_OBJS}
 brain: ${BRAIN_OBJS}
 	${LINKXX}
 
+ledsend: ${LEDSEND_OBJS}
+	${LINKXX}
+
+
+
 waiter: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 sender: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 sender485: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 brain: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
+ledsend: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 
 include ${FLG_DIR}/rules.mk
