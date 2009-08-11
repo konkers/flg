@@ -54,7 +54,7 @@ package org.flg.soma
 			lowerDodeca.pitch(-90);
 
 
-			axon = new Axon(mat, 500, 90, 10);
+			axon = new Axon(mat, 500, 90, 12);
 			axon.x = -300;
 			axon.y = 400;
 			axon.roll(30);
