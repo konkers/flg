@@ -36,7 +36,7 @@ package org.flg.soma
 
 				a = angle * i + (angle / 2.0);
 
-				cylinders[i] = new Cylinder(mat, 10, length);
+				cylinders[i] = new Cylinder(mat, r/10, length, 8, 1, -1, false, false);
 				cylinders[i].x = Math.cos(a) * offset;
 				cylinders[i].y = Math.sin(a) * offset;
 				cylinders[i].rotationZ = a * 360 / (2 * Math.PI);

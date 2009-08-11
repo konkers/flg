@@ -10,6 +10,7 @@ package org.flg.soma
 		protected var mat:MaterialObject3D;
 		protected var r:Number;
 		protected var pents:Array;
+		protected var dends:Array;
 
 		private static const normals:Array = [
 			new Number3D( 0.000000,  0.000000,  1.000000),
@@ -26,6 +27,36 @@ package org.flg.soma
 			new Number3D( 0.000000, 0.0000000, -1.000000),
 			];
 
+		private static const phi:Number = 1.6180339887;
+		private static const invPhi:Number = 0.6180339887;
+
+
+		private static const verts:Array = [
+			new Number3D(-1, -1, -1),
+			new Number3D(-1, -1,  1),
+			new Number3D(-1,  1, -1),
+			new Number3D(-1,  1,  1),
+			new Number3D( 1, -1, -1),
+			new Number3D( 1, -1,  1),
+			new Number3D( 1,  1, -1),
+			new Number3D( 1,  1,  1),
+
+			new Number3D(0,  invPhi,  phi),
+			new Number3D(0,  invPhi, -phi),
+			new Number3D(0, -invPhi,  phi),
+			new Number3D(0, -invPhi, -phi),
+
+			new Number3D( invPhi,  phi, 0),
+			new Number3D( invPhi, -phi, 0),
+			new Number3D(-invPhi,  phi, 0),
+			new Number3D(-invPhi, -phi, 0),
+
+			new Number3D( phi, 0,  invPhi),
+			new Number3D( phi, 0, -invPhi),
+			new Number3D(-phi, 0,  invPhi),
+			new Number3D(-phi, 0, -invPhi),
+			];
+
 		private function dist(x1:Number, y1:Number, z1:Number,
 				      x2:Number, y2:Number, z2:Number):Number
 		{
@@ -34,7 +65,7 @@ package org.flg.soma
 					 (z2 - z1) * (z2 - z1));
 		}
 
-		public function Dodeca(material:MaterialObject3D, radius:Number)
+		public function Dodeca(material:MaterialObject3D, radius:Number, dendrites:Number = 5)
 		{
 			var i:Number;
 			var penR:Number;
@@ -47,13 +78,9 @@ package org.flg.soma
 			mat = material;
 			r = radius;
 
-
-//			pentR = dist(normals[0], normals[1], normals[2],
-//				     normals[3], normals[4], normals[5]
-
 			pents = new Array(12);
 
-			for (i = 0; i < normals.length; i++) {
+			for (i = 0; i < normals.length ; i++) {
 				var x:Number = normals[i].x;
 				var y:Number = normals[i].y;
 				var z:Number = normals[i].z;
@@ -61,7 +88,7 @@ package org.flg.soma
 				pents[i] = new Ngon(material, 5, r/1.5);
 
 
-				if (x != 0 && x != 0) {
+				if (x != 0 || z != 0) {
 					yRot = Math.atan(Math.sqrt(x*x + y*y)/z) *
 						180 / Math.PI;
 					zRot = Math.atan(y/x) *
@@ -82,8 +109,41 @@ package org.flg.soma
 				pents[i].z = normals[i].z * r;
 
 				trace("foo" + pents[i].x + " " + pents[i].y+ " " + pents[i].z + " " );
-				
+
 				addChild(pents[i]);
+			}
+
+			dends = new Array(verts.length);
+
+			for (i = 0; i < verts.length ; i++) {
+				var v:Number3D = verts[i].clone();
+				v.normalize();
+				v.rotateY(30);
+				x = v.x;
+				y = v.y;
+				z = v.z;
+
+				dends[i] = new Cylinder(mat, r/20, r*2, 8, 1, -1, false, false);
+				if (x != 0 && z != 0) {
+					yRot = Math.atan(Math.sqrt(x*x + y*y)/z) *
+						180 / Math.PI;
+					zRot = Math.atan(y/x) *
+						180 / Math.PI;
+					if (x < 0) {
+						yRot += 180;
+						yRot *= -1;
+					}
+
+					if ((dendrites == 5 && z > 0.5) ||
+					     (dendrites == 15 && z > -0.5)){
+						dends[i].rotationX = yRot + 90;
+						dends[i].rotationZ = zRot + 90 ;
+						dends[i].x = x * (r+r) *1.1;
+						dends[i].y = y * (r+r) *1.1;
+						dends[i].z = z * (r+r) *1.1;
+						addChild(dends[i]);
+					}
+				}
 			}
 		}
 	}
