@@ -123,24 +123,26 @@ package org.flg.soma
 				y = v.y;
 				z = v.z;
 
-				dends[i] = new Cylinder(mat, r/20, r*2, 8, 1, -1, false, false);
+				dends[i] = new Dendrite(mat, r*2);
 				if (x != 0 && z != 0) {
 					yRot = Math.atan(Math.sqrt(x*x + y*y)/z) *
 						180 / Math.PI;
 					zRot = Math.atan(y/x) *
 						180 / Math.PI;
 					if (x < 0) {
-						yRot += 180;
 						yRot *= -1;
+					}
+					if (z < 0) {
+						yRot += 180;
 					}
 
 					if ((dendrites == 5 && z > 0.5) ||
 					     (dendrites == 15 && z > -0.5)){
 						dends[i].rotationX = yRot + 90;
 						dends[i].rotationZ = zRot + 90 ;
-						dends[i].x = x * (r+r) *1.1;
-						dends[i].y = y * (r+r) *1.1;
-						dends[i].z = z * (r+r) *1.1;
+						dends[i].x = x * (r) *1.1;
+						dends[i].y = y * (r) *1.1;
+						dends[i].z = z * (r) *1.1;
 						addChild(dends[i]);
 					}
 				}
