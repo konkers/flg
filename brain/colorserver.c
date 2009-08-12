@@ -18,10 +18,13 @@
 
 #define N_LIGHTS		(AXON_LIGHTS + UD_LIGHTS + LD_LIGHTS)
 
+#define PHASE_DELAY		1000
+
 static uint8_t red[N_LIGHTS];
 static uint8_t green[N_LIGHTS];
 static uint8_t blue[N_LIGHTS];
-static uint8_t state[N_LIGHTS];
+//static uint8_t state[N_LIGHTS];
+static int phase[N_LIGHTS];
 
 static void
 state_page(struct mg_connection *conn,
@@ -35,6 +38,52 @@ state_page(struct mg_connection *conn,
 	for (i = 0; i < N_LIGHTS; i++) {
 		mg_printf(conn, "%02x: %06x\r\n", i,
 			  (red[i] << 16) + (green[i] << 8) + blue[i]);
+	}
+}
+
+void set(int i)
+{
+	int state = phase[i] / (0x100 + PHASE_DELAY);
+	int idx = phase[i] % (0x100 + PHASE_DELAY);
+	if (idx > 0xff)
+		idx = 0xff;
+
+	switch (state) {
+	case 0:
+		red[i] = 0xff;
+		green[i] = idx;
+		blue[i] = 0x00;
+		break;
+
+	case 1:
+		red[i] = 0xff - idx;
+		green[i] = 0xff;
+		blue[i] = 0x00;
+		break;
+
+	case 2:
+		red[i] = 0x00;
+		green[i] = 0xff;
+		blue[i] = idx;
+		break;
+
+	case 3:
+		red[i] = 0x00;
+		green[i] = 0xff - idx;
+		blue[i] = 0xff;
+		break;
+
+	case 4:
+		red[i] = idx;
+		green[i] = 0x00;
+		blue[i] = 0xff;
+		break;
+
+	case 5:
+		red[i] = 0xff;
+		green[i] = 0x00;
+		blue[i] = 0xff - idx;
+		break;
 	}
 }
 
@@ -66,44 +115,15 @@ int main(int argc, char *argv[])
 	int inc = 8;
 
 	for (i = 0; i < AXON_LIGHTS; i++) {
-		state[i] = ((AXON_LIGHTS - 1) - i) % 6;
-		switch (state[i]) {
-		case 0:
-			red[i] = 0xff;
-			green[i] = 0x00;
-			blue[i] = 0x00;
-			break;
+		phase[i] = (AXON_LIGHTS - i - 1) * 32 + 0x80;
+	}
 
-		case 1:
-			red[i] = 0xff;
-			green[i] = 0xff;
-			blue[i] = 0x00;
-			break;
+	for (i = 0; i < UD_LIGHTS; i++) {
+		phase[i + UD_LIGHT_OFFSET] = 0;
+	}
 
-		case 2:
-			red[i] = 0x00;
-			green[i] = 0xff;
-			blue[i] = 0x00;
-			break;
-
-		case 3:
-			red[i] = 0x00;
-			green[i] = 0xff;
-			blue[i] = 0xff;
-			break;
-
-		case 4:
-			red[i] = 0x00;
-			green[i] = 0x00;
-			blue[i] = 0xff;
-			break;
-
-		case 5:
-			red[i] = 0xff;
-			green[i] = 0x00;
-			blue[i] = 0xff;
-			break;
-		}
+	for (i = 0; i < LD_LIGHTS; i++) {
+		phase[i + LD_LIGHT_OFFSET] = 0x180;
 	}
 
 	ctx = mg_start();
@@ -111,50 +131,11 @@ int main(int argc, char *argv[])
 	mg_set_uri_callback(ctx, "/soma/state", &state_page, NULL);
 
 	for (;;) {
-		for (i = 0; i < AXON_LIGHTS; i++) {
-			switch (state[i]) {
-			case 0:
-				if (rot(&green[i], inc, &red[i]))
-					state[i]++;
-				break;
-
-			case 1:
-				if (rot(&red[i], -inc, &blue[i]))
-					state[i]++;
-				break;
-
-			case 2:
-				if (rot(&blue[i], inc, &green[i]))
-					state[i]++;
-				break;
-
-			case 3:
-				if (rot(&green[i], -inc, &red[i]))
-					state[i]++;
-				break;
-
-			case 4:
-				if (rot(&red[i], inc, &blue[i]))
-					state[i]++;
-				break;
-
-			case 5:
-				if (rot(&blue[i], -inc, &green[i]))
-					state[i] = 0;
-				break;
-			}
-		}
-
-		for (i = 0; i < UD_LIGHTS; i++) {
-			red[i + UD_LIGHT_OFFSET] = red[AXON_LIGHT_OFFSET + 9];
-			green[i + UD_LIGHT_OFFSET] = green[AXON_LIGHT_OFFSET + 9];
-			blue[i + UD_LIGHT_OFFSET] = blue[AXON_LIGHT_OFFSET + 9];
-		}
-
-		for (i = 0; i < LD_LIGHTS; i++) {
-			red[i + LD_LIGHT_OFFSET] = red[AXON_LIGHT_OFFSET];
-			green[i + LD_LIGHT_OFFSET] = green[AXON_LIGHT_OFFSET];
-			blue[i + LD_LIGHT_OFFSET] = blue[AXON_LIGHT_OFFSET];
+		for (i = 0; i < N_LIGHTS; i++) {
+			phase[i] += inc;
+			if (phase[i] > (6 * (0x100 + PHASE_DELAY)))
+				phase[i] -= (6 * (0x100 + PHASE_DELAY));
+			set(i);
 		}
 
 		usleep(1000000/100);
