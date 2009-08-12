@@ -1,4 +1,4 @@
-DIRS = lib utils
+DIRS = lib brain utils
 
 all: dirs
 
