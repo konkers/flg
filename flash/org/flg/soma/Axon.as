@@ -25,7 +25,8 @@ package org.flg.soma
 		public function Axon(material:MaterialObject3D,
 				     radius:Number,
 				     angle:Number,
-				     sections:Number)
+				     sections:Number,
+				     structure:Boolean = true)
 		{
 			var i:Number;
 
@@ -53,9 +54,10 @@ package org.flg.soma
 
 				pos.rotateY(i * a / n );
 				pents[i].position = pos;
-				c.addChild(pents[i]);
+				if (structure)
+					c.addChild(pents[i]);
 
-				if (i > 0 && i<12) {
+				if (i > 0 && i<11) {
 					m[i-1] = new ColorMaterial(0x00ffff);
 					leds[i-1] = new Sphere(m[i-1], 10);
 					leds[i-1].rotationY = rot;
@@ -82,6 +84,11 @@ package org.flg.soma
 
 			c.z = -r;
 			addChild(c);
+		}
+
+		public function setLight(led:Number, color:Number): void
+		{
+			m[9-led].fillColor = color;
 		}
 	}
 }

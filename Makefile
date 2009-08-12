@@ -8,6 +8,7 @@ avr:
 
 clean-here:
 	@make FLG_DIR=${FLG_DIR} -C avr clean || exit 1
+	@make FLG_DIR=${FLG_DIR} -C flash clean || exit 1
 
 sizes-here:
 	@printf "%-15s %6s %6s\n" "target" "flash" "sram"

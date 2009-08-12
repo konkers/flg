@@ -65,9 +65,13 @@ package org.flg.soma
 					 (z2 - z1) * (z2 - z1));
 		}
 
-		public function Dodeca(material:MaterialObject3D, radius:Number, dendrites:Number = 5)
+		public function Dodeca(material:MaterialObject3D,
+				       radius:Number,
+				       dendrites:Number = 5,
+				       structure:Boolean = true)
 		{
 			var i:Number;
+			var n:Number;
 			var penR:Number;
 			var xAxis:Number3D = new Number3D(1,0,0);
 			var yAxis:Number3D = new Number3D(0,1,0);
@@ -110,12 +114,13 @@ package org.flg.soma
 
 				trace("foo" + pents[i].x + " " + pents[i].y+ " " + pents[i].z + " " );
 
-				addChild(pents[i]);
+				if (structure)
+					addChild(pents[i]);
 			}
 
 			dends = new Array(verts.length);
 
-			for (i = 0; i < verts.length ; i++) {
+			for (i = 0, n = 0; i < verts.length ; i++) {
 				var v:Number3D = verts[i].clone();
 				v.normalize();
 				v.rotateY(30);
@@ -123,7 +128,6 @@ package org.flg.soma
 				y = v.y;
 				z = v.z;
 
-				dends[i] = new Dendrite(mat, r*2);
 				if (x != 0 && z != 0) {
 					yRot = Math.atan(Math.sqrt(x*x + y*y)/z) *
 						180 / Math.PI;
@@ -138,15 +142,23 @@ package org.flg.soma
 
 					if ((dendrites == 5 && z > 0.5) ||
 					     (dendrites == 15 && z > -0.5)){
-						dends[i].rotationX = yRot + 90;
-						dends[i].rotationZ = zRot + 90 ;
-						dends[i].x = x * (r) *1.1;
-						dends[i].y = y * (r) *1.1;
-						dends[i].z = z * (r) *1.1;
-						addChild(dends[i]);
+						dends[n] = new Dendrite(mat, r*2, structure);
+						dends[n].rotationX = yRot + 90;
+						dends[n].rotationZ = zRot + 90 ;
+						dends[n].x = x * (r) *1.1;
+						dends[n].y = y * (r) *1.1;
+						dends[n].z = z * (r) *1.1;
+						addChild(dends[n]);
+						n++;
 					}
 				}
 			}
 		}
+
+		public function setLight(led:Number, color:Number): void
+		{
+			dends[led>>1].setLight(led & 0x1, color);
+		}
+
 	}
 }

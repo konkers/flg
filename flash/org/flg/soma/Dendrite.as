@@ -17,7 +17,9 @@ package org.flg.soma
 		protected var flMat:ColorMaterial;
 		protected var fl:Cone;
 
-		public function Dendrite(material:MaterialObject3D, length:Number)
+		public function Dendrite(material:MaterialObject3D,
+					 length:Number,
+					 structure:Boolean = true)
 		{
 			var l1:Number;
 			var l2:Number;
@@ -35,7 +37,8 @@ package org.flg.soma
 
 			c[0] = new Cylinder(mat, length/30, length, 8, 1, -1, false, false);
 			c[0].y = length/2;
-			addChild(c[0]);
+			if (structure)
+				addChild(c[0]);
 
 			l1 = length * 0.8;
 			c[1] = new Cylinder(mat, length/30, l1, 8, 1, -1, false, false);
@@ -45,7 +48,8 @@ package org.flg.soma
 			led[0].y = l1;
 
 			d[0] = new DisplayObject3D();
-			d[0].addChild(c[1]);
+			if (structure)
+				d[0].addChild(c[1]);
 			d[0].addChild(led[0]);
 
 			d[0].rotationZ = 30;
@@ -61,7 +65,8 @@ package org.flg.soma
 			led[1].y = l2;
 
 			d[1] = new DisplayObject3D();
-			d[1].addChild(c[2]);
+			if (structure)
+				d[1].addChild(c[2]);
 			d[1].addChild(led[1]);
 
 			d[1].rotationZ = -30;
@@ -73,5 +78,11 @@ package org.flg.soma
 			fl.y = l + l/10;
 			addChild(fl);
 		}
+
+		public function setLight(led:Number, color:Number): void
+		{
+			m[led].fillColor = color;
+		}
+
 	}
 }
