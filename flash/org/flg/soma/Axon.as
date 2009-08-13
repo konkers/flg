@@ -54,8 +54,8 @@ package org.flg.soma
 
 				pos.rotateY(i * a / n );
 				pents[i].position = pos;
-				if (structure)
-					c.addChild(pents[i]);
+				pents[i].visible = structure;
+				c.addChild(pents[i]);
 
 				if (i > 0 && i<11) {
 					m[i-1] = new ColorMaterial(0x00ffff);
@@ -89,6 +89,15 @@ package org.flg.soma
 		public function setLight(led:Number, color:Number): void
 		{
 			m[9-led].fillColor = color;
+		}
+
+		public function displayStructure(structure:Boolean = true):void
+		{
+			var i:Number;
+
+			for (i = 0; i < n + 1; i++) {
+				pents[i].visible = structure;
+			}
 		}
 	}
 }

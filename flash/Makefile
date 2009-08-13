@@ -3,8 +3,9 @@ FDB=fdb
 
 PROJECT=soma
 
-DEBUG=-debug=true
-MXMLC_FLAGS=${DEBUG} -default-size 640 480 -default-frame-rate 30 -compiler.source-path . ./p3d
+#DEBUG=-debug=true
+MXMLC_FLAGS=${DEBUG} -default-size 640 480 -default-frame-rate 30 \
+	-default-background-color 0x000000 -compiler.source-path . ./p3d
 
 TARGETS=${PROJECT}.swf
 

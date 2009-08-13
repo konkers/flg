@@ -2,16 +2,21 @@ package org.flg.soma
 {
 	import flash.events.*;
 	import flash.utils.*;
+	import flash.display.*;
 
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 
 	import org.papervision3d.materials.shadematerials.GouraudMaterial;
 	import org.papervision3d.materials.shadematerials.FlatShadeMaterial;
+	import org.papervision3d.materials.special.Letter3DMaterial;
 	import org.papervision3d.lights.PointLight3D;
 	import org.papervision3d.objects.DisplayObject3D;
 	import org.papervision3d.objects.primitives.Sphere;
 	import org.papervision3d.view.BasicView;
+	import org.papervision3d.typography.*;
+	import org.papervision3d.typography.fonts.*;
+
 
 	public class Soma extends BasicView
 	{
@@ -23,7 +28,6 @@ package org.flg.soma
 		protected var light:PointLight3D;
 		protected var timer:Timer;
 
-		protected const displayStructure:Boolean = false;
 
 		protected const nAxonLights:Number = 10;
 		protected const nAxonLightOffset:Number = 0;
@@ -35,6 +39,18 @@ package org.flg.soma
 		protected const nLDLightOffset:Number = nUDLightOffset + nUDLights;
 
 		protected var state:Array;
+
+		private var text3D:Text3D;
+		private var textMaterial:Letter3DMaterial;
+		private var font3D:Font3D;
+
+		private var lastFrameTime:Number;
+
+		private var eventsRegistered:Boolean = false;
+
+		private var update:Boolean = true;
+		private var rotate:Boolean = true;
+		private var displayStructure:Boolean = false;
 
 		public function Soma()
 		{
@@ -64,6 +80,28 @@ package org.flg.soma
 			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 			loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
 			loader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+
+			try {
+				loader.load(request);
+			} catch (error:Error) {
+				trace("Unable to load requested document.");
+			}
+		}
+
+		private function buttonPress(n:Number, down:Boolean):void
+		{
+			var loader:URLLoader;
+			var request:URLRequest;
+
+			request = new URLRequest("http://127.0.0.1:8080/soma/button/" + n +
+						 (down ? "/down" : "/up"));
+			loader = new URLLoader();
+// 			loader.addEventListener(Event.COMPLETE, completeHandler);
+// 			loader.addEventListener(Event.OPEN, openHandler);
+// 			loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+// 			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+// 			loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+ 			loader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 
 			try {
 				loader.load(request);
@@ -151,23 +189,123 @@ package org.flg.soma
 			soma.addChild(lowerDodeca);
 			soma.addChild(axon);
 			scene.addChild(soma);
+
+			textMaterial = new Letter3DMaterial(0x00FFFF);
+			font3D = new HelveticaRoman();
+			text3D = new Text3D("0 fps", font3D, textMaterial);
+			text3D.scale = 0.5;
+			text3D.x = 800;
+			text3D.y = 600;
+			scene.addChild(text3D);
+
+//			var textMat:ColorMaterial = new ColorMaterial(0xff0000);
+//			var text:Text3D = new Text3D("SOMA", new HelveticaMedium(), textMat);
+//			scene.addChild(text);
 		}
 
 		override protected function onRenderTick(event:Event=null):void
 		{
 			var i:Number;
-			for (i = 0; i < nAxonLights; i++) {
-				axon.setLight(i,state[i]);
-			}
-			for (i = 0; i < nUDLights; i++) {
-				upperDodeca.setLight(i,state[i + nUDLightOffset]);
-			}
-			for (i = 0; i < nLDLights; i++) {
-				lowerDodeca.setLight(i,state[i + nLDLightOffset]);
+			var time:Number;
+			var date:Date;
+
+			if (!eventsRegistered) {
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				stage.scaleMode = StageScaleMode.SHOW_ALL;
+				eventsRegistered = true;
 			}
 
-			soma.yaw(1);
+			date = new Date();
+
+			time = date.time;
+
+			text3D.text = (1000 / (time - lastFrameTime)).toFixed(2) + " fps";
+			lastFrameTime = time;
+
+			if (update) {
+				for (i = 0; i < nAxonLights; i++) {
+					axon.setLight(i,state[i]);
+				}
+				for (i = 0; i < nUDLights; i++) {
+					upperDodeca.setLight(i,state[i + nUDLightOffset]);
+				}
+				for (i = 0; i < nLDLights; i++) {
+					lowerDodeca.setLight(i,state[i + nLDLightOffset]);
+				}
+			}
+
+			axon.displayStructure(displayStructure);
+			upperDodeca.displayStructure(displayStructure);
+			lowerDodeca.displayStructure(displayStructure);
+
+			trace(viewport.autoScaleToStage);
+
+			if (rotate)
+				soma.yaw(1);
+
+			var scale:Number = stage.height/480;
+
+			trace(stage.scaleMode);
+
 			super.onRenderTick(event);
+		}
+
+		private function onKeyDown(e:KeyboardEvent):void
+		{
+			trace("keyDown: " + e.keyCode);
+			switch (e.keyCode) {
+			case 48: /* 0 */
+			case 49: /* 1 */
+			case 50: /* 2 */
+			case 51: /* 3 */
+			case 52: /* 4 */
+			case 53: /* 5 */
+			case 54: /* 6 */
+			case 55: /* 7 */
+			case 56: /* 8 */
+			case 57: /* 9 */
+				buttonPress(e.keyCode - 48,true);
+				break;
+
+			case 70: /* F */
+				if (stage.displayState == StageDisplayState.FULL_SCREEN) {
+					stage.displayState = StageDisplayState.NORMAL;
+				} else {
+					stage.displayState = StageDisplayState.FULL_SCREEN;
+				}
+				break;
+
+			case 82: /* R */
+				rotate = !rotate;
+				break;
+
+			case 83: /* S */
+				displayStructure = !displayStructure;
+				break;
+
+			case 85: /* U */
+				update = !update;
+				break;
+			}
+		}
+		private function onKeyUp(e:KeyboardEvent):void
+		{
+			trace("keyUp: " + e.keyCode);
+			switch (e.keyCode) {
+			case 48: /* 0 */
+			case 49: /* 1 */
+			case 50: /* 2 */
+			case 51: /* 3 */
+			case 52: /* 4 */
+			case 53: /* 5 */
+			case 54: /* 6 */
+			case 55: /* 7 */
+			case 56: /* 8 */
+			case 57: /* 9 */
+				buttonPress(e.keyCode - 48,false);
+				break;
+			}
 		}
 	}
 }

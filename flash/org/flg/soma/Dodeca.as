@@ -11,6 +11,7 @@ package org.flg.soma
 		protected var r:Number;
 		protected var pents:Array;
 		protected var dends:Array;
+		protected var nDendrites:Number;
 
 		private static const normals:Array = [
 			new Number3D( 0.000000,  0.000000,  1.000000),
@@ -81,6 +82,7 @@ package org.flg.soma
 
 			mat = material;
 			r = radius;
+			nDendrites = dendrites;
 
 			pents = new Array(12);
 
@@ -111,11 +113,11 @@ package org.flg.soma
 				pents[i].x = normals[i].x * r;
 				pents[i].y = normals[i].y * r;
 				pents[i].z = normals[i].z * r;
+				pents[i].visible = structure;
 
 				trace("foo" + pents[i].x + " " + pents[i].y+ " " + pents[i].z + " " );
 
-				if (structure)
-					addChild(pents[i]);
+				addChild(pents[i]);
 			}
 
 			dends = new Array(verts.length);
@@ -152,6 +154,18 @@ package org.flg.soma
 						n++;
 					}
 				}
+			}
+		}
+
+		public function displayStructure(structure:Boolean = true):void
+		{
+			var i:Number;
+
+			for (i = 0; i < normals.length ; i++) {
+				pents[i].visible = structure;
+			}
+			for (i = 0; i < nDendrites; i++) {
+				dends[i].displayStructure(structure);
 			}
 		}
 

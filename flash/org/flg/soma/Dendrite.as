@@ -37,19 +37,19 @@ package org.flg.soma
 
 			c[0] = new Cylinder(mat, length/30, length, 8, 1, -1, false, false);
 			c[0].y = length/2;
-			if (structure)
-				addChild(c[0]);
+			c[0].visible = structure;
+			addChild(c[0]);
 
 			l1 = length * 0.8;
 			c[1] = new Cylinder(mat, length/30, l1, 8, 1, -1, false, false);
 			c[1].y = l1 / 2;
+			c[1].visible = structure;
 
 			led[0] = new Sphere(m[0], length/15);
 			led[0].y = l1;
 
 			d[0] = new DisplayObject3D();
-			if (structure)
-				d[0].addChild(c[1]);
+			d[0].addChild(c[1]);
 			d[0].addChild(led[0]);
 
 			d[0].rotationZ = 30;
@@ -60,13 +60,13 @@ package org.flg.soma
 			l2 = length * 0.4;
 			c[2] = new Cylinder(mat, length/30, l2, 8, 1, -1, false, false);
 			c[2].y = l2 / 2;
+			c[2].visible = structure;
 
 			led[1] = new Sphere(m[1], length/15);
 			led[1].y = l2;
 
 			d[1] = new DisplayObject3D();
-			if (structure)
-				d[1].addChild(c[2]);
+			d[1].addChild(c[2]);
 			d[1].addChild(led[1]);
 
 			d[1].rotationZ = -30;
@@ -82,6 +82,13 @@ package org.flg.soma
 		public function setLight(led:Number, color:Number): void
 		{
 			m[led].fillColor = color;
+		}
+
+		public function displayStructure(structure:Boolean = true):void
+		{
+			c[0].visible = structure;
+			c[1].visible = structure;
+			c[2].visible = structure;
 		}
 
 	}
