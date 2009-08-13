@@ -25,29 +25,31 @@
 #include "pins.h"
 
 uint8_t led_val[3];
+uint8_t back_buffer[3];
 uint8_t bam_mask;
 
-void handle_led(void *data, uint8_t idx, uint8_t val)
+void handle_long_data(void *data, uint32_t val)
 {
-	led_val[idx] = val;
+	back_buffer[0] = val & 0xff;
+	back_buffer[1] = (val >> 8) & 0xff;
+	back_buffer[2] = (val >> 16) & 0xff;
 }
 
-
-struct proto_widget widgets[] = {
-	PROTO_WIDGET_LIGHT(0),
-	PROTO_WIDGET_LIGHT(1),
-	PROTO_WIDGET_LIGHT(2),
-};
+void handle_sync(void *data)
+{
+	led_val[0] = back_buffer[0];
+	led_val[1] = back_buffer[1];
+	led_val[2] = back_buffer[2];
+}
 
 struct proto_handlers handlers = {
-	.relay = &handle_led,
+	.long_data = &handle_long_data,
+	.sync = &handle_sync,
 };
 
 
 struct proto flg_proto = {
 	.handlers = &handlers,
-	.widgets = widgets,
-	.n_widgets = ARRAY_SIZE(widgets),
 };
 
 void flg_recv(uint8_t c)
