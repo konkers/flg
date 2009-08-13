@@ -192,6 +192,9 @@ static void proto_handle_packet(struct proto *p)
 	else if (pkt->cmd >= PROTO_CMD_DPOT0_SET &&
 		 pkt->cmd <= PROTO_CMD_DPOT1_SET)
 		proto_set_dpot(p, pkt->cmd - PROTO_CMD_DPOT0_SET, pkt->val);
+	else if (pkt->cmd == PROTO_CMD_SYNC && p->handlers->sync)
+		p->handlers->sync(p->handler_data);
+
 }
 
 

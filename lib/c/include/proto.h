@@ -91,6 +91,7 @@ struct proto_handlers {
 	void (* set_addr)(void *data, uint8_t addr);
 
 	void (* long_data)(void *data, uint32_t val);
+	void (* sync)(void *data);
 
 	void (* send)(void *data, uint8_t *pkt_data, int len);
 	void (* resp)(void *data, struct proto_packet *pkt);
@@ -127,6 +128,8 @@ enum proto_cmd {
 
 	PROTO_CMD_DPOT0_SET =		0x60,
 	PROTO_CMD_DPOT1_SET =		0x61,
+
+	PROTO_CMD_SYNC =		0x80,
 };
 
 enum proto_state {
