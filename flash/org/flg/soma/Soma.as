@@ -215,9 +215,6 @@ package org.flg.soma
 			text3D.y = 600;
 			scene.addChild(text3D);
 
-//			var textMat:ColorMaterial = new ColorMaterial(0xff0000);
-//			var text:Text3D = new Text3D("SOMA", new HelveticaMedium(), textMat);
-//			scene.addChild(text);
 		}
 
 		override protected function onRenderTick(event:Event=null):void

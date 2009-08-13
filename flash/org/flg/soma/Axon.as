@@ -57,7 +57,10 @@ package org.flg.soma
 				pents[i].visible = structure;
 				c.addChild(pents[i]);
 
-				if (i > 0 && i<11) {
+				flMat = new ColorMaterial(0xff8800);
+
+				if (i > 0 && i < 11) {
+					trace("m[" + (i - 1) + "]");
 					m[i-1] = new ColorMaterial(0x00ffff);
 					leds[i-1] = new Sphere(m[i-1], 10);
 					leds[i-1].rotationY = rot;
@@ -65,22 +68,31 @@ package org.flg.soma
 					pos.rotateY(i * a / n );
 					leds[i-1].position = pos;
 					c.addChild(leds[i-1]);
+					if (i > 1 && i < 10) {
+						var j:Number;
+						for (j = 0; j < 3; j++) {
+							var f:Number = (i - 2) * 3 + j;
+
+							flames[f] = new Cone(flMat,
+									     j == 1 ? 20 : 10,
+									     j == 1 ? 120 : 60,
+									     3, 3);
+							flames[f].rotationX = 90 + ((j - 1) * 20);
+							flames[f].rotationY = rot - 90 - angle/(2*n);
+
+							pos = new Number3D(0,0,r*1.05 +
+									   (j == 1 ? 60 : 20));
+
+
+							pos.rotateX((j - 1) * 5);
+							pos.rotateY(rot-90-angle/(2*n));
+							flames[f].position = pos;
+							flames[f].visible = false;
+							c.addChild(flames[f]);
+						}
+					}
 				}
 
-			}
-
-			flMat = new ColorMaterial(0xff8800);
-
-			for (i = 0; i < 24; i++) {
-				flames[i] = new Cone(flMat, 10, 60, 3, 3);
-				flames[i].rotationX = 90;
-				flames[i].rotationY = (i + 2) * a / (24 + 4);
-				pos = new Number3D(0,0,r*1.1);
-
-				pos.rotateY((i + 2) * a / (24 + 4));
-				flames[i].position = pos;
-				flames[i].visible = false;
-				c.addChild(flames[i]);
 			}
 
 			c.z = -r;

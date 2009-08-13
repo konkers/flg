@@ -103,7 +103,6 @@ package org.flg.soma
 						yRot += 180;
 						yRot *= -1;
 					}
-					trace( "y = " + yRot + " z = " + zRot );
 					pents[i].rotationY = yRot;
 					pents[i].rotationZ = zRot;
 				} else if (z > 0.9) {
@@ -114,8 +113,6 @@ package org.flg.soma
 				pents[i].y = normals[i].y * r;
 				pents[i].z = normals[i].z * r;
 				pents[i].visible = structure;
-
-				trace("foo" + pents[i].x + " " + pents[i].y+ " " + pents[i].z + " " );
 
 				addChild(pents[i]);
 			}
