@@ -18,6 +18,16 @@
 
 #define N_LIGHTS		(AXON_LIGHTS + UD_LIGHTS + LD_LIGHTS)
 
+#define AXON_RELAYS		24
+#define AXON_RELAY_OFFSET	0
+
+#define SPARKLE_RELAYS		5
+#define SPARKLE_RELAY_OFFSET	(AXON_RELAY_OFFSET + AXON_RELAYS)
+
+#define N_RELAYS		(AXON_RELAYS + SPARKLE_RELAYS)
+
+#define N_BUTTONS		11
+
 #define PHASE_DELAY		1000
 
 static uint8_t red[N_LIGHTS];
@@ -26,8 +36,9 @@ static uint8_t blue[N_LIGHTS];
 //static uint8_t state[N_LIGHTS];
 static int phase[N_LIGHTS];
 
-static void
-state_page(struct mg_connection *conn,
+static uint8_t relays[N_RELAYS];
+
+static void state_page(struct mg_connection *conn,
 	    const struct mg_request_info *ri, void *data)
 {
 	int i;
@@ -38,6 +49,59 @@ state_page(struct mg_connection *conn,
 	for (i = 0; i < N_LIGHTS; i++) {
 		mg_printf(conn, "%02x: %06x\r\n", i,
 			  (red[i] << 16) + (green[i] << 8) + blue[i]);
+	}
+
+	for (i = 0; i < N_RELAYS; i++) {
+		mg_printf(conn, "%02x: %x\r\n", i + 0x80, relays[i]);
+
+	}
+}
+
+static void button_page(struct mg_connection *conn,
+	    const struct mg_request_info *ri, void *data)
+{
+	char *num;
+	char *dir;
+
+	char *p;
+	int button;
+	int s;
+
+	/* XXX: probably buffer overflow action here */
+	dir = strrchr(ri->uri, '/');
+	*dir = '\0';
+	dir++;
+
+	num = strrchr(ri->uri, '/');
+	num++;
+
+	button = strtoul(num, &p, 0);
+	if (p == NULL || p == num ) {
+		printf("bad integer %s\n", num);
+		return;
+	}
+
+	if (button < 0 || button >= N_BUTTONS) {
+		printf("button %d out of range\n", button);
+		return;
+	}
+
+	if (!strcmp(dir, "down")) {
+		s = 1;
+	} else if (!strcmp(dir, "up")) {
+		s = 0;
+	} else {
+		printf("unkown button action %s\n", dir);
+		return;
+	}
+
+	if (button > 0 && button < 9) {
+		button -= 1;
+		relays[button * 3] = s;
+		relays[button * 3 + 1] = s;
+		relays[button * 3 + 2] = s;
+	} else {
+		printf("button: %d %s\n", button, dir);
 	}
 }
 
@@ -129,6 +193,7 @@ int main(int argc, char *argv[])
 	ctx = mg_start();
 	mg_set_option(ctx, "ports", "8080");
 	mg_set_uri_callback(ctx, "/soma/state", &state_page, NULL);
+	mg_set_uri_callback(ctx, "/soma/button/*", &button_page, NULL);
 
 	for (;;) {
 		for (i = 0; i < N_LIGHTS; i++) {

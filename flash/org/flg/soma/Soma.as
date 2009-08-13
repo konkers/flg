@@ -38,7 +38,18 @@ package org.flg.soma
 		protected const nLDLights:Number = 10;
 		protected const nLDLightOffset:Number = nUDLightOffset + nUDLights;
 
-		protected var state:Array;
+		protected const nLights:Number = nAxonLights + nUDLights + nLDLights;
+
+		protected const nAxonRelays:Number = 24;
+		protected const nAxonRelayOffset:Number = 0;
+
+		protected const nSparkleRelays:Number = 5;
+		protected const nSparkleRelayOffset:Number = nAxonRelayOffset + nAxonRelays;
+
+		protected const nRelays:Number = nAxonRelays + nSparkleRelays;
+
+		protected var ledState:Array;
+		protected var relayState:Array;
 
 		private var text3D:Text3D;
 		private var textMaterial:Letter3DMaterial;
@@ -61,7 +72,8 @@ package org.flg.soma
 
 			createModel();
 
-			state = new Array(nAxonLights + nUDLights + nLDLights);
+			ledState = new Array(nLights);
+			relayState = new Array(nRelays);
 			getState();
 			startRendering();
 
@@ -125,7 +137,12 @@ package org.flg.soma
 					index = parseInt(match[0], 16);
 					val = parseInt(match[1], 16);
 
-					state[index] = val;
+					if (index < nLights) {
+						ledState[index] = val;
+					} else if (index >= 0x80 &&
+						   ((index - 0x80) < nRelays)) {
+						relayState[index - 0x80] = val;
+					}
 				}
 			}
 			getState();
@@ -225,14 +242,19 @@ package org.flg.soma
 
 			if (update) {
 				for (i = 0; i < nAxonLights; i++) {
-					axon.setLight(i,state[i]);
+					axon.setLight(i,ledState[i]);
 				}
 				for (i = 0; i < nUDLights; i++) {
-					upperDodeca.setLight(i,state[i + nUDLightOffset]);
+					upperDodeca.setLight(i,ledState[i + nUDLightOffset]);
 				}
 				for (i = 0; i < nLDLights; i++) {
-					lowerDodeca.setLight(i,state[i + nLDLightOffset]);
+					lowerDodeca.setLight(i,ledState[i + nLDLightOffset]);
 				}
+
+				for (i = 0; i < nAxonRelays; i++) {
+					axon.setRelay(i, relayState[i + nAxonRelayOffset] != 0);
+				}
+
 			}
 
 			axon.displayStructure(displayStructure);

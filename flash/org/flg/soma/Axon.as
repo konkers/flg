@@ -79,6 +79,7 @@ package org.flg.soma
 
 				pos.rotateY((i + 2) * a / (24 + 4));
 				flames[i].position = pos;
+				flames[i].visible = false;
 				c.addChild(flames[i]);
 			}
 
@@ -86,9 +87,14 @@ package org.flg.soma
 			addChild(c);
 		}
 
-		public function setLight(led:Number, color:Number): void
+		public function setLight(led:Number, color:Number):void
 		{
 			m[9-led].fillColor = color;
+		}
+
+		public function setRelay(relay:Number, on:Boolean):void
+		{
+			flames[23-relay].visible = on;
 		}
 
 		public function displayStructure(structure:Boolean = true):void
