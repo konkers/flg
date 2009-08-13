@@ -30,6 +30,7 @@ extern "C" {
 #define PROTO_ADDR_BCAST	0xff
 
 #define PROTO_SOF	0x53
+#define PROTO_SOF_LONG	0x54
 #define PROTO_EOF	0x45
 
 enum proto_widget_type {
@@ -89,6 +90,8 @@ struct proto_handlers {
 	void (* dpot)(void *data, uint8_t idx, uint8_t val);
 	void (* set_addr)(void *data, uint8_t addr);
 
+	void (* long_data)(void *data, uint32_t val);
+
 	void (* send)(void *data, uint8_t *pkt_data, int len);
 	void (* resp)(void *data, struct proto_packet *pkt);
 };
@@ -133,6 +136,11 @@ enum proto_state {
 	PROTO_STATE_VAL,
 	PROTO_STATE_CRC,
 	PROTO_STATE_EOF,
+	PROTO_STATE_LEN,
+	PROTO_STATE_LONG_DATA0,
+	PROTO_STATE_LONG_DATA1,
+	PROTO_STATE_LONG_DATA2,
+	PROTO_STATE_LONG_DATA3,
 };
 
 struct proto {
@@ -146,6 +154,7 @@ struct proto {
 	enum proto_state	state;
 	uint8_t addr;
 	uint8_t crc;
+	uint32_t long_val;
 };
 
 void proto_init(struct proto *p, uint8_t addr);

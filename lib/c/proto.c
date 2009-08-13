@@ -202,6 +202,10 @@ void proto_recv(struct proto *p, uint8_t data)
 		if (data == PROTO_SOF) {
 			p->crc = crc8_start();
 			p->state = PROTO_STATE_ADDR;
+			p->packet.sof = data;
+		} else if (data == PROTO_SOF_LONG) {
+			p->state = PROTO_STATE_ADDR;
+			p->packet.sof = data;
 		}
 		break;
 
@@ -214,7 +218,11 @@ void proto_recv(struct proto *p, uint8_t data)
 	case PROTO_STATE_CMD:
 		p->crc = crc8_calc(p->crc, data);
 		p->packet.cmd = data;
-		p->state = PROTO_STATE_VAL;
+		if (p->packet.sof == PROTO_SOF) {
+			p->state = PROTO_STATE_VAL;
+		} else if (p->packet.sof == PROTO_SOF_LONG) {
+			p->state = PROTO_STATE_LEN;
+		}
 		break;
 
 	case PROTO_STATE_VAL:
@@ -234,6 +242,43 @@ void proto_recv(struct proto *p, uint8_t data)
 			proto_handle_packet(p);
 
 		p->state = PROTO_STATE_IDLE;
+		break;
+
+	case PROTO_STATE_LEN:
+		p->packet.val = data;
+		p->state = PROTO_STATE_LONG_DATA0;
+		break;
+
+	case PROTO_STATE_LONG_DATA0:
+		p->long_val &= 0x000000ff;
+		p->long_val |= data;
+		p->state = PROTO_STATE_LONG_DATA1;
+		break;
+
+	case PROTO_STATE_LONG_DATA1:
+		p->long_val &= 0x0000ff00;
+		p->long_val |= data << 8;
+		p->state = PROTO_STATE_LONG_DATA2;
+		break;
+
+	case PROTO_STATE_LONG_DATA2:
+		p->long_val &= 0x00ff0000;
+		p->long_val |= data << 16;
+		p->state = PROTO_STATE_LONG_DATA3;
+		break;
+
+	case PROTO_STATE_LONG_DATA3:
+		p->long_val &= 0xff000000;
+		p->long_val |= data << 24;
+
+		if (p->packet.addr == p->addr && p->handlers->long_data)
+			p->handlers->long_data(p->handler_data, p->long_val);
+
+		p->packet.val--;
+		if (p->packet.val == 0)
+			p->state = PROTO_STATE_EOF;
+		else
+			p->state = PROTO_STATE_LONG_DATA0;
 		break;
 	}
 }
