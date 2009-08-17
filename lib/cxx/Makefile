@@ -1,4 +1,4 @@
-OBJS=UdpLink.o TtyLink.o Proto.o Brain.o MapFileParser.o
+OBJS=UdpLink.o TtyLink.o Proto.o Brain.o MapFileParser.o RingBuff.o
 TARGETS=libflgxx.a
 
 all: ${TARGETS}
