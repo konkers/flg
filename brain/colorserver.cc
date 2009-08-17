@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include "mongoose.h"
 
+#include <MapFileParser.hh>
+
+#include "SimState.hh"
 
 #define AXON_LIGHTS		10
 #define AXON_LIGHT_OFFSET	0
@@ -105,8 +108,38 @@ static void button_page(struct mg_connection *conn,
 	}
 }
 
+static void light_page(struct mg_connection *conn,
+	    const struct mg_request_info *ri, void *data)
+{
+	char *num;
+	char *p;
+	int light;
+	int i;
+
+	num = strrchr(ri->uri, '/');
+	num++;
+
+	light = strtoul(num, &p, 0);
+	if (p == NULL || p == num ) {
+		printf("bad integer %s\n", num);
+		return;
+	}
+
+	if (light < 0 || light >= N_LIGHTS) {
+		printf("light %d out of range\n", light);
+		return;
+	}
+
+	for (i = 0; i < N_LIGHTS; i++) {
+		red[i] = i == light ? 0xff : 0x00;
+		green[i] = i == 0x00;
+		blue[i] = i == light ? 0x00 : 0xff;
+	}
+}
+
 void set(int i)
 {
+#if 0
 	int state = phase[i] / (0x100 + PHASE_DELAY);
 	int idx = phase[i] % (0x100 + PHASE_DELAY);
 	if (idx > 0xff)
@@ -149,6 +182,7 @@ void set(int i)
 		blue[i] = 0xff - idx;
 		break;
 	}
+#endif
 }
 
 int rot(uint8_t *val, int inc, uint8_t *next_val)
@@ -177,6 +211,41 @@ int main(int argc, char *argv[])
 	struct mg_context *ctx;
 	int i;
 	int inc = 8;
+	SimState simState;
+	map<string, int> ledAddrs;
+	map<string, int>::iterator it;
+	MapFileParser p;
+	char *key;
+	int val;
+
+	simState.loadLightMapping("simLed.map");
+
+	p.open("brainLed.map");
+	while (p.read(&key, &val))
+		ledAddrs[key] = val;
+
+	for (it= ledAddrs.begin(); it != ledAddrs.end(); it++)
+		simState.addLedRgb(it->first.c_str(), it->second);
+
+	simState.send(PROTO_SOF_LONG);
+	simState.send(0x10); // addr
+	simState.send(0x00); // cmd
+	simState.send(0x03); // 32bit words
+
+	simState.send(0xff);
+	simState.send(0x00);
+	simState.send(0x00);
+	simState.send(0x00);
+
+	simState.send(0x00);
+	simState.send(0xff);
+	simState.send(0x00);
+	simState.send(0x00);
+
+	simState.send(0x00);
+	simState.send(0x00);
+	simState.send(0xff);
+	simState.send(0x00);
 
 	for (i = 0; i < AXON_LIGHTS; i++) {
 		phase[i] = (AXON_LIGHTS - i - 1) * 32 + 0x80;
@@ -194,6 +263,7 @@ int main(int argc, char *argv[])
 	mg_set_option(ctx, "ports", "8080");
 	mg_set_uri_callback(ctx, "/soma/state", &state_page, NULL);
 	mg_set_uri_callback(ctx, "/soma/button/*", &button_page, NULL);
+	mg_set_uri_callback(ctx, "/soma/light/*", &light_page, NULL);
 
 	for (;;) {
 		for (i = 0; i < N_LIGHTS; i++) {

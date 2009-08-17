@@ -1,5 +1,6 @@
 OBJS=mongoose.o \
-	colorserver.o
+	colorserver.o \
+	SimState.o
 
 TARGETS=brain
 
