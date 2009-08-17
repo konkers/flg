@@ -8,20 +8,22 @@ static struct proto_widget relay3_widgets[] = {
 	PROTO_WIDGET_RELAY(2,100),
 };
 
-extern "C" void handle_relay(void *data, uint8_t idx, uint8_t state)
+void handle_relay(void *data, uint8_t idx, uint8_t state)
 {
-	printf("relay %d = %d\n", idx, state);
+	SimState::SimProto *p = (SimState::SimProto *)data;
+	printf("%s: relay %d = %d\n", p->name.c_str(), idx, state);
 }
 
-extern "C" void handle_long_data(void *data, uint32_t val)
+void handle_long_data(void *data, uint32_t val)
 {
-	printf("long_data %08x\n", val);
+	SimState::SimProto *p = (SimState::SimProto *)data;
+	printf("%s: long_data %08x\n", p->name.c_str(), val);
 }
 
-extern "C" void handle_sync(void *data)
+void handle_sync(void *data)
 {
-	printf("sync\n");
-
+	SimState::SimProto *p = (SimState::SimProto *)data;
+	printf("%s: sync\n", p->name.c_str());
 }
 
 

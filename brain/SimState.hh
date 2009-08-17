@@ -37,6 +37,10 @@ private:
 
 	void populateMapping(void);
 
+	friend void handle_relay(void *data, uint8_t idx, uint8_t state);
+	friend void handle_long_data(void *data, uint32_t val);
+	friend void handle_sync(void *data);
+
 public:
 	SimState(void);
 
