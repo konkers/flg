@@ -2,11 +2,13 @@
 #ifndef __brain_sim_state_hh__
 #define __brain_sim_state_hh__
 
-#include <proto.h>
-
 #include <vector>
 #include <map>
 #include <string>
+
+#include <proto.h>
+
+#include <RingBuff.hh>
 
 using namespace std;
 
@@ -28,7 +30,7 @@ private:
 	};
 
 	static const int outputBuffSize = 512;
-	uint8_t outputBuff[outputBuffSize];
+	RingBuff *outputBuff;
 
 	vector<SimProto *> protos;
 	map<string, int> ledMapping;
@@ -45,11 +47,13 @@ private:
 	friend void handle_relay(void *data, uint8_t idx, uint8_t state);
 	friend void handle_long_data(void *data, uint32_t val);
 	friend void handle_sync(void *data);
+	friend void handle_send(void *data, uint8_t *pkt_data, int len);
 
 	friend void state_page(struct mg_connection *conn,
 			       const struct mg_request_info *ri, void *data);
 
 	void handleLongData(SimProto *p, uint32_t val);
+	void insertByte(uint8_t c);
 	void statePage(struct mg_connection *conn,
 		       const struct mg_request_info *ri);
 public:
@@ -63,6 +67,7 @@ public:
 	void startWebServer(int port);
 
 	void send(uint8_t c);
+	uint8_t recv(void);
 	void ping(void);
 	bool hasData(void);
 };

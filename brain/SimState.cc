@@ -29,12 +29,27 @@ void handle_sync(void *data)
 	printf("%s: sync\n", p->name.c_str());
 }
 
+void handle_send(void *data, uint8_t *pkt_data, int len)
+{
+	SimState::SimProto *p = (SimState::SimProto *)data;
+	int i;
+
+	for (i = 0; i < len; i++)
+		p->sim->insertByte(pkt_data[i]);
+}
+
+
 void SimState::handleLongData(SimProto *p, uint32_t val)
 {
 	int i = ledMapping[p->name];
 	if (i >= 0 && i < nLights) {
 		lightState[i] = val;
 	}
+}
+
+void SimState::insertByte(uint8_t c)
+{
+	outputBuff->insert(c);
 }
 
 void state_page(struct mg_connection *conn,
@@ -53,6 +68,8 @@ SimState::SimState(void)
 	handlers.sync = handle_sync;
 
 	memset(lightState, 0x0, sizeof(lightState));
+
+	outputBuff = new RingBuff(outputBuffSize);
 }
 
 bool SimState::loadLightMapping(const char * fileName)
@@ -142,11 +159,19 @@ void SimState::send(uint8_t c)
 
 void SimState::ping(void)
 {
-	
+	vector<SimProto *>::iterator i;
+
+	for (i = protos.begin(); i != protos.end(); i++)
+		proto_ping(&(*i)->p);
 }
 
 bool SimState::hasData(void)
 {
-	return false;
+	return outputBuff->length() > 0;
+}
+
+uint8_t SimState::recv(void)
+{
+	return outputBuff->remove();
 }
 
