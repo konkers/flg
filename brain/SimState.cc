@@ -2,6 +2,8 @@
 #include "SimState.hh"
 #include "MapFileParser.hh"
 
+#include "mongoose.h"
+
 static struct proto_widget relay3_widgets[] = {
 	PROTO_WIDGET_RELAY(0,100),
 	PROTO_WIDGET_RELAY(1,100),
@@ -17,7 +19,8 @@ void handle_relay(void *data, uint8_t idx, uint8_t state)
 void handle_long_data(void *data, uint32_t val)
 {
 	SimState::SimProto *p = (SimState::SimProto *)data;
-	printf("%s: long_data %08x\n", p->name.c_str(), val);
+	p->sim->handleLongData(p, val);
+
 }
 
 void handle_sync(void *data)
@@ -26,12 +29,30 @@ void handle_sync(void *data)
 	printf("%s: sync\n", p->name.c_str());
 }
 
+void SimState::handleLongData(SimProto *p, uint32_t val)
+{
+	int i = ledMapping[p->name];
+	if (i >= 0 && i < nLights) {
+		lightState[i] = val;
+	}
+}
+
+void state_page(struct mg_connection *conn,
+		const struct mg_request_info *ri, void *data)
+{
+	SimState *s = (SimState *)data;
+	s->statePage(conn, ri);
+}
+
+
 
 SimState::SimState(void)
 {
 	handlers.relay= handle_relay;
 	handlers.long_data = handle_long_data;
 	handlers.sync = handle_sync;
+
+	memset(lightState, 0x0, sizeof(lightState));
 }
 
 bool SimState::loadLightMapping(const char * fileName)
@@ -84,6 +105,31 @@ void SimState::addRelay3(string name, uint8_t addr)
 
 	protos.insert(protos.end(), p);
 }
+
+void SimState::startWebServer(int port)
+{
+	char buff[16];
+	snprintf(buff, 16, "%d", port);
+	ctx = mg_start();
+	mg_set_option(ctx, "ports", buff);
+	mg_set_uri_callback(ctx, "/soma/state", &state_page, this);
+//	mg_set_uri_callback(ctx, "/soma/button/*", &button_page, NULL);
+//	mg_set_uri_callback(ctx, "/soma/light/*", &light_page, NULL);
+}
+
+void SimState::statePage(struct mg_connection *conn,
+			 const struct mg_request_info *ri)
+{
+	int i;
+
+	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
+		  "content-Type: text/plain\r\n\r\n");
+
+	for (i = 0; i < nLights; i++) {
+		mg_printf(conn, "%02x: %08x\r\n", i, lightState[i]);
+	}
+}
+
 
 
 void SimState::send(uint8_t c)

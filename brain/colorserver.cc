@@ -39,27 +39,9 @@ static uint8_t blue[N_LIGHTS];
 //static uint8_t state[N_LIGHTS];
 static int phase[N_LIGHTS];
 
-static uint8_t relays[N_RELAYS];
+//static uint8_t relays[N_RELAYS];
 
-static void state_page(struct mg_connection *conn,
-	    const struct mg_request_info *ri, void *data)
-{
-	int i;
-
-	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
-		  "content-Type: text/plain\r\n\r\n");
-
-	for (i = 0; i < N_LIGHTS; i++) {
-		mg_printf(conn, "%02x: %06x\r\n", i,
-			  (red[i] << 16) + (green[i] << 8) + blue[i]);
-	}
-
-	for (i = 0; i < N_RELAYS; i++) {
-		mg_printf(conn, "%02x: %x\r\n", i + 0x80, relays[i]);
-
-	}
-}
-
+#if 0
 static void button_page(struct mg_connection *conn,
 	    const struct mg_request_info *ri, void *data)
 {
@@ -136,10 +118,9 @@ static void light_page(struct mg_connection *conn,
 		blue[i] = i == light ? 0x00 : 0xff;
 	}
 }
-
+#endif
 void set(int i)
 {
-#if 0
 	int state = phase[i] / (0x100 + PHASE_DELAY);
 	int idx = phase[i] % (0x100 + PHASE_DELAY);
 	if (idx > 0xff)
@@ -182,7 +163,6 @@ void set(int i)
 		blue[i] = 0xff - idx;
 		break;
 	}
-#endif
 }
 
 int rot(uint8_t *val, int inc, uint8_t *next_val)
@@ -208,7 +188,6 @@ int rot(uint8_t *val, int inc, uint8_t *next_val)
 
 int main(int argc, char *argv[])
 {
-	struct mg_context *ctx;
 	int i;
 	int inc = 8;
 	SimState simState;
@@ -227,25 +206,7 @@ int main(int argc, char *argv[])
 	for (it= ledAddrs.begin(); it != ledAddrs.end(); it++)
 		simState.addLedRgb(it->first.c_str(), it->second);
 
-	simState.send(PROTO_SOF_LONG);
-	simState.send(0x10); // addr
-	simState.send(0x00); // cmd
-	simState.send(0x03); // 32bit words
-
-	simState.send(0xff);
-	simState.send(0x00);
-	simState.send(0x00);
-	simState.send(0x00);
-
-	simState.send(0x00);
-	simState.send(0xff);
-	simState.send(0x00);
-	simState.send(0x00);
-
-	simState.send(0x00);
-	simState.send(0x00);
-	simState.send(0xff);
-	simState.send(0x00);
+	simState.startWebServer(8080);
 
 	for (i = 0; i < AXON_LIGHTS; i++) {
 		phase[i] = (AXON_LIGHTS - i - 1) * 32 + 0x80;
@@ -259,19 +220,31 @@ int main(int argc, char *argv[])
 		phase[i + LD_LIGHT_OFFSET] = 0x180;
 	}
 
-	ctx = mg_start();
-	mg_set_option(ctx, "ports", "8080");
-	mg_set_uri_callback(ctx, "/soma/state", &state_page, NULL);
-	mg_set_uri_callback(ctx, "/soma/button/*", &button_page, NULL);
-	mg_set_uri_callback(ctx, "/soma/light/*", &light_page, NULL);
+// 	ctx = mg_start();
+// 	mg_set_option(ctx, "ports", "8080");
+// 	mg_set_uri_callback(ctx, "/soma/state", &state_page, NULL);
+// 	mg_set_uri_callback(ctx, "/soma/button/*", &button_page, NULL);
+// 	mg_set_uri_callback(ctx, "/soma/light/*", &light_page, NULL);
 
 	for (;;) {
+		simState.send(PROTO_SOF_LONG);
+		simState.send(0x10); // addr
+		simState.send(0x00); // cmd
+		simState.send(N_LIGHTS); // 32bit words
+
 		for (i = 0; i < N_LIGHTS; i++) {
 			phase[i] += inc;
 			if (phase[i] > (6 * (0x100 + PHASE_DELAY)))
 				phase[i] -= (6 * (0x100 + PHASE_DELAY));
 			set(i);
+
+			simState.send(red[i]);
+			simState.send(green[i]);
+			simState.send(blue[i]);
+			simState.send(0x00);
+
 		}
+		simState.send(PROTO_EOF);
 
 		usleep(1000000/100);
 	}

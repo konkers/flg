@@ -33,7 +33,12 @@ private:
 	vector<SimProto *> protos;
 	map<string, int> ledMapping;
 
+	static const int nLights = 60;
+	uint32_t lightState[nLights];
+
 	struct proto_handlers handlers;
+
+	struct mg_context *ctx;
 
 	void populateMapping(void);
 
@@ -41,6 +46,12 @@ private:
 	friend void handle_long_data(void *data, uint32_t val);
 	friend void handle_sync(void *data);
 
+	friend void state_page(struct mg_connection *conn,
+			       const struct mg_request_info *ri, void *data);
+
+	void handleLongData(SimProto *p, uint32_t val);
+	void statePage(struct mg_connection *conn,
+		       const struct mg_request_info *ri);
 public:
 	SimState(void);
 
@@ -48,6 +59,8 @@ public:
 
 	void addLedRgb(string name, uint8_t addr);
 	void addRelay3(string name, uint8_t addr);
+
+	void startWebServer(int port);
 
 	void send(uint8_t c);
 	void ping(void);
