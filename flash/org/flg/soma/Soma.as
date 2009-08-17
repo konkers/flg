@@ -48,8 +48,12 @@ package org.flg.soma
 
 		protected const nRelays:Number = nAxonRelays + nSparkleRelays;
 
+		protected const nButtons:Number = 11;
+
 		protected var ledState:Array;
 		protected var relayState:Array;
+
+		protected var buttonState:Array;
 
 		private var text3D:Text3D;
 		private var textMaterial:Letter3DMaterial;
@@ -59,14 +63,18 @@ package org.flg.soma
 
 		private var eventsRegistered:Boolean = false;
 
-		private var update:Boolean = true;
+		private var update:Boolean = false;
 		private var rotate:Boolean = true;
-		private var displayStructure:Boolean = false;
+		private var displayFps:Boolean = false;
+		private var displayStructure:Boolean = true;
+
+
 
 		public function Soma()
 		{
-			super(1, 1, true, false);
+			var i:Number;
 
+			super(1, 1, true, false);
 
 			opaqueBackground = 0;
 
@@ -74,6 +82,12 @@ package org.flg.soma
 
 			ledState = new Array(nLights);
 			relayState = new Array(nRelays);
+			buttonState = new Array(nButtons);
+
+			for (i = 0; i < nButtons; i++) {
+				buttonState[i] = new Boolean(false);
+			}
+
 			getState();
 			startRendering();
 
@@ -105,6 +119,10 @@ package org.flg.soma
 			var loader:URLLoader;
 			var request:URLRequest;
 
+			if (buttonState[n] == down) {
+				return;
+			}
+			buttonState[n] = down;
 			request = new URLRequest("http://127.0.0.1:8080/soma/button/" + n +
 						 (down ? "/down" : "/up"));
 			loader = new URLLoader();
@@ -192,6 +210,7 @@ package org.flg.soma
 			lowerDodeca.x = 400;
 			lowerDodeca.y = 50;
 			lowerDodeca.pitch(-90);
+			lowerDodeca.roll(36);
 
 
 			axon = new Axon(mat, 500, 90, 12, displayStructure);
@@ -213,6 +232,7 @@ package org.flg.soma
 			text3D.scale = 0.5;
 			text3D.x = 800;
 			text3D.y = 600;
+			text3D.visible = displayFps;
 			scene.addChild(text3D);
 
 		}
@@ -257,15 +277,12 @@ package org.flg.soma
 			axon.displayStructure(displayStructure);
 			upperDodeca.displayStructure(displayStructure);
 			lowerDodeca.displayStructure(displayStructure);
-
-			trace(viewport.autoScaleToStage);
+			text3D.visible = displayFps;
 
 			if (rotate)
 				soma.yaw(1);
 
 			var scale:Number = stage.height/480;
-
-			trace(stage.scaleMode);
 
 			super.onRenderTick(event);
 		}
@@ -293,6 +310,10 @@ package org.flg.soma
 				} else {
 					stage.displayState = StageDisplayState.FULL_SCREEN;
 				}
+				break;
+
+			case 80: /* P */
+				displayFps = !displayFps;
 				break;
 
 			case 82: /* R */
