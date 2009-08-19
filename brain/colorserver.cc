@@ -7,6 +7,7 @@
 #include "mongoose.h"
 
 #include <MapFileParser.hh>
+#include <Thread.hh>
 
 #include "SimState.hh"
 
@@ -185,10 +186,33 @@ int rot(uint8_t *val, int inc, uint8_t *next_val)
 	return 0;
 }
 
+class TestThread : public Thread
+{
+private:
+	Mutex m;
+
+protected:
+	virtual int run(void)
+	{
+		while (1) {
+			printf("test\n");
+			m.lock();
+		}
+		return 0;
+	}
+
+public:
+	void ping(void) {
+		printf("ping\n");
+		m.unlock();
+	}
+};
+
 
 int main(int argc, char *argv[])
 {
 	int i;
+	int n;
 	int inc = 8;
 	SimState simState;
 	map<string, int> ledAddrs;
@@ -196,6 +220,10 @@ int main(int argc, char *argv[])
 	MapFileParser p;
 	char *key;
 	int val;
+	TestThread t;
+
+	t.start();
+
 
 	simState.loadLightMapping("simLed.map");
 
@@ -226,7 +254,7 @@ int main(int argc, char *argv[])
 // 	mg_set_uri_callback(ctx, "/soma/button/*", &button_page, NULL);
 // 	mg_set_uri_callback(ctx, "/soma/light/*", &light_page, NULL);
 
-	for (;;) {
+	for (n = 0; ;n++) {
 		simState.send(PROTO_SOF_LONG);
 		simState.send(0x10); // addr
 		simState.send(0x00); // cmd
@@ -247,5 +275,8 @@ int main(int argc, char *argv[])
 		simState.send(PROTO_EOF);
 
 		usleep(1000000/100);
+		if ((n % 100) == 0) {
+			t.ping();
+		}
 	}
 }

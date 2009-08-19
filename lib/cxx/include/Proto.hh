@@ -32,6 +32,7 @@ private:
 	struct proto_handlers handlers;
 
 	bool sendMsg(uint8_t addr, uint8_t cmd, uint8_t val);
+	bool sendLongMsg(uint8_t addr, uint8_t cmd, uint32_t *data, uint8_t words);
 
 public:
 	Proto(Link *link, ProtoHandler *protoHander,
@@ -43,12 +44,14 @@ public:
 	bool setRelay(uint8_t addr, uint8_t relay);
 	bool clearRelay(uint8_t addr, uint8_t relay);
 	bool setLight(uint8_t addr, int light, uint8_t val);
+	bool setLights(uint8_t addr, uint32_t *data, uint8_t words);
 	bool setDpot(uint8_t addr, int dpot, uint8_t val);
 	bool setAddr(uint8_t addr, uint8_t newAddr);
 	bool getStatus(uint8_t addr);
 	bool getSwitch(uint8_t addr);
 	bool getAdcLo(uint8_t addr, uint8_t idx);
 	bool getAdcHi(uint8_t addr, uint8_t idx);
+	bool sync(uint8_t addr);
 
 	int waitForMsg(int timeout);
 	void ping(void);
