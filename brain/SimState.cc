@@ -56,7 +56,7 @@ void state_page(struct mg_connection *conn,
 		const struct mg_request_info *ri, void *data)
 {
 	SimState *s = (SimState *)data;
-	s->statePage(conn, ri);
+ 	s->statePage(conn, ri);
 }
 
 
