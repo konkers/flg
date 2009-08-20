@@ -82,6 +82,24 @@ bool Proto::sendMsg(uint8_t addr, uint8_t cmd, uint8_t val)
 	return link->send(&pkt, sizeof(pkt));
 }
 
+bool Proto::sendLongMsg(uint8_t addr, uint8_t cmd, uint32_t *data, uint8_t words)
+{
+	uint8_t d;
+	bool ret = true;
+
+	d = PROTO_SOF_LONG;
+	ret &&= link->send(&d, 1);
+	ret &&= link->send(&addr, 1);
+	ret &&= link->send(&cmd, 1);
+	ret &&= link->send(&words, 1);
+	ret &&= link->send(data, words*4);
+	d = PROTO_EOF;
+	ret &&= link->send(&d, 1);
+
+	return ret;
+}
+
+
 bool Proto::setRelay(uint8_t addr, uint8_t relay)
 {
 	return sendMsg(addr, PROTO_CMD_RELAY_SET, relay);
@@ -98,6 +116,11 @@ bool Proto::setLight(uint8_t addr, int light, uint8_t val)
 		return false;
 
 	return sendMsg(addr, PROTO_CMD_LIGHT0_SET + light, val);
+}
+
+bool setLights(uint8_t addr, uint32_t *data, uint8_t words)
+{
+	return sendLongMsg(addr, 0, data, words);
 }
 
 bool Proto::setDpot(uint8_t addr, int dpot, uint8_t val)
