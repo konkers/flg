@@ -59,6 +59,9 @@ int LedProtoThread::run(void)
 			ledState[addr - minAddr] = soma.getLight(i);
 		}
 		proto->setLights(minAddr, ledState, maxAddr - minAddr);
+		proto->sync(PROTO_ADDR_BCAST);
+		proto->sync(PROTO_ADDR_BCAST);
+		proto->sync(PROTO_ADDR_BCAST);
 	}
 }
 

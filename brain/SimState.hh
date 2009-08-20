@@ -20,12 +20,12 @@
 #include <vector>
 #include <map>
 #include <string>
+using namespace std;
+
 
 #include <proto.h>
 
 #include <RingBuff.hh>
-
-using namespace std;
 
 class SimState
 {
@@ -45,15 +45,18 @@ private:
 	};
 
 	static const int outputBuffSize = 512;
-	RingBuff *outputBuff;
+	RingBuff *flameOutputBuff;
+	RingBuff *ledOutputBuff;
 
-	vector<SimProto *> protos;
+	vector<SimProto *> flameProtos;
+	vector<SimProto *> ledProtos;
 	map<string, int> ledMapping;
 
 	static const int nLights = 60;
 	uint32_t lightState[nLights];
 
-	struct proto_handlers handlers;
+	struct proto_handlers flameHandlers;
+	struct proto_handlers ledHandlers;
 
 	struct mg_context *ctx;
 
@@ -68,7 +71,8 @@ private:
 			       const struct mg_request_info *ri, void *data);
 
 	void handleLongData(SimProto *p, uint32_t val);
-	void insertByte(uint8_t c);
+	void insertFlameByte(uint8_t c);
+	void insertLedByte(uint8_t c);
 	void statePage(struct mg_connection *conn,
 		       const struct mg_request_info *ri);
 public:
@@ -81,9 +85,10 @@ public:
 
 	void startWebServer(int port);
 
+	void ping(void);
+
 	void send(uint8_t c);
 	uint8_t recv(void);
-	void ping(void);
 	bool hasData(void);
 };
 

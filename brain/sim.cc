@@ -22,7 +22,8 @@
 #include "Thread.h"
 
 SimState *state;
-SimLink *link;
+SimLink *flameLink;
+SimLink *ledLink;
 Soma *soma;
 
 class TestThread public Thread
@@ -44,11 +45,12 @@ int main(int argc, char *argv)
 	t.start();
 
 	state = new SimState();
-	link = new SimLink(state);
+	flameLink = new SimLink(state, SimLink::FLAME);
+	ledLink = new SimLink(state, SimLink::LED);
 
 	soma = new Soma();
-	soma.attachLedLink(link);
-	soma.attachFlameLink(link);
+	soma.attachFlameLink(flameLink);
+	soma.attachLedLink(ledLink);
 
 	state.startWebServer(8080);
 

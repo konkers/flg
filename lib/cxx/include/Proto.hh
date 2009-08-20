@@ -51,6 +51,7 @@ public:
 	bool getSwitch(uint8_t addr);
 	bool getAdcLo(uint8_t addr, uint8_t idx);
 	bool getAdcHi(uint8_t addr, uint8_t idx);
+	bool sync(uint8_t addr);
 
 	int waitForMsg(int timeout);
 	void ping(void);

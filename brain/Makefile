@@ -1,15 +1,20 @@
-OBJS=mongoose.o \
-	colorserver.o \
+SIM_OBJS=mongoose.o \
+	FlameProtoThread.o \
+	LedProtoThread.o \
+	Soma.o \
 	SimState.o \
-	SimLink.o
+	SimLink.o \
+	sim.o
 
-TARGETS=brain
+OBJS=${SIM_OBJS}
+
+TARGETS=sim
 
 all: ${TARGETS}
 
-brain: ${OBJS}
+sim: ${SIM_OBJS}
 	${LINKXX}
 
-brain: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
+sim: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 
 include ${FLG_DIR}/rules.mk

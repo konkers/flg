@@ -16,9 +16,10 @@
 
 #include "SimLink.hh"
 
-SimLink::SimLink(SimState *state)
+SimLink::SimLink(SimState *state, int type)
 {
 	s = state;
+	t = type;
 }
 
 SimLink::~SimLink()
@@ -29,15 +30,19 @@ bool SimLink::send(const void *data, int len)
 {
 	const uint8_t *d = (uint8_t *)data;
 
-	while (len--)
-		s->send(*d++);
+	while (len--) {
+		if (t == LED)
+			s->ledSend(*d++);
+		else
+			s->flameSend(*d++);
+	}
 
 	return true;
 }
 
 int SimLink::wait(int timeout)
 {
-	if (s->hasData())
+	if (t == LED ? s->ledHasData() : s->flameHasData())
 		return timeout;
 
 	usleep(timeout);
@@ -50,9 +55,9 @@ bool SimLink::recv(void *data, int *len)
 	uint8_t *d = (uint8_t *)data;
 
 	while (realLen < *len) {
-		if (!s->hasData())
+		if (!(t == LED ? s->ledHasData() : s->flameHasData()))
 			break;
-		d[realLen] = s->recv();
+		d[realLen] = t == LED ? s->ledRecv() : s->flameRecv();
 		realLen++;
 	}
 

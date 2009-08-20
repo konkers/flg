@@ -17,17 +17,22 @@
 #ifndef __FlameProtoThread_hh__
 #define __FlameProtoThread_hh__
 
+#include <stdint.h>
+
 #include <map>
+using namespace std;
 
 #include <Thread.hh>
+#include <Link.hh>
+#include <Proto.hh>
 
 class Soma;
 
 class FlameProtoThread : public Thread, public ProtoHandler
 {
 private:
-	const int nRetries = 4;
-	const int timeoutUs = 1000;
+	static const int nRetries = 4;
+	static const int timeoutUs = 1000;
 
 	Soma *soma;
 	Link *link;
@@ -39,6 +44,11 @@ private:
 
 	map<uint8_t, uint8_t> relayBoardState;
 	map<uint8_t, uint8_t> buttonState;
+
+	bool setRelay(uint8_t addr, uint8_t val);
+	bool setDpot(uint8_t addr, uint8_t dpot, uint8_t val);
+	bool getButtons(uint8_t addr);
+	uint16_t getKnob(uint8_t addr, uint8_t idx);
 
 protected:
 	virtual int run(void);

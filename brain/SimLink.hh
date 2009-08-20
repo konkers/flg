@@ -24,11 +24,17 @@
 #include "SimState.hh"
 
 class SimLink : public Link {
+public:
+	enum {
+		FLAME,
+		LED,
+	};
 private:
 	SimState *s;
 
+	int t;
 public:
-	SimLink(SimState *state);
+	SimLink(SimState *state, int type);
 	virtual ~SimLink();
 
 	virtual bool send(const void *data, int len);

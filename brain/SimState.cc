@@ -29,13 +29,22 @@ void handle_sync(void *data)
 	printf("%s: sync\n", p->name.c_str());
 }
 
-void handle_send(void *data, uint8_t *pkt_data, int len)
+void handle_flame_send(void *data, uint8_t *pkt_data, int len)
 {
 	SimState::SimProto *p = (SimState::SimProto *)data;
 	int i;
 
 	for (i = 0; i < len; i++)
-		p->sim->insertByte(pkt_data[i]);
+		p->sim->insertFlameByte(pkt_data[i]);
+}
+
+void handle_led_send(void *data, uint8_t *pkt_data, int len)
+{
+	SimState::SimProto *p = (SimState::SimProto *)data;
+	int i;
+
+	for (i = 0; i < len; i++)
+		p->sim->insertLedByte(pkt_data[i]);
 }
 
 
@@ -47,9 +56,14 @@ void SimState::handleLongData(SimProto *p, uint32_t val)
 	}
 }
 
-void SimState::insertByte(uint8_t c)
+void SimState::insertFlameByte(uint8_t c)
 {
-	outputBuff->insert(c);
+	flameOutputBuff->insert(c);
+}
+
+void SimState::insertLedByte(uint8_t c)
+{
+	ledOutputBuff->insert(c);
 }
 
 void state_page(struct mg_connection *conn,
@@ -102,7 +116,7 @@ void SimState::addLedRgb(string name, uint8_t addr)
 
 	proto_init(&p->p, addr);
 
-	protos.insert(protos.end(), p);
+	ledProtos.insert(protos.end(), p);
 }
 
 void SimState::addRelay3(string name, uint8_t addr)
@@ -120,7 +134,7 @@ void SimState::addRelay3(string name, uint8_t addr)
 
 	proto_init(&p->p, addr);
 
-	protos.insert(protos.end(), p);
+	flameProtos.insert(protos.end(), p);
 }
 
 void SimState::startWebServer(int port)
@@ -147,31 +161,53 @@ void SimState::statePage(struct mg_connection *conn,
 	}
 }
 
-
-
-void SimState::send(uint8_t c)
-{
-	vector<SimProto *>::iterator i;
-
-	for (i = protos.begin(); i != protos.end(); i++)
-		proto_recv(&(*i)->p, c);
-}
-
 void SimState::ping(void)
 {
 	vector<SimProto *>::iterator i;
 
-	for (i = protos.begin(); i != protos.end(); i++)
+	for (i = flameProtos.begin(); i != flameProtos.end(); i++)
+		proto_ping(&(*i)->p);
+
+	for (i = ledProtos.begin(); i != ledProtos.end(); i++)
 		proto_ping(&(*i)->p);
 }
 
-bool SimState::hasData(void)
+void SimState::flameSend(uint8_t c)
 {
-	return outputBuff->length() > 0;
+	vector<SimProto *>::iterator i;
+
+	for (i = flameProtos.begin(); i != flameProtos.end(); i++)
+		proto_recv(&(*i)->p, c);
 }
 
-uint8_t SimState::recv(void)
+bool SimState::flameHasData(void)
 {
-	return outputBuff->remove();
+	return flameOutputBuff->length() > 0;
 }
+
+uint8_t SimState::flameRecv(void)
+{
+	return flameOutputBuff->remove();
+}
+
+void SimState::ledSend(uint8_t c)
+{
+	vector<SimProto *>::iterator i;
+
+	for (i = ledProtos.begin(); i != ledProtos.end(); i++)
+		proto_recv(&(*i)->p, c);
+}
+
+bool SimState::ledHasData(void)
+{
+	return ledOutputBuff->length() > 0;
+}
+
+uint8_t SimState::ledRecv(void)
+{
+	return ledOutputBuff->remove();
+}
+
+
+
 

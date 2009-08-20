@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#include <FlameProtoThread.hh>
+#include <stdint.h>
+
+#include "FlameProtoThread.hh"
+#include "Soma.hh"
 
 FlameProtoThread::FlameProtoThread(Soma *s, Link *l) :
 	Thread()
@@ -25,10 +28,10 @@ FlameProtoThread::FlameProtoThread(Soma *s, Link *l) :
 	link = l;
 
 	for (i = 0; i < Soma::nRelays; i++)
-		relayBoardState[soma.getRelayAddr(i)] = 0x0;
+		relayBoardState[soma->getRelayAddr(i)] = 0x0;
 
-	for (i = 0; i < Soma::nButtons i++)
-		relayBoardState[soma.getButtonAddr(i)] = 0x0;
+	for (i = 0; i < Soma::nButtons; i++)
+		relayBoardState[soma->getButtonAddr(i)] = 0x0;
 
 	proto = new Proto(link, this, NULL, 0, 0);
 }
@@ -53,24 +56,24 @@ int FlameProtoThread::run(void)
 			relayBoardState[it->first]= 0x0;
 
 		for (i = 0; i < Soma::nRelays; i++) {
-			if (soma.getRelay(i)) {
-				relayBoardState[soma.getRelayAddr] |=
-					1 << soma.getRelayIdx(i);
+			if (soma->getRelay(i)) {
+				relayBoardState[soma->getRelayAddr(i)] |=
+					1 << soma->getRelayIdx(i);
 			} else {
-				relayBoardState[soma.getRelayAddr] &=
-					~(1 << soma.getRelayIdx(i));
+				relayBoardState[soma->getRelayAddr(i)] &=
+					~(1 << soma->getRelayIdx(i));
 			}
 		}
 
 		for (it = relayBoardState.begin();
 		     it != relayBoardState.end();
 		     it++) {
-			setRelays(it-first, it->second);
+			setRelay(it->first, it->second);
 		}
 
 		for (i = 0; i < Soma::nDpots; i++)
-			setDpot(soma.getDpotAddr(i), soma.getDoptIdx(i),
-				soma.getDpot(i));
+			setDpot(soma->getDpotAddr(i), soma->getDpotIdx(i),
+				soma->getDpot(i));
 
 		for (it = buttonState.begin();
 		     it != buttonState.end();
@@ -78,12 +81,12 @@ int FlameProtoThread::run(void)
 			getButtons(it->first);
 
 		for (i = 0; i < Soma::nButtons; i++)
-			soma.getButton(i, buttonState[soma.getButtonAddr(i)] &
-				       (1 << soma.getButtonIdx(i)));
+			soma->setButton(i, buttonState[soma->getButtonAddr(i)] &
+				       (1 << soma->getButtonIdx(i)));
 
 		for (i = 0; i < Soma::nKnobs; i++)
-			soma.setKnob(i, getKnob(soma.getKnobAddr(i),
-						soma.getKnobIdx(i)));
+			soma->setKnob(i, getKnob(soma->getKnobAddr(i),
+						soma->getKnobIdx(i)));
 
 	}
 }
@@ -110,7 +113,7 @@ bool FlameProtoThread::setDpot(uint8_t addr, uint8_t dpot, uint8_t val)
 	int retries = nRetries;
 
 	do {
-		if (proto->setDpotRelay(addr, dpot, val))
+		if (proto->setDpot(addr, dpot, val))
 			return true;
 	} while(--retries);
 
@@ -124,7 +127,7 @@ bool FlameProtoThread::getButtons(uint8_t addr)
 	do {
 		dataValid = false;
 		proto->getSwitch(addr);
-		proto->waitForMsg(timoutUs);
+		proto->waitForMsg(timeoutUs);
 		if (dataValid) {
 			buttonState[addr] = data;
 			return true;
@@ -140,15 +143,15 @@ uint16_t FlameProtoThread::getKnob(uint8_t addr, uint8_t idx)
 
 	do {
 		dataValid = false;
-		proto->getAdcLo(indx);
-		proto->waitForMsg(timoutUs);
+		proto->getAdcLo(addr, idx);
+		proto->waitForMsg(timeoutUs);
 		if (!dataValid)
 			continue;
 		val = data;
 
 		dataValid = false;
-		proto->getAdcHiindx);
-		proto->waitForMsg(timoutUs);
+		proto->getAdcHi(addr, idx);
+		proto->waitForMsg(timeoutUs);
 		if (!dataValid)
 			continue;
 		val |= data << 8;

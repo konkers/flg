@@ -88,13 +88,13 @@ bool Proto::sendLongMsg(uint8_t addr, uint8_t cmd, uint32_t *data, uint8_t words
 	bool ret = true;
 
 	d = PROTO_SOF_LONG;
-	ret &&= link->send(&d, 1);
-	ret &&= link->send(&addr, 1);
-	ret &&= link->send(&cmd, 1);
-	ret &&= link->send(&words, 1);
-	ret &&= link->send(data, words*4);
+	ret = link->send(&d, 1) && ret;
+	ret = link->send(&addr, 1) && ret;
+	ret = link->send(&cmd, 1) && ret;
+	ret = link->send(&words, 1) && ret;
+	ret = link->send(data, words*4) && ret;
 	d = PROTO_EOF;
-	ret &&= link->send(&d, 1);
+	ret = link->send(&d, 1) && ret;
 
 	return ret;
 }
@@ -118,7 +118,7 @@ bool Proto::setLight(uint8_t addr, int light, uint8_t val)
 	return sendMsg(addr, PROTO_CMD_LIGHT0_SET + light, val);
 }
 
-bool setLights(uint8_t addr, uint32_t *data, uint8_t words)
+bool Proto::setLights(uint8_t addr, uint32_t *data, uint8_t words)
 {
 	return sendLongMsg(addr, 0, data, words);
 }
@@ -154,6 +154,11 @@ bool Proto::getAdcLo(uint8_t addr, uint8_t idx)
 bool Proto::getAdcHi(uint8_t addr, uint8_t idx)
 {
 	return sendMsg(addr, PROTO_CMD_ADC_QUERY_HI, idx);
+}
+
+bool Proto::sync(uint8_t addr)
+{
+	return sendMsg(addr, PROTO_CMD_SYNC, 0x0);
 }
 
 int Proto::waitForMsg(int timeout)

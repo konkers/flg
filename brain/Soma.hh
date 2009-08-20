@@ -19,6 +19,9 @@
 
 #include <Proto.hh>
 
+class FlameProtoThread;
+class LedProtoThread;
+
 class Soma
 {
 public:
@@ -31,34 +34,34 @@ public:
 private:
 	class State {
 	public:
-		uint32_t lights[Soma::nLights];
-		bool relays[Soma::nRelays];
-		uint8_t dpots[Soma::nDpots];
-		bool buttons[Soma::nButton];
-		uint16_t knobs[Soma::nKnobs];
+		uint32_t lights[nLights];
+		bool relays[nRelays];
+		uint8_t dpots[nDpots];
+		bool buttons[nButtons];
+		uint16_t knobs[nKnobs];
 	};
 
 	State state[2];
 
-	int ledIdx;
 	int flameIdx;
+	int ledIdx;
 
-	Thread::Mutex ledLocks[2];
 	Thread::Mutex flameLocks[2];
+	Thread::Mutex ledLocks[2];
 
+	FlameProtoThread *flameProto;
 	LedProtoThread *ledProto;
-	LedProtoThread *flameProto;
 
 	bool button(int i) {
-		return state[flameIdx].button[i];
+		return state[flameIdx].buttons[i];
 	}
 
 	uint16_t knob(int i) {
-		return state[flameIdx].knob[i];
+		return state[flameIdx].knobs[i];
 	}
 
 	uint32_t light(int i) {
-		return state[ledIdx].light[i];
+		return state[ledIdx].lights[i];
 	}
 
 	void setLight(int i, int r, int g, int b) {
@@ -66,15 +69,23 @@ private:
 			((g & 0xff) << 8) |
 			((b & 0xff) << 16);
 
-		state[ledIdx].light[i] = val;
+		state[ledIdx].lights[i] = val;
 	}
 
 	bool relay(int i) {
-		return state[flameIdx].relay[i];
+		return state[flameIdx].relays[i];
 	}
 
 	void setRelay(int i, bool val) {
-		state[flameIdx].relay[i] = val;
+		state[flameIdx].relays[i] = val;
+	}
+
+	uint8_t dpot(int i) {
+		return state[flameIdx].dpots[i];
+	}
+
+	void setDpot(int i, uint8_t val) {
+		state[flameIdx].dpots[i] = val;
 	}
 
 public:
@@ -87,17 +98,12 @@ public:
 	void run(void);
 
 	bool getRelay(int i) {
-		return state[!flameIdx].relay[i];
+		return state[!flameIdx].relays[i];
 	}
 
 	uint32_t getLight(int i) {
-		return state[!lightIdx].lights[i];
+		return state[!ledIdx].lights[i];
 	}
-
-	uint32_t *getLights(void) {
-		return state[!lightIdx].lights;
-	}
-
 
 	void setKnob(int i, uint16_t val) {
 		state[!flameIdx].knobs[i] = val;
@@ -107,7 +113,23 @@ public:
 		state[!flameIdx].buttons[i] = val;
 	}
 
+	uint8_t getDpot(int i) {
+		return state[!flameIdx].dpots[i];
+	}
+
 	void flameSync(void);
+	void ledSync(void);
+
+	uint8_t getRelayAddr(int i);
+	uint8_t getRelayIdx(int i);
+	uint8_t getButtonAddr(int i);
+	uint8_t getButtonIdx(int i);
+	uint8_t getDpotAddr(int i);
+	uint8_t getDpotIdx(int i);
+	uint8_t getKnobAddr(int i);
+	uint8_t getKnobIdx(int i);
+	uint8_t getLightAddr(int i);
+
 };
 
 #endif /* __Soma_hh__ */
