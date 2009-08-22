@@ -61,6 +61,9 @@ private:
 	static const int nButtons = 11;
 	bool buttonState[nButtons];
 
+	static const int nRelays = 24 + 5 + 4;
+	bool relayState[nRelays];
+
 	struct proto_handlers flameHandlers;
 	struct proto_handlers ledHandlers;
 
@@ -74,6 +77,7 @@ private:
 	friend void handle_flame_send(void *data, uint8_t *pkt_data, int len);
 	friend void handle_led_send(void *data, uint8_t *pkt_data, int len);
 
+	void handleRelay(SimProto *p, uint8_t idx, uint8_t state);
 	void handleLongData(SimProto *p, uint32_t val);
 	void insertFlameByte(uint8_t c);
 	void insertLedByte(uint8_t c);

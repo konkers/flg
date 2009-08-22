@@ -50,6 +50,18 @@ int main(int argc, char *argv)
 	state->addInput("li2", 0x81);
 	state->addInput("ui1", 0x82);
 
+	state->addRelay3("a1", 0x90);
+	state->addRelay3("a2", 0x91);
+	state->addRelay3("a3", 0x92);
+	state->addRelay3("a4", 0x93);
+	state->addRelay3("a5", 0x94);
+	state->addRelay3("a6", 0x95);
+	state->addRelay3("a7", 0x96);
+	state->addRelay3("a8", 0x97);
+	state->addRelay3("s1", 0x98);
+	state->addRelay3("s2", 0x99);
+
+
 	flameLink = new SimLink(state, SimLink::FLAME);
 	ledLink = new SimLink(state, SimLink::LED);
 

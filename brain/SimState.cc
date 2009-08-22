@@ -38,7 +38,7 @@ static struct proto_widget input_widgets[] = {
 void handle_relay(void *data, uint8_t idx, uint8_t state)
 {
 	SimState::SimProto *p = (SimState::SimProto *)data;
-	printf("%s: relay %d = %d\n", p->name.c_str(), idx, state);
+	p->sim->handleRelay(p, idx, state);
 }
 
 void handle_long_data(void *data, uint32_t val)
@@ -69,6 +69,14 @@ void handle_led_send(void *data, uint8_t *pkt_data, int len)
 
 	for (i = 0; i < len; i++)
 		p->sim->insertLedByte(pkt_data[i]);
+}
+
+
+void SimState::handleRelay(SimProto *p, uint8_t idx, uint8_t state)
+{
+	int relay = (p->p.addr - 0x90) * 3 + idx;
+
+	relayState[relay] = state != 0;
 }
 
 
@@ -108,6 +116,8 @@ void button_page(struct mg_connection *conn,
 
 SimState::SimState(void)
 {
+	int i;
+
 	flameHandlers.relay= handle_relay;
 	flameHandlers.send= handle_flame_send;
 
@@ -116,6 +126,12 @@ SimState::SimState(void)
 	ledHandlers.send= handle_led_send;
 
 	memset(lightState, 0x0, sizeof(lightState));
+
+	for (i = 0; i < nButtons; i++)
+		buttonState[i] = false;
+
+	for (i = 0; i < nRelays; i++)
+		relayState[i] = false;
 
 	flameOutputBuff = new RingBuff(outputBuffSize);
 	// led output buff is not stricly needed as the led boards
@@ -222,6 +238,11 @@ void SimState::statePage(struct mg_connection *conn,
 	for (i = 0; i < nLights; i++) {
 		mg_printf(conn, "%02x: %08x\r\n", i, lightState[i]);
 	}
+
+	for (i = 0; i < nRelays; i++) {
+		mg_printf(conn, "%02x: %08x\r\n", 0x80 + i, relayState[i]);
+	}
+
 }
 
 void SimState::buttonPage(struct mg_connection *conn,

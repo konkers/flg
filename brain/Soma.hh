@@ -107,7 +107,7 @@ private:
 	bool loadAttrMap(char *fileName, EffectAttr *attrs, int nAttrs);
 
 	void sync(void);
-	void processFrame(int i);
+	void processFrame(int frame);
 
 public:
 	Soma();

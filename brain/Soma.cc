@@ -153,13 +153,14 @@ void Soma::run(void)
 	}
 }
 
-void Soma::processFrame(int i)
+void Soma::processFrame(int frame)
 {
-	int state = (i / (0x100 + 1000)) % 6;
-	int idx = i % (0x100 + 1000);
+	int state = (frame / (0x100 + 1000)) % 6;
+	int idx = frame % (0x100 + 1000);
 	int red = 0;
 	int green = 0;
 	int blue = 0;
+	int i;
 
 	if (idx > 0xff)
 		idx = 0xff;
@@ -202,11 +203,15 @@ void Soma::processFrame(int i)
 		break;
 	}
 
+	for (i = 0; i < nButtons; i++) {
+		setRelay(i * 3 , button(i));
+		setRelay(i * 3 + 1, button(i));
+		setRelay(i * 3 + 2, button(i));
+	}
 
-	if ((i % 100) == 0) {
+	if ((frame % 100) == 0) {
 		for (i = 0; i < nButtons; i++)
-			printf("%c ",
-			       this->state[flameIdx].buttons[i] ? '1' : '0');
+			printf("%c ", button(i) ? '1' : '0');
 
 		printf("\n");
 	}
