@@ -202,6 +202,14 @@ void Soma::processFrame(int i)
 		break;
 	}
 
+
+	if ((i % 100) == 0) {
+		for (i = 0; i < nButtons; i++)
+			printf("%c ",
+			       this->state[flameIdx].buttons[i] ? '1' : '0');
+
+		printf("\n");
+	}
 	for (i = 0; i < nLights; i++)
 		setLight(i, red, green, blue);
 

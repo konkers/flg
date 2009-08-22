@@ -51,9 +51,15 @@ private:
 	vector<SimProto *> flameProtos;
 	vector<SimProto *> ledProtos;
 	map<string, int> ledMapping;
+	map<uint8_t, SimProto *> protoMap;
+
+	map<uint8_t, struct proto_widget*> buttonWidgetMap;
 
 	static const int nLights = 60;
 	uint32_t lightState[nLights];
+
+	static const int nButtons = 11;
+	bool buttonState[nButtons];
 
 	struct proto_handlers flameHandlers;
 	struct proto_handlers ledHandlers;
@@ -68,13 +74,18 @@ private:
 	friend void handle_flame_send(void *data, uint8_t *pkt_data, int len);
 	friend void handle_led_send(void *data, uint8_t *pkt_data, int len);
 
-	friend void state_page(struct mg_connection *conn,
-			       const struct mg_request_info *ri, void *data);
-
 	void handleLongData(SimProto *p, uint32_t val);
 	void insertFlameByte(uint8_t c);
 	void insertLedByte(uint8_t c);
+
+	friend void state_page(struct mg_connection *conn,
+			       const struct mg_request_info *ri, void *data);
+	friend void button_page(struct mg_connection *conn,
+				const struct mg_request_info *ri, void *data);
+
 	void statePage(struct mg_connection *conn,
+		       const struct mg_request_info *ri);
+	void buttonPage(struct mg_connection *conn,
 		       const struct mg_request_info *ri);
 public:
 	SimState(void);
@@ -83,6 +94,7 @@ public:
 
 	void addLedRgb(string name, uint8_t addr);
 	void addRelay3(string name, uint8_t addr);
+	void addInput(string name, uint8_t addr);
 
 	void startWebServer(int port);
 

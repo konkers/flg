@@ -32,7 +32,7 @@ public:
 	static const int nLights = 60;
 	static const int nRelays = 39;
 	static const int nDpots = 4;
-	static const int nButtons = 11;
+	static const int nButtons = 10;
 	static const int nKnobs = 4;
 
 private:

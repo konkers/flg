@@ -46,6 +46,9 @@ int main(int argc, char *argv)
 		state->addLedRgb(key, val);
 	}
 
+	state->addInput("li1", 0x80);
+	state->addInput("li2", 0x81);
+	state->addInput("ui1", 0x82);
 
 	flameLink = new SimLink(state, SimLink::FLAME);
 	ledLink = new SimLink(state, SimLink::LED);

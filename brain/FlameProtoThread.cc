@@ -133,6 +133,8 @@ bool FlameProtoThread::getButtons(uint8_t addr)
 			return true;
 		}
 	} while(--retries);
+
+	fprintf(stderr, "button timeout %02x\n", addr);
 	return false;
 }
 
@@ -158,6 +160,7 @@ uint16_t FlameProtoThread::getKnob(uint8_t addr, uint8_t idx)
 
 		return val;
 	} while(--retries);
+	fprintf(stderr, "knob timeout\n");
 	return 0x0;
 }
 
