@@ -17,6 +17,8 @@
 #ifndef __Soma_hh__
 #define __Soma_hh__
 
+#include <sys/time.h>
+
 #include <string>
 using namespace std;
 
@@ -55,6 +57,9 @@ private:
 
 	FlameProtoThread *flameProtoThread;
 	LedProtoThread *ledProtoThread;
+
+	struct timeval flameSyncTime;
+	struct timeval ledSyncTime;
 
 	bool button(int i) {
 		return state[flameIdx].buttons[i];

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include <sys/time.h>
-
 #include <MapFileParser.hh>
 
 #include "Soma.hh"
@@ -146,10 +144,17 @@ void Soma::run(void)
 		if (timercmp(&tmp_tv, &frametime, <)) {
 			timersub(&frametime, &tmp_tv, &tv);
 			usleep(tv.tv_usec);
-			gettimeofday(&last_tv, NULL);
 		} else {
-			fprintf(stderr, "frame overrun!\n");
+			fprintf(stderr, "frame overrun: ");
+			timersub(&flameSyncTime, &last_tv, &tmp_tv);
+			fprintf(stderr, "flameSyncDelay: %f ", 1.0 * tmp_tv.tv_sec +
+			       (1.0 * tmp_tv.tv_usec)/(1000000.0));
+			timersub(&ledSyncTime, &last_tv, &tmp_tv);
+			fprintf(stderr, "ledSyncDelay: %f ", 1.0 * tmp_tv.tv_sec +
+			       (1.0 * tmp_tv.tv_usec)/(1000000.0));
+			fprintf(stderr, "\n");
 		}
+		gettimeofday(&last_tv, NULL);
 	}
 }
 
@@ -239,6 +244,8 @@ void Soma::flameSync(void)
 {
 	int newIdx = !flameIdx;
 
+	gettimeofday(&flameSyncTime, NULL);
+
 	// Soma is holding flameIdx
 	// flameLink is holding newIdx
 	flameLocks[newIdx].unlock();
@@ -250,6 +257,8 @@ void Soma::flameSync(void)
 void Soma::ledSync(void)
 {
 	int newIdx = !ledIdx;
+
+	gettimeofday(&ledSyncTime, NULL);
 
 	// Soma is holding ledIdx
 	// ledLink is holding newIdx
