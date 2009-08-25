@@ -214,12 +214,6 @@ void Soma::processFrame(int frame)
 		setRelay(i * 3 + 2, button(i));
 	}
 
-	if ((frame % 100) == 0) {
-		for (i = 0; i < nButtons; i++)
-			printf("%c ", button(i) ? '1' : '0');
-
-		printf("\n");
-	}
 	for (i = 0; i < nLights; i++)
 		setLight(i, red, green, blue);
 

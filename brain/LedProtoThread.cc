@@ -33,7 +33,7 @@ LedProtoThread::LedProtoThread(Soma *s, Link *l) :
 		maxAddr = addr > maxAddr ? addr : maxAddr;
 	}
 
-	ledState = new uint32_t(maxAddr - minAddr);
+	ledState = new uint32_t[maxAddr - minAddr];
 	memset(ledState, 0x0, (maxAddr - minAddr) * sizeof(uint32_t));
 
 	proto = new Proto(link, this, NULL, 0, 0);

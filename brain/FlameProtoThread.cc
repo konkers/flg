@@ -31,7 +31,7 @@ FlameProtoThread::FlameProtoThread(Soma *s, Link *l) :
 		relayBoardState[soma->getRelayAddr(i)] = 0x0;
 
 	for (i = 0; i < Soma::nButtons; i++)
-		relayBoardState[soma->getButtonAddr(i)] = 0x0;
+		buttonState[soma->getButtonAddr(i)] = 0x0;
 
 	proto = new Proto(link, this, NULL, 0, 0);
 }
