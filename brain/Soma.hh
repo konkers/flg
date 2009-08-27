@@ -22,6 +22,12 @@
 #include <string>
 using namespace std;
 
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
+
 #include <Thread.hh>
 #include <Proto.hh>
 
@@ -49,6 +55,7 @@ private:
 
 	State state[2];
 
+	int relayTimeout[nRelays];
 	int flameIdx;
 	int ledIdx;
 
@@ -74,6 +81,9 @@ private:
 	}
 
 	void setLight(int i, int r, int g, int b) {
+		if(i < 0 || i >= nLights)
+			return;
+
 		uint32_t val = (r & 0xff) |
 			((g & 0xff) << 8) |
 			((b & 0xff) << 16);
@@ -113,6 +123,22 @@ private:
 
 	void sync(void);
 	void processFrame(int frame);
+
+	lua_State *l;
+	bool initLua(void);
+	void registerFunction(lua_CFunction func, const char *name);
+
+	friend int lua_get_led(lua_State *l);
+	friend int lua_set_led(lua_State *l);
+
+	friend int lua_get_relay(lua_State *l);
+	friend int lua_set_relay(lua_State *l);
+
+	friend int lua_get_dpot(lua_State *l);
+	friend int lua_set_dpot(lua_State *l);
+
+	friend int lua_get_knob(lua_State *l);
+	friend int lua_get_button(lua_State *l);
 
 public:
 	Soma();
@@ -188,7 +214,10 @@ public:
 		return lightAttrs[i].val;
 	}
 
-
+	void enableRelay(int i, int timeout) {
+		if (relayTimeout[i] < timeout)
+			relayTimeout[i] = timeout;
+	}
 };
 
 #endif /* __Soma_hh__ */

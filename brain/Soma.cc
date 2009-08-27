@@ -42,6 +42,9 @@ Soma::Soma()
 			state[s].knobs[i] = 0x0;
 	}
 
+	for(i = 0; i < nRelays; i++)
+		relayTimeout[i] = 0;
+
 	ledProtoThread = NULL;
 	flameProtoThread = NULL;
 
@@ -50,6 +53,8 @@ Soma::Soma()
 
 	flameLocks[0].lock();
 	flameLocks[1].lock();
+
+	initLua();
 }
 
 Soma::~Soma()
@@ -60,7 +65,6 @@ Soma::~Soma()
 	if (flameProtoThread)
 		delete flameProtoThread;
 }
-
 
 void Soma::attachLedLink(Link *l)
 {
@@ -160,63 +164,33 @@ void Soma::run(void)
 
 void Soma::processFrame(int frame)
 {
-	int state = (frame / (0x100 + 1000)) % 6;
-	int idx = frame % (0x100 + 1000);
-	int red = 0;
-	int green = 0;
-	int blue = 0;
 	int i;
+	int ret;
 
-	if (idx > 0xff)
-		idx = 0xff;
+	lua_getfield(l, -1, "process");
+	lua_pushvalue(l, 1);
 
-	switch (state) {
-	case 0:
-		red = 0xff;
-		green = idx;
-		blue = 0x00;
-		break;
-
-	case 1:
-		red = 0xff - idx;
-		green = 0xff;
-		blue = 0x00;
-		break;
-
-	case 2:
-		red = 0x00;
-		green = 0xff;
-		blue = idx;
-		break;
-
-	case 3:
-		red = 0x00;
-		green = 0xff - idx;
-		blue = 0xff;
-		break;
-
-	case 4:
-		red = idx;
-		green = 0x00;
-		blue = 0xff;
-		break;
-
-	case 5:
-		red = 0xff;
-		green = 0x00;
-		blue = 0xff - idx;
-		break;
+	ret = lua_pcall(l, 1, 0, 0);
+	if (ret != 0) {
+		printf(" err: %s\n", lua_tostring(l, -1));
 	}
 
 	for (i = 0; i < nButtons; i++) {
-		setRelay(i * 3 , button(i));
-		setRelay(i * 3 + 1, button(i));
-		setRelay(i * 3 + 2, button(i));
+		if (button(i)) {
+			enableRelay(i * 3, 10);
+			enableRelay(i * 3 + 1, 10);
+			enableRelay(i * 3 + 2, 10);
+		}
 	}
 
-	for (i = 0; i < nLights; i++)
-		setLight(i, red, green, blue);
-
+	for (i = 0; i < nRelays; i++) {
+		if (relayTimeout[i] > 0) {
+			setRelay(i, true);
+			relayTimeout[i]--;
+		} else {
+			setRelay(i, false);
+		}
+	}
 }
 
 void Soma::sync(void)
@@ -261,5 +235,101 @@ void Soma::ledSync(void)
 
 	// Soma will update ledIdx before releasing this lock
 	ledLocks[!newIdx].lock();
+}
+
+bool Soma::initLua(void)
+{
+	int ret;
+
+	l = luaL_newstate();
+	luaL_openlibs(l);
+
+	lua_settop(l, 0);
+
+	ret = luaL_dofile(l, "test.lua");
+	if (ret != 0) {
+		printf("can't load file: %s\n", lua_tostring(l, -1));
+		return false;
+	}
+
+	registerFunction(lua_set_led, "set_led");
+
+	return true;
+}
+
+void Soma::registerFunction(lua_CFunction func, const char *name)
+{
+	lua_pushlightuserdata(l, this);
+	lua_pushcclosure(l, func, 1);
+	lua_setglobal(l, name);
+}
+
+
+int lua_get_led(lua_State *l)
+{
+	return 0;
+}
+
+int lua_set_led(lua_State *l)
+{
+	Soma *soma = (Soma *)lua_touserdata(l, lua_upvalueindex(1));
+
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
+
+
+	if (lua_gettop(l) != 4) {
+		lua_pushfstring(l, "set_led wrong number of arguments.  Expected 4. got %d",
+				lua_gettop(l));
+		lua_error(l);
+		return 0;
+	}
+
+	if (!lua_isnumber(l, 1)) {
+		lua_pushfstring(l, "set_led arg 1 not an integer");
+		lua_error(l);
+	}
+
+	red = lua_tointeger(l, 2);
+	green = lua_tointeger(l, 3);
+	blue = lua_tointeger(l, 4);
+
+	soma->setLight(lua_tointeger(l,1), red, green, blue);
+	return 0;
+}
+
+
+
+int lua_get_relay(lua_State *l)
+{
+	return 0;
+}
+
+int lua_set_relay(lua_State *l)
+{
+	return 0;
+}
+
+
+int lua_get_dpot(lua_State *l)
+{
+	return 0;
+}
+
+int lua_set_dpot(lua_State *l)
+{
+	return 0;
+}
+
+
+int lua_get_knob(lua_State *l)
+{
+	return 0;
+}
+
+int lua_get_button(lua_State *l)
+{
+	return 0;
 }
 
