@@ -103,7 +103,11 @@ bool Soma::loadAttrMap(char *fileName, EffectAttr *attrs, int nAttrs)
 
 bool Soma::loadLightMap(char *fileName)
 {
-	return loadAttrMap(fileName, lightAttrs, nLights);
+	if (!loadAttrMap(fileName, lightAttrs, nLights))
+		return false;
+
+	luaCreateAttrTable("leds", lightAttrs, nLights);
+	return true;
 }
 
 bool Soma::loadRelayMap(char *fileName)
@@ -246,23 +250,47 @@ bool Soma::initLua(void)
 
 	lua_settop(l, 0);
 
+	ret = luaL_dofile(l, "globals.lua");
+	if (ret != 0) {
+		printf("can't load globals file: %s\n", lua_tostring(l, -1));
+		return false;
+	}
+	printf("%d\n", lua_gettop(l));
 	ret = luaL_dofile(l, "test.lua");
 	if (ret != 0) {
 		printf("can't load file: %s\n", lua_tostring(l, -1));
 		return false;
 	}
+	printf("%d\n", lua_gettop(l));
 
-	registerFunction(lua_set_led, "set_led");
+	luaRegisterFunction(lua_set_led, "set_led");
 
 	return true;
 }
 
-void Soma::registerFunction(lua_CFunction func, const char *name)
+void Soma::luaRegisterFunction(lua_CFunction func, const char *name)
 {
 	lua_pushlightuserdata(l, this);
 	lua_pushcclosure(l, func, 1);
 	lua_setglobal(l, name);
 }
+
+void Soma::luaCreateAttrTable(const char *name, const EffectAttr *attrs, int n)
+{
+	int i;
+
+	lua_createtable(l, n, 0);
+
+	for (i = 0; i < n; i++) {
+		printf("set %s = %d\n", attrs[i].name.c_str(), i);
+		lua_pushstring(l, attrs[i].name.c_str());
+		lua_pushinteger(l, i);
+		lua_settable(l, -3);
+	}
+
+	lua_setglobal(l, name);
+}
+
 
 
 int lua_get_led(lua_State *l)

@@ -126,7 +126,8 @@ private:
 
 	lua_State *l;
 	bool initLua(void);
-	void registerFunction(lua_CFunction func, const char *name);
+	void luaRegisterFunction(lua_CFunction func, const char *name);
+	void luaCreateAttrTable(const char *name, const EffectAttr *attrs, int n);
 
 	friend int lua_get_led(lua_State *l);
 	friend int lua_set_led(lua_State *l);
