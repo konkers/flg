@@ -30,14 +30,19 @@ private:
 	Link *link;
 	ProtoHandler *protoHandler;
 	struct proto_handlers handlers;
+	bool buffered;
+	uint8_t *buff;
+	unsigned int buff_len;
+	unsigned int buff_pos;
 
 	bool sendMsg(uint8_t addr, uint8_t cmd, uint8_t val);
 	bool sendLongMsg(uint8_t addr, uint8_t cmd, uint32_t *data, uint8_t words);
 
 public:
 	Proto(Link *link, ProtoHandler *protoHander,
-	     struct proto_widget *widgets, int n_widgets,
-	     uint8_t addr);
+	      struct proto_widget *widgets, int n_widgets,
+	      uint8_t addr, bool buffered = false);
+	~Proto();
 
 	void handleLight(uint8_t idx, uint8_t val);
 
@@ -55,6 +60,8 @@ public:
 
 	int waitForMsg(int timeout);
 	void ping(void);
+
+	void flush(void);
 };
 
 

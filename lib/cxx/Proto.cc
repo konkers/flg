@@ -54,7 +54,7 @@ extern "C" void handle_resp(void *data, struct proto_packet *pkt)
 
 Proto::Proto(Link *link, ProtoHandler *ph,
 	     struct proto_widget *widgets, int n_widgets,
-	     uint8_t addr)
+	     uint8_t addr, bool buffered)
 {
 	this->link = link;
 
@@ -69,7 +69,22 @@ Proto::Proto(Link *link, ProtoHandler *ph,
 	p.n_widgets = n_widgets;
 
 	proto_init(&p, addr);
+
+	this->buffered = buffered;
+
+	if (buffered) {
+		buff = new uint8_t[8192];
+		buff_len = 8192;
+		buff_pos = 0;
+	}
 }
+
+Proto::~Proto()
+{
+	if (buffered)
+		delete buff;
+}
+
 
 bool Proto::sendMsg(uint8_t addr, uint8_t cmd, uint8_t val)
 {
@@ -79,7 +94,16 @@ bool Proto::sendMsg(uint8_t addr, uint8_t cmd, uint8_t val)
 	pkt.val = val;
 	proto_packet_seal(&pkt);
 
-	return link->send(&pkt, sizeof(pkt));
+	if (buffered) {
+		if (buff_pos + sizeof(pkt) > buff_len)
+			flush();
+
+		memcpy(buff + buff_pos, &pkt, sizeof(pkt));
+		buff_pos += sizeof(pkt);
+		return true;
+	} else {
+		return link->send(&pkt, sizeof(pkt));
+	}
 }
 
 bool Proto::sendLongMsg(uint8_t addr, uint8_t cmd, uint32_t *data, uint8_t words)
@@ -87,6 +111,7 @@ bool Proto::sendLongMsg(uint8_t addr, uint8_t cmd, uint32_t *data, uint8_t words
 	uint8_t d;
 	bool ret = true;
 
+	// XXX implemente buffered access
 	d = PROTO_SOF_LONG;
 	ret = link->send(&d, 1) && ret;
 	ret = link->send(&addr, 1) && ret;
@@ -172,7 +197,7 @@ int Proto::waitForMsg(int timeout)
 	if (err <= 0) {
 		return err;
 	}
-	len = 32;
+	len = 6;
 	if (link->recv(data,&len)) {
 		while (len--)
 			proto_recv(&p, *dp++);
@@ -186,4 +211,10 @@ int Proto::waitForMsg(int timeout)
 void Proto::ping()
 {
 	proto_ping(&p);
+}
+
+void Proto::flush(void)
+{
+	link->send(buff, buff_pos);
+	buff_pos = 0;
 }
