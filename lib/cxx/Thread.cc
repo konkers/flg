@@ -23,11 +23,10 @@
 void *ThreadStart(void * data)
 {
 	Thread *t = (Thread *) data;
-	int rc;
 
 	t->running = true;
-	rc = t->run();
-	pthread_exit((void *) rc);
+	t->rc = t->run();
+	pthread_exit(NULL);
 }
 
 Thread::Thread()
@@ -58,11 +57,11 @@ bool Thread::start(void)
 
 int Thread::stop(void)
 {
-	int rc = 0;
+	void *val;
 	int ret;
 
 	if (running) {
-		ret = pthread_join(pthread, (void **)&rc);
+		ret = pthread_join(pthread, &val);
 		if (ret < 0)
 			fprintf(stderr, "pthread_join failed: %s\n",
 				strerror(errno));

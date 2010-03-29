@@ -64,7 +64,7 @@ int Brain::sw(uint8_t addr, uint8_t idx)
 
 void Brain::registerFunction(lua_CFunction func, const char *name)
 {
-	lua_pushinteger(l, (unsigned int)this);
+	lua_pushlightuserdata(l, this);
 	lua_pushcclosure(l, func, 1);
 	lua_setglobal(l, name);
 }

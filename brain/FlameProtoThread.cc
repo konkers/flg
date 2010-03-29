@@ -89,6 +89,8 @@ int FlameProtoThread::run(void)
 						soma->getKnobIdx(i)));
 
 	}
+
+	return 0;
 }
 
 bool FlameProtoThread::setRelay(uint8_t addr, uint8_t val)

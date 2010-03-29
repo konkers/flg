@@ -28,7 +28,7 @@ SimLink *flameLink;
 SimLink *ledLink;
 Soma *soma;
 
-int main(int argc, char *argv)
+int main(int argc, char *argv[])
 {
 	state = new SimState();
 

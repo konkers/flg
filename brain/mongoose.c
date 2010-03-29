@@ -189,7 +189,11 @@ typedef struct DIR {
 #define	mg_getcwd(x, y)		getcwd(x, y)
 #define	ERRNO			errno
 #define	INVALID_SOCKET		(-1)
+#ifdef __LP64__
+#define UINT64_FMT		"l"
+#else
 #define UINT64_FMT		"ll"
+#endif
 typedef int SOCKET;
 
 #endif /* End of Windows and UNIX specific includes */

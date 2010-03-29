@@ -65,6 +65,8 @@ int LedProtoThread::run(void)
 		proto->sync(PROTO_ADDR_BCAST);
 		proto->sync(PROTO_ADDR_BCAST);
 	}
+
+	return 0;
 }
 
 void LedProtoThread::relay(uint8_t idx, uint8_t state)

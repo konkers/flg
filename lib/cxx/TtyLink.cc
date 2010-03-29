@@ -115,13 +115,11 @@ int TtyLink::wait(int timeout)
 	return timeout;
 #else
 	fd_set rfds;
-	fd_set efds;
 	int retval;
 	struct timeval tv;
 
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
-	FD_COPY(&rfds, &efds);
 
 	tv.tv_sec = timeout / 100;
 	tv.tv_usec = (timeout % 100) * 10000;

@@ -20,6 +20,8 @@
 #include "FlameProtoThread.hh"
 #include "LedProtoThread.hh"
 
+int lua_set_led(lua_State *l);
+
 Soma::Soma()
 {
 	int s;

@@ -56,6 +56,7 @@ public:
 private:
 	bool running;
 	pthread_t pthread;
+	int rc;
 
 	friend void *ThreadStart(void * data);
 
