@@ -78,7 +78,7 @@ void Soma::attachFlameLink(Link *l)
 	flameProtoThread->start();
 }
 
-bool Soma::loadAttrMap(char *fileName, EffectAttr *attrs, int nAttrs)
+bool Soma::loadAttrMap(const char *fileName, EffectAttr *attrs, int nAttrs)
 {
 	MapFileParser p;
 	char *key;
@@ -101,7 +101,7 @@ bool Soma::loadAttrMap(char *fileName, EffectAttr *attrs, int nAttrs)
 	return true;
 }
 
-bool Soma::loadLightMap(char *fileName)
+bool Soma::loadLightMap(const char *fileName)
 {
 	if (!loadAttrMap(fileName, lightAttrs, nLights))
 		return false;
@@ -110,22 +110,22 @@ bool Soma::loadLightMap(char *fileName)
 	return true;
 }
 
-bool Soma::loadRelayMap(char *fileName)
+bool Soma::loadRelayMap(const char *fileName)
 {
 	return loadAttrMap(fileName, relayAttrs, nRelays);
 }
 
-bool Soma::loadDpotMap(char *fileName)
+bool Soma::loadDpotMap(const char *fileName)
 {
 	return loadAttrMap(fileName, dpotAttrs, nDpots);
 }
 
-bool Soma::loadButtonMap(char *fileName)
+bool Soma::loadButtonMap(const char *fileName)
 {
 	return loadAttrMap(fileName, buttonAttrs, nButtons);
 }
 
-bool Soma::loadKnobMap(char *fileName)
+bool Soma::loadKnobMap(const char *fileName)
 {
 	return loadAttrMap(fileName, knobAttrs, nKnobs);
 }

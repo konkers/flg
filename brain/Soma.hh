@@ -119,7 +119,7 @@ private:
 	EffectAttr buttonAttrs[nButtons];
 	EffectAttr knobAttrs[nKnobs];
 
-	bool loadAttrMap(char *fileName, EffectAttr *attrs, int nAttrs);
+	bool loadAttrMap(const char *fileName, EffectAttr *attrs, int nAttrs);
 
 	void sync(void);
 	void processFrame(int frame);
@@ -148,11 +148,11 @@ public:
 	void attachLedLink(Link *l);
 	void attachFlameLink(Link *l);
 
-	bool loadLightMap(char *fileName);
-	bool loadRelayMap(char *fileName);
-	bool loadDpotMap(char *fileName);
-	bool loadButtonMap(char *fileName);
-	bool loadKnobMap(char *fileName);
+	bool loadLightMap(const char *fileName);
+	bool loadRelayMap(const char *fileName);
+	bool loadDpotMap(const char *fileName);
+	bool loadButtonMap(const char *fileName);
+	bool loadKnobMap(const char *fileName);
 
 	void run(void);
 

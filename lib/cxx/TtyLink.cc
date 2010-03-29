@@ -26,7 +26,7 @@
 
 #include <TtyLink.hh>
 
-TtyLink::TtyLink(char *devName, bool echo)
+TtyLink::TtyLink(const char *devName, bool echo)
 {
 	struct termios tio;
 	int fdflags;

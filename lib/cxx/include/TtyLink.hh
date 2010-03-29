@@ -27,7 +27,7 @@ private:
 	bool linkEcho;
 
 public:
-	TtyLink(char *devName, bool echo = true);
+	TtyLink(const char *devName, bool echo = true);
 	virtual ~TtyLink();
 
 	virtual bool send(const void *data, int len);
