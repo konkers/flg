@@ -3,7 +3,7 @@ SENDER_OBJS=sender.o
 SENDER485_OBJS=sender485.o
 BRAIN_OBJS=brain.o
 LEDSEND_OBJS=ledsend.o
-RATETEST_OBJS=test.o
+RATETEST_OBJS=ratetest.o
 OBJS=${WAITER_OBJS} ${SENDER_OBJS} ${SENDER485_OBJS} ${BRAIN_OBJS} ${LEDSEND_OBJS} ${RATETEST_OBJS}
 
 TARGETS=waiter sender sender485 brain ledsend ratetest
