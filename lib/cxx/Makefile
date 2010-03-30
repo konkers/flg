@@ -1,5 +1,7 @@
 OBJS=UdpLink.o TtyLink.o FtdiLink.o Proto.o Brain.o \
-	MapFileParser.o RingBuff.o Thread.o State.o
+	MapFileParser.o RingBuff.o Thread.o State.o \
+	ProtoThread.o
+
 TARGETS=libflgxx.a
 
 all: ${TARGETS}

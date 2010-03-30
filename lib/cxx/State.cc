@@ -32,6 +32,8 @@ State::State()
 	boardConfigs["input"] = new BoardConfig(0, 0, 8, 2, 0);
 	boardConfigs["ledRgb"] = new BoardConfig(0, 0, 0, 0, 1);
 	boardConfigs["dpot"] = new BoardConfig(0, 2, 0, 0, 0);
+
+	activePage = 0;
 }
 
 State::~State()
@@ -53,7 +55,7 @@ void State::dumpConfig(void)
 		       doi->second->name.c_str(),
 		       doi->second->board->addr,
 		       doi->second->index,
-		       doi->second->state ? "on" : "off");
+		       doi->second->state[0] ? "on" : "off");
 	}
 
 	printf("analogOuts:\n");
@@ -62,7 +64,7 @@ void State::dumpConfig(void)
 		       aoi->second->name.c_str(),
 		       aoi->second->board->addr,
 		       aoi->second->index,
-		       aoi->second->val);
+		       aoi->second->val[0]);
 	}
 
 	printf("\ndigitalIns:\n");
@@ -71,7 +73,7 @@ void State::dumpConfig(void)
 		       dii->second->name.c_str(),
 		       dii->second->board->addr,
 		       dii->second->index,
-		       dii->second->state ? "on" : "off");
+		       dii->second->state[0] ? "on" : "off");
 	}
 
 	printf("\nanalogIns:\n");
@@ -80,7 +82,7 @@ void State::dumpConfig(void)
 		       aii->second->name.c_str(),
 		       aii->second->board->addr,
 		       aii->second->index,
-		       aii->second->val);
+		       aii->second->val[0]);
 	}
 
 	printf("lightOuts:\n");
@@ -89,37 +91,151 @@ void State::dumpConfig(void)
 		       loi->second->name.c_str(),
 		       loi->second->board->addr,
 		       loi->second->index,
-		       loi->second->red,
-		       loi->second->green,
-		       loi->second->blue);
+		       loi->second->red[0],
+		       loi->second->green[0],
+		       loi->second->blue[0]);
 	}
 
 }
 
-int State::loadConfig(const char *fileName)
+void State::setDigitalOut(const char* name, bool state)
 {
-	int ret = 0;
+	map<string, DigitalOut *>::iterator i;
+
+	i = digitalOutMap.find(name);
+	if (i != digitalOutMap.end()) {
+		i->second->state[activePage] = state;
+		return;
+	}
+
+	fprintf(stderr, "WARNING trying to set non-existant digital out %s\n", name);
+}
+
+void State::setAnalogOut(const char* name, int val)
+{
+	map<string, AnalogOut *>::iterator i;
+
+	i = analogOutMap.find(name);
+	if (i != analogOutMap.end()) {
+		i->second->val[activePage] = val;
+		return;
+	}
+
+	fprintf(stderr, "WARNING trying to set non-existant analog out %s\n", name);
+}
+
+bool State::getDigitalIn(const char* name)
+{
+	map<string, DigitalIn *>::iterator i;
+
+	i = digitalInMap.find(name);
+	if (i != digitalInMap.end()) {
+		return i->second->state[activePage];
+	}
+
+	fprintf(stderr, "WARNING trying to get non-existant digital in %s\n", name);
+
+	return false;
+}
+
+int State::getAnalogIn(const char* name)
+{
+	map<string, AnalogIn *>::iterator i;
+
+	i = analogInMap.find(name);
+	if (i != analogInMap.end()) {
+		return i->second->val[activePage];
+	}
+
+	fprintf(stderr, "WARNING trying to get non-existant analog in %s\n", name);
+
+	return 0;
+}
+
+void State::setLightOut(const char *name, uint8_t red, uint8_t green, uint8_t blue)
+{
+	map<string, LightOut *>::iterator i;
+
+	i = lightOutMap.find(name);
+	if (i != lightOutMap.end()) {
+		i->second->red[activePage] = red;
+		i->second->green[activePage] = green;
+		i->second->blue[activePage] = blue;
+		return;
+	}
+
+	fprintf(stderr, "WARNING trying to set non-existant light out %s\n", name);
+}
+
+
+bool State::attachLink(const char *busName, Link *link)
+{
+	map<string, Bus *>::iterator i;
+
+	i = busMap.find(busName);
+	if (i == busMap.end())
+		return false;
+
+	i->second->thread = new ProtoThread(i->second, link);
+	return true;
+}
+
+void State::run(void)
+{
+	vector<Bus *>::iterator i;
+
+	for (i = busses.begin(); i != busses.end(); i++) {
+		printf("starting bus %s\n", (*i)->name.c_str());
+		if ((*i)->thread) {
+			printf("starting thread\n");
+			(*i)->thread->start();
+		}
+	}
+}
+
+void State::sync(void)
+{
+	vector<Bus *>::iterator i;
+
+	for (i = busses.begin(); i != busses.end(); i++) {
+		(*i)->lock[!activePage].lock();
+	}
+
+	// we now hold all the locks
+	activePage = !activePage;
+
+	for (i = busses.begin(); i != busses.end(); i++) {
+		(*i)->lock[!activePage].unlock();
+	}
+}
+
+/*
+ * XML parsing
+ */
+
+bool State::loadConfig(const char *fileName)
+{
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	xmlNodePtr child;
+	bool ret = true;
 
 	doc = xmlParseFile(fileName);
 
 	if (doc == NULL) {
 		fprintf(stderr, "Document %s not parsed successfully\n",
 			fileName);
-		return -1;
+		return false;
 	}
 
 	cur = xmlDocGetRootElement(doc);
 	if (cur == NULL) {
 		fprintf(stderr, "empty doc\n");
-		return -1;
+		return false;
 	}
 
 	if (xmlStrcmp(cur->name, (const xmlChar *)"config")){
 		fprintf(stderr, "config file does not start with config element\n");
-		ret = -1;
 		goto err0;
 	}
 
@@ -128,7 +244,7 @@ int State::loadConfig(const char *fileName)
 	     child = child->next) {
 		if (!xmlStrcmp(child->name, (const xmlChar*)"bus")) {
 			ret = parseBus(child);
-			if (ret < 0)
+			if (!ret)
 				goto err0;
 		}
 	}
@@ -143,9 +259,8 @@ err0:
 }
 
 
-int State::parseBus(xmlNodePtr node)
+bool State::parseBus(xmlNodePtr node)
 {
-	int ret = 0;
 	xmlNodePtr child;
 	xmlChar *name;
 	Bus *bus;
@@ -157,11 +272,14 @@ int State::parseBus(xmlNodePtr node)
 
 	if (name == NULL) {
 		fprintf(stderr, "bus has no name\n");
-		return -1;
+		return false;
 	}
 
 	bus = new Bus;
 	bus->name = (char *)name;
+	bus->thread = NULL;
+	busMap[bus->name] = bus;
+	busses.push_back(bus);
 
 	for( child = node->xmlChildrenNode;
 	     child != NULL;
@@ -177,7 +295,6 @@ int State::parseBus(xmlNodePtr node)
 		}
 		board = parseBoard(child, bi->second);
 		if (board == NULL) {
-			ret = -1;
 			goto err0;
 		}
 
@@ -194,13 +311,13 @@ int State::parseBus(xmlNodePtr node)
 
 	xmlFree(name);
 
-	return 0;
+	return true;
 
 err0:
 	delete bus;
 	xmlFree(name);
 
-	return ret;
+	return false;
 }
 
 Board *State::parseBoard(xmlNodePtr node, BoardConfig *config)
@@ -375,7 +492,8 @@ DigitalOut *State::parseDigitalOut(xmlNodePtr node)
 	out = new DigitalOut;
 	out->name = (char *)name;
 	out->index = index;
-	out->state = false;
+	out->state[0] = false;
+	out->state[1] = false;
 
 	i = digitalOutMap.find(out->name);
 	if (i != digitalOutMap.end())
@@ -425,7 +543,8 @@ AnalogOut *State::parseAnalogOut(xmlNodePtr node)
 	out = new AnalogOut;
 	out->name = (char *)name;
 	out->index = index;
-	out->val = 0;
+	out->val[0] = 0;
+	out->val[1] = 0;
 
 	i = analogOutMap.find(out->name);
 	if (i != analogOutMap.end())
@@ -475,7 +594,8 @@ DigitalIn *State::parseDigitalIn(xmlNodePtr node)
 	in = new DigitalIn;
 	in->name = (char *)name;
 	in->index = index;
-	in->state = false;
+	in->state[0] = false;
+	in->state[1] = false;
 
 	i = digitalInMap.find(in->name);
 	if (i != digitalInMap.end())
@@ -525,7 +645,8 @@ AnalogIn *State::parseAnalogIn(xmlNodePtr node)
 	in = new AnalogIn;
 	in->name = (char *)name;
 	in->index = index;
-	in->val = 0;
+	in->val[0] = 0;
+	in->val[1] = 0;
 
 	i = analogInMap.find(in->name);
 	if (i != analogInMap.end())
@@ -575,9 +696,12 @@ LightOut *State::parseLightOut(xmlNodePtr node)
 	out = new LightOut;
 	out->name = (char *)name;
 	out->index = index;
-	out->red = 0x00;
-	out->green = 0x00;
-	out->blue = 0x00;
+	out->red[0] = 0x00;
+	out->green[0] = 0x00;
+	out->blue[0] = 0x00;
+	out->red[1] = 0x00;
+	out->green[1] = 0x00;
+	out->blue[1] = 0x00;
 
 	i = lightOutMap.find(out->name);
 	if (i != lightOutMap.end())

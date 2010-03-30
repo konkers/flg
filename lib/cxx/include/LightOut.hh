@@ -28,9 +28,9 @@ public:
 	uint8_t index;
 	Board *board;
 
-	uint8_t red;
-	uint8_t green;
-	uint8_t blue;
+	uint8_t red[2];
+	uint8_t green[2];
+	uint8_t blue[2];
 };
 
 

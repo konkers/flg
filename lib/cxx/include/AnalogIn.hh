@@ -28,7 +28,7 @@ public:
 	uint8_t index;
 	Board *board;
 
-	int val;
+	int val[2];
 };
 
 

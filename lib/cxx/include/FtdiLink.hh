@@ -27,7 +27,6 @@ class FtdiLink : public Link {
 private:
 	struct ftdi_context ftdi;
 
-
 public:
 	FtdiLink(int vid, int pid, ftdi_interface interface);
 	virtual ~FtdiLink();

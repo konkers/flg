@@ -25,6 +25,8 @@
 using namespace std;
 
 #include <Board.hh>
+#include <Thread.hh>
+#include <ProtoThread.hh>
 
 class Bus {
 public:
@@ -33,6 +35,8 @@ public:
 	vector<Board *> boards;
 	map<uint8_t, Board *> addrMap;
 
+	Thread::Mutex lock[2];
+	ProtoThread *thread;
 };
 
 

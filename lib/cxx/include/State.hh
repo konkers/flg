@@ -51,6 +51,7 @@ private:
 	map<string, string> aliases;
 	map<string, BoardConfig *> boardConfigs;
 
+	map<string, Bus *> busMap;
 	map<string, DigitalOut *> digitalOutMap;
 	map<string, AnalogOut *> analogOutMap;
 	map<string, DigitalIn *> digitalInMap;
@@ -59,7 +60,7 @@ private:
 
 	void State::dumpConfig(void);
 
-	int parseBus(xmlNodePtr node);
+	bool parseBus(xmlNodePtr node);
 	Board *parseBoard(xmlNodePtr node, BoardConfig *config);
 	DigitalOut *parseDigitalOut(xmlNodePtr node);
 	AnalogOut *parseAnalogOut(xmlNodePtr node);
@@ -67,11 +68,23 @@ private:
 	AnalogIn *parseAnalogIn(xmlNodePtr node);
 	LightOut *parseLightOut(xmlNodePtr node);
 
+	int activePage;
+
 public:
 	State();
 	~State();
 
-	int loadConfig(const char *fileName);
+	void setDigitalOut(const char* name, bool state);
+	void setAnalogOut(const char* name, int val);
+	bool getDigitalIn(const char* name);
+	int getAnalogIn(const char* name);
+	void setLightOut(const char *name, uint8_t red, uint8_t green, uint8_t blue);
+
+	bool loadConfig(const char *fileName);
+
+	bool attachLink(const char *busName, Link *link);
+	void run(void);
+	void sync(void);
 };
 
 #endif /* __State_hh__ */
