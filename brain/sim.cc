@@ -67,23 +67,12 @@ int main(int argc, char *argv[])
 
 	soma = new Soma();
 
-	if (!soma->loadLightMap("brainLed.map"))
+
+	if (!soma->loadConfig("soma.xml"))
 		return 1;
 
-	if (!soma->loadRelayMap("brainRelay.map"))
-		return 1;
-
-	if (!soma->loadDpotMap("brainDpot.map"))
-		return 1;
-
-	if (!soma->loadButtonMap("brainButton.map"))
-		return 1;
-
-	if (!soma->loadKnobMap("brainKnob.map"))
-		return 1;
-
-	soma->attachFlameLink(flameLink);
-	soma->attachLedLink(ledLink);
+	soma->attachLink("flame", flameLink);
+	soma->attachLink("led", ledLink);
 
 	state->startWebServer(8080);
 

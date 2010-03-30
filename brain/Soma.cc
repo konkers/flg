@@ -14,124 +14,78 @@
  * limitations under the License.
  */
 
-#include <MapFileParser.hh>
-
 #include "Soma.hh"
-#include "FlameProtoThread.hh"
-#include "LedProtoThread.hh"
-
-int lua_set_led(lua_State *l);
 
 Soma::Soma()
 {
-	int s;
-	int i;
+	axonLedNames.push_back("a1");
+	axonLedNames.push_back("a2");
+	axonLedNames.push_back("a3");
+	axonLedNames.push_back("a4");
+	axonLedNames.push_back("a5");
+	axonLedNames.push_back("a6");
+	axonLedNames.push_back("a7");
+	axonLedNames.push_back("a8");
+	axonLedNames.push_back("a9");
+	axonLedNames.push_back("a10");
 
-	ledIdx = 0;
-	flameIdx = 0;
+	lowerLedNames.push_back("l16a");
+	lowerLedNames.push_back("l16c");
+	lowerLedNames.push_back("l17a");
+	lowerLedNames.push_back("l17c");
+	lowerLedNames.push_back("l18a");
+	lowerLedNames.push_back("l18c");
+	lowerLedNames.push_back("l19a");
+	lowerLedNames.push_back("l19c");
+	lowerLedNames.push_back("l20a");
+	lowerLedNames.push_back("l20c");
 
-	for (s = 0; s < 2; s++) {
-		for(i = 0; i < nLights; i++)
-			state[s].lights[i] = 0x0;
-
-		for(i = 0; i < nRelays; i++)
-			state[s].relays[i] = false;
-
-		for(i = 0; i < nButtons; i++)
-			state[s].buttons[i] = false;
-
-		for(i = 0; i < nKnobs; i++)
-			state[s].knobs[i] = 0x0;
-	}
-
-	for(i = 0; i < nRelays; i++)
-		relayTimeout[i] = 0;
-
-	ledProtoThread = NULL;
-	flameProtoThread = NULL;
-
-	ledLocks[0].lock();
-	ledLocks[1].lock();
-
-	flameLocks[0].lock();
-	flameLocks[1].lock();
-
-	initLua();
+	upperLedNames.push_back("u6a");
+	upperLedNames.push_back("u6c");
+	upperLedNames.push_back("u7a");
+	upperLedNames.push_back("u7c");
+	upperLedNames.push_back("u8a");
+	upperLedNames.push_back("u8c");
+	upperLedNames.push_back("u9a");
+	upperLedNames.push_back("u9c");
+	upperLedNames.push_back("u10a");
+	upperLedNames.push_back("u10c");
+	upperLedNames.push_back("u11a");
+	upperLedNames.push_back("u11c");
+	upperLedNames.push_back("u12a");
+	upperLedNames.push_back("u12c");
+	upperLedNames.push_back("u13a");
+	upperLedNames.push_back("u13c");
+	upperLedNames.push_back("u14a");
+	upperLedNames.push_back("u14c");
+	upperLedNames.push_back("u15a");
+	upperLedNames.push_back("u15c");
+	upperLedNames.push_back("u16a");
+	upperLedNames.push_back("u16c");
+	upperLedNames.push_back("u17a");
+	upperLedNames.push_back("u17c");
+	upperLedNames.push_back("u18a");
+	upperLedNames.push_back("u18c");
+	upperLedNames.push_back("u19a");
+	upperLedNames.push_back("u19c");
+	upperLedNames.push_back("u20a");
+	upperLedNames.push_back("u20c");
 }
 
 Soma::~Soma()
 {
-	if (ledProtoThread)
-		delete ledProtoThread;
 
-	if (flameProtoThread)
-		delete flameProtoThread;
 }
 
-void Soma::attachLedLink(Link *l)
+bool Soma::loadConfig(const char *fileName)
 {
-	ledProtoThread = new LedProtoThread(this, l);
-	ledProtoThread->start();
+	return state.loadConfig(fileName);
 }
 
-void Soma::attachFlameLink(Link *l)
+bool Soma::attachLink(const char *busName, Link *link)
 {
-	flameProtoThread = new FlameProtoThread(this, l);
-	flameProtoThread->start();
+	return state.attachLink(busName, link);
 }
-
-bool Soma::loadAttrMap(const char *fileName, EffectAttr *attrs, int nAttrs)
-{
-	MapFileParser p;
-	char *key;
-	int val;
-	int i = 0;
-
-	if (!p.open(fileName))
-		return false;
-
-	while (p.read(&key, &val)) {
-		if (i >= nAttrs) {
-			fprintf(stderr, "too many lines in %s\n", fileName);
-			return false;
-		}
-		attrs[i].name = key;
-		attrs[i].val = val;
-		i++;
-	}
-
-	return true;
-}
-
-bool Soma::loadLightMap(const char *fileName)
-{
-	if (!loadAttrMap(fileName, lightAttrs, nLights))
-		return false;
-
-	luaCreateAttrTable("leds", lightAttrs, nLights);
-	return true;
-}
-
-bool Soma::loadRelayMap(const char *fileName)
-{
-	return loadAttrMap(fileName, relayAttrs, nRelays);
-}
-
-bool Soma::loadDpotMap(const char *fileName)
-{
-	return loadAttrMap(fileName, dpotAttrs, nDpots);
-}
-
-bool Soma::loadButtonMap(const char *fileName)
-{
-	return loadAttrMap(fileName, buttonAttrs, nButtons);
-}
-
-bool Soma::loadKnobMap(const char *fileName)
-{
-	return loadAttrMap(fileName, knobAttrs, nKnobs);
-}
-
 
 void Soma::run(void)
 {
@@ -139,15 +93,41 @@ void Soma::run(void)
 	struct timeval last_tv;
 	struct timeval tmp_tv;
 	struct timeval frametime;
-	int i = 0;
+
+	uint8_t val = 0;
+	vector<string>::iterator i;
 
 	frametime.tv_sec = 0;
-	frametime.tv_usec = 10000;
+	frametime.tv_usec = 33000;
 
+	state.run();
+
+	printf("run\n");
+
+	// XXX: gettimeofday is not garunteet to be regular as the clock can be
+	//      set at any time (by user, ntp, etc.)
 	gettimeofday(&last_tv, NULL);
-	while(1) {
-		sync();
-		processFrame(i++);
+	while (1) {
+		state.sync();
+		state.setDigitalOut("a1b", state.getDigitalIn("l6"));
+		state.setDigitalOut("a2b", state.getDigitalIn("l7"));
+		state.setDigitalOut("a3b", state.getDigitalIn("l8"));
+		state.setDigitalOut("a4b", state.getDigitalIn("l9"));
+		state.setDigitalOut("a5b", state.getDigitalIn("l10"));
+		state.setDigitalOut("a6b", state.getDigitalIn("l11"));
+		state.setDigitalOut("a7b", state.getDigitalIn("l12"));
+		state.setDigitalOut("a8b", state.getDigitalIn("l13"));
+
+		for (i = axonLedNames.begin(); i != axonLedNames.end(); i++ )
+			state.setLightOut(i->c_str(), val, 0x0, 0x0);
+
+		for (i = lowerLedNames.begin(); i != lowerLedNames.end(); i++ )
+			state.setLightOut(i->c_str(), val, 0x0, 0x0);
+
+		for (i = upperLedNames.begin(); i != upperLedNames.end(); i++ )
+			state.setLightOut(i->c_str(), val, 0x0, 0x0);
+
+		val++;
 
 		gettimeofday(&tv, NULL);
 		timersub(&tv, &last_tv, &tmp_tv);
@@ -156,210 +136,10 @@ void Soma::run(void)
 			usleep(tv.tv_usec);
 		} else {
 			fprintf(stderr, "frame overrun: ");
-			timersub(&flameSyncTime, &last_tv, &tmp_tv);
-			fprintf(stderr, "flameSyncDelay: %f ", 1.0 * tmp_tv.tv_sec +
-			       (1.0 * tmp_tv.tv_usec)/(1000000.0));
-			timersub(&ledSyncTime, &last_tv, &tmp_tv);
-			fprintf(stderr, "ledSyncDelay: %f ", 1.0 * tmp_tv.tv_sec +
-			       (1.0 * tmp_tv.tv_usec)/(1000000.0));
 			fprintf(stderr, "\n");
 		}
 		gettimeofday(&last_tv, NULL);
+
 	}
-}
-
-void Soma::processFrame(int frame)
-{
-	int i;
-	int ret;
-
-	lua_getfield(l, -1, "process");
-	lua_pushvalue(l, 1);
-
-	ret = lua_pcall(l, 1, 0, 0);
-	if (ret != 0) {
-		printf(" err: %s\n", lua_tostring(l, -1));
-	}
-
-	for (i = 0; i < nButtons; i++) {
-		if (button(i)) {
-			enableRelay(i * 3, 10);
-			enableRelay(i * 3 + 1, 10);
-			enableRelay(i * 3 + 2, 10);
-		}
-	}
-
-	for (i = 0; i < nRelays; i++) {
-		if (relayTimeout[i] > 0) {
-			setRelay(i, true);
-			relayTimeout[i]--;
-		} else {
-			setRelay(i, false);
-		}
-	}
-}
-
-void Soma::sync(void)
-{
-	flameLocks[!flameIdx].lock();
-	ledLocks[!ledIdx].lock();
-
-	// we now hold all locks.
-	// It is safe to update flameIdx and ledIdx
-	flameIdx = !flameIdx;
-	ledIdx = !ledIdx;
-
-	// now let the link threads run
-	flameLocks[!flameIdx].unlock();
-	ledLocks[!ledIdx].unlock();
-}
-
-void Soma::flameSync(void)
-{
-	int newIdx = !flameIdx;
-
-	gettimeofday(&flameSyncTime, NULL);
-
-	// Soma is holding flameIdx
-	// flameLink is holding newIdx
-	flameLocks[newIdx].unlock();
-
-	// Soma will update flameIdx before releasing this lock
-	flameLocks[!newIdx].lock();
-}
-
-void Soma::ledSync(void)
-{
-	int newIdx = !ledIdx;
-
-	gettimeofday(&ledSyncTime, NULL);
-
-	// Soma is holding ledIdx
-	// ledLink is holding newIdx
-
-	ledLocks[newIdx].unlock();
-
-	// Soma will update ledIdx before releasing this lock
-	ledLocks[!newIdx].lock();
-}
-
-bool Soma::initLua(void)
-{
-	int ret;
-
-	l = luaL_newstate();
-	luaL_openlibs(l);
-
-	lua_settop(l, 0);
-
-	ret = luaL_dofile(l, "globals.lua");
-	if (ret != 0) {
-		printf("can't load globals file: %s\n", lua_tostring(l, -1));
-		return false;
-	}
-	printf("%d\n", lua_gettop(l));
-	ret = luaL_dofile(l, "test.lua");
-	if (ret != 0) {
-		printf("can't load file: %s\n", lua_tostring(l, -1));
-		return false;
-	}
-	printf("%d\n", lua_gettop(l));
-
-	luaRegisterFunction(lua_set_led, "set_led");
-
-	return true;
-}
-
-void Soma::luaRegisterFunction(lua_CFunction func, const char *name)
-{
-	lua_pushlightuserdata(l, this);
-	lua_pushcclosure(l, func, 1);
-	lua_setglobal(l, name);
-}
-
-void Soma::luaCreateAttrTable(const char *name, const EffectAttr *attrs, int n)
-{
-	int i;
-
-	lua_createtable(l, n, 0);
-
-	for (i = 0; i < n; i++) {
-		printf("set %s = %d\n", attrs[i].name.c_str(), i);
-		lua_pushstring(l, attrs[i].name.c_str());
-		lua_pushinteger(l, i);
-		lua_settable(l, -3);
-	}
-
-	lua_setglobal(l, name);
-}
-
-
-
-int lua_get_led(lua_State *l)
-{
-	return 0;
-}
-
-int lua_set_led(lua_State *l)
-{
-	Soma *soma = (Soma *)lua_touserdata(l, lua_upvalueindex(1));
-
-	uint8_t red;
-	uint8_t green;
-	uint8_t blue;
-
-
-	if (lua_gettop(l) != 4) {
-		lua_pushfstring(l, "set_led wrong number of arguments.  Expected 4. got %d",
-				lua_gettop(l));
-		lua_error(l);
-		return 0;
-	}
-
-	if (!lua_isnumber(l, 1)) {
-		lua_pushfstring(l, "set_led arg 1 not an integer");
-		lua_error(l);
-	}
-
-	red = lua_tointeger(l, 2);
-	green = lua_tointeger(l, 3);
-	blue = lua_tointeger(l, 4);
-
-	soma->setLight(lua_tointeger(l,1), red, green, blue);
-	return 0;
-}
-
-
-
-int lua_get_relay(lua_State *l)
-{
-	return 0;
-}
-
-int lua_set_relay(lua_State *l)
-{
-	return 0;
-}
-
-
-int lua_get_dpot(lua_State *l)
-{
-	return 0;
-}
-
-int lua_set_dpot(lua_State *l)
-{
-	return 0;
-}
-
-
-int lua_get_knob(lua_State *l)
-{
-	return 0;
-}
-
-int lua_get_button(lua_State *l)
-{
-	return 0;
 }
 
