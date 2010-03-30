@@ -156,7 +156,10 @@ package org.flg.soma
 					val = parseInt(match[1], 16);
 
 					if (index < nLights) {
-						ledState[index] = val;
+						ledState[index] =
+							(val & 0xff0000) >> 16 |
+							(val & 0x0000ff) << 16 |
+							(val & 0x00ff00);
 					} else if (index >= 0x80 &&
 						   ((index - 0x80) < nRelays)) {
 						relayState[index - 0x80] = val;
