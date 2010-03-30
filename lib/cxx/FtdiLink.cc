@@ -97,6 +97,7 @@ bool FtdiLink::send(const void *data, int len)
 
 int FtdiLink::wait(int timeout)
 {
+	ftdi.usb_read_timeout = timeout;
 	return timeout;
 }
 
