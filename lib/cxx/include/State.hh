@@ -58,7 +58,7 @@ private:
 	map<string, AnalogIn *> analogInMap;
 	map<string, LightOut *> lightOutMap;
 
-	void State::dumpConfig(void);
+	void dumpConfig(void);
 
 	bool parseBus(xmlNodePtr node);
 	Board *parseBoard(xmlNodePtr node, BoardConfig *config);

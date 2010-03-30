@@ -8,7 +8,7 @@ LDXXFLAGS += ${LDFLAGS} -L${FLG_DIR}/lib/cxx -L${FLG_DIR}/lib/lua/src
 RANLIB = ranlib
 
 ifeq ("${SYSTEM}","Linux")
-CFLAGS += -I/usr/local/include/libxml2
+CFLAGS += -I/usr/include/libxml2
 LIBS += -ldl -lpthread
 endif
 
