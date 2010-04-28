@@ -1,4 +1,5 @@
-SIM_OBJS=mongoose.o \
+SIM_OBJS=EventMachine.o \
+	mongoose.o \
 	Soma.o \
 	SimState.o \
 	SimLink.o \

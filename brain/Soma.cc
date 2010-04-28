@@ -15,6 +15,7 @@
  */
 
 #include "Soma.hh"
+#include "EventMachine.hh"
 
 Soma::Soma()
 {
@@ -102,6 +103,23 @@ void Soma::run(void)
 
 	state.run();
 
+        EventMachine em;
+        em.addScript("l6", "btn1.png");
+        em.addScript("l6", "btn1.png");
+        em.addScript("l7", "btn2.png");
+        em.addScript("l8", "btn3.png");
+        em.addScript("l9", "btn4.png");
+        em.addScript("l10", "btn5.png");
+        em.addScript("l11", "btn6.png");
+        em.addScript("l12", "btn7.png");
+        em.addScript("l13", "btn8.png");
+        em.addScript("l6 l7", "btn12.png");
+        em.addScript("l8 l9", "btn34.png");
+        em.addScript("l10 l11", "btn56.png");
+        em.addScript("l12 l13", "btn78.png");
+        em.addScript("l6 l7 l8 l9 l10 l11 l12 l13", "btnall.png");
+        em.addScript("", "idle.png");
+
 	printf("run\n");
 
 	// XXX: gettimeofday is not garunteet to be regular as the clock can be
@@ -109,6 +127,9 @@ void Soma::run(void)
 	gettimeofday(&last_tv, NULL);
 	while (1) {
 		state.sync();
+
+                em.update(&state);
+
 		state.setDigitalOut("a1b", !state.getDigitalIn("l6"));
 		state.setDigitalOut("a2b", !state.getDigitalIn("l7"));
 		state.setDigitalOut("a3b", !state.getDigitalIn("l8"));
