@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Alex Graveley
+ * Copyright 2010 Alex Graveley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ using namespace std;
 
 class EventMask
 {
+private:
         vector<string> names;
 
 public:
@@ -36,18 +37,38 @@ public:
         bool stateMatch(State *state);
 };
 
+
+class EventScript
+{
+private:
+        png_structp png;
+        png_infop info;
+        png_bytepp data;
+
+public:
+        EventScript() {};
+	~EventScript();
+        bool load(string script);
+        uint get_frames();
+        bool update(State *state, uint frame,
+                    vector<string> lowerLedNames,
+                    vector<string> axonLedNames,
+                    vector<string> upperLedNames);
+};
+
+
 class EventMachine
 {
 private:
         vector< pair<EventMask, string> > scriptMasks;
-        map<string, png_structp> scriptData;
-        vector< pair<png_structp, uint> > scriptStates;
+        map<string, EventScript*> scriptData;
+        vector< pair<EventScript*, uint> > scriptStates;
 
 public:
-	EventMachine();
-	~EventMachine();
+        EventMachine() {};
+        ~EventMachine() {};
 
-        void addScript(string mask, string script);
+        bool addScript(string mask, string script);
         void update(State *state);
 };
 
