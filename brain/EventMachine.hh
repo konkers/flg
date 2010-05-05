@@ -53,7 +53,8 @@ public:
         bool update(State *state, uint frame,
                     vector<string> lowerLedNames,
                     vector<string> axonLedNames,
-                    vector<string> upperLedNames);
+                    vector<string> upperLedNames,
+                    vector<string> digitalNames);
 };
 
 
@@ -69,7 +70,11 @@ public:
         ~EventMachine() {};
 
         bool addScript(string mask, string script);
-        void update(State *state);
+        void update(State *state,
+                    vector<string> lowerLedNames,
+                    vector<string> axonLedNames,
+                    vector<string> upperLedNames,
+                    vector<string> digitalNames);
 };
 
 #endif /* __Soma_hh__ */

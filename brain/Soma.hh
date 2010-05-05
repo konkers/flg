@@ -35,6 +35,7 @@ private:
 	vector<string> lowerLedNames;
 	vector<string> axonLedNames;
 	vector<string> upperLedNames;
+        vector<string> digitalNames;
 
 public:
 	Soma();

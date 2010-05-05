@@ -71,6 +71,15 @@ Soma::Soma()
 	upperLedNames.push_back("u19c");
 	upperLedNames.push_back("u20a");
 	upperLedNames.push_back("u20c");
+
+        digitalNames.push_back("a1b");
+        digitalNames.push_back("a2b");
+        digitalNames.push_back("a3b");
+        digitalNames.push_back("a4b");
+        digitalNames.push_back("a5b");
+        digitalNames.push_back("a6b");
+        digitalNames.push_back("a7b");
+        digitalNames.push_back("a8b");
 }
 
 Soma::~Soma()
@@ -95,7 +104,6 @@ void Soma::run(void)
 	struct timeval tmp_tv;
 	struct timeval frametime;
 
-	uint8_t val = 0;
 	vector<string>::iterator i;
 
 	frametime.tv_sec = 0;
@@ -104,7 +112,6 @@ void Soma::run(void)
 	state.run();
 
         EventMachine em;
-        em.addScript("l6", "btn1.png");
         em.addScript("l6", "btn1.png");
         em.addScript("l7", "btn2.png");
         em.addScript("l8", "btn3.png");
@@ -128,27 +135,8 @@ void Soma::run(void)
 	while (1) {
 		state.sync();
 
-                em.update(&state);
-
-		state.setDigitalOut("a1b", !state.getDigitalIn("l6"));
-		state.setDigitalOut("a2b", !state.getDigitalIn("l7"));
-		state.setDigitalOut("a3b", !state.getDigitalIn("l8"));
-		state.setDigitalOut("a4b", !state.getDigitalIn("l9"));
-		state.setDigitalOut("a5b", !state.getDigitalIn("l10"));
-		state.setDigitalOut("a6b", !state.getDigitalIn("l11"));
-		state.setDigitalOut("a7b", !state.getDigitalIn("l12"));
-		state.setDigitalOut("a8b", !state.getDigitalIn("l13"));
-
-		for (i = axonLedNames.begin(); i != axonLedNames.end(); i++ )
-			state.setLightOut(i->c_str(), val, 0x0, 0x0);
-
-		for (i = lowerLedNames.begin(); i != lowerLedNames.end(); i++ )
-			state.setLightOut(i->c_str(), val, 0x0, 0x0);
-
-		for (i = upperLedNames.begin(); i != upperLedNames.end(); i++ )
-			state.setLightOut(i->c_str(), val, 0x0, 0x0);
-
-		val++;
+		em.update(&state, lowerLedNames, axonLedNames, upperLedNames,
+			  digitalNames);
 
 		gettimeofday(&tv, NULL);
 		timersub(&tv, &last_tv, &tmp_tv);

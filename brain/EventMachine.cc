@@ -89,10 +89,12 @@ EventScript::load(string script)
 
 
 bool
-EventScript::update(State *state, uint frame,
+EventScript::update(State *state,
+                    uint frame,
                     vector<string> lowerLedNames,
                     vector<string> axonLedNames,
-                    vector<string> upperLedNames)
+                    vector<string> upperLedNames,
+                    vector<string> digitalNames)
 {
    // XXX: constify offsets
    uint8_t x=0;
@@ -132,6 +134,14 @@ EventScript::update(State *state, uint frame,
       x++;
    }
 
+   i = digitalNames.begin();
+   x = 50; //digital poofers start at pixel 50
+   for (i = digitalNames.begin(); i != digitalNames.end(); i++) {
+      png_byte* ptr = &(row[x*3]); //get pixel rgb
+      state->setDigitalOut(i->c_str(), ptr[0] + ptr[1] + ptr[2] == 0);
+      x++;
+   }
+
    return y >= info->height;
 }
 
@@ -158,7 +168,11 @@ EventMachine::addScript(string mask, string script)
 
 
 void
-EventMachine::update(State *state)
+EventMachine::update(State *state,
+                     vector<string> lowerLedNames,
+                     vector<string> axonLedNames,
+                     vector<string> upperLedNames,
+                     vector<string> digitalNames)
 {
    for (vector< pair<EventMask, string> >::iterator i = scriptMasks.begin();
         i != scriptMasks.end(); i++) {
@@ -177,7 +191,8 @@ EventMachine::update(State *state)
       EventScript *data = i2->first;
       uint frame = i2->second;
 
-      if (data && frame < data->get_frames()) {
+      if (data && data->update(state, frame, lowerLedNames, axonLedNames,
+                               upperLedNames, digitalNames)) {
          fprintf(stderr, "EventMachine::update: advancing to frame %d: %p\n", frame, data);
          nextStates.push_back(pair<EventScript*, uint>(data, frame + 1));
       } else {
