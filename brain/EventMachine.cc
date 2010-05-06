@@ -153,15 +153,9 @@ EventScript::update(State *state,
 bool
 EventMachine::addScript(string mask, string script)
 {
-   if (scriptData[script] != NULL) {
-      fprintf(stderr, "EventMachine::addScript: reusing loaded script '%s'\n",
-              script.c_str());
-      return true;
-   }
-
-   // load script file, add with name to scriptData
    EventScript *es = scriptData[script];
    if (!es) {
+      // load script file, add with name to scriptData
       es = new EventScript();
       if (!es->load(script)) {
          delete es;
