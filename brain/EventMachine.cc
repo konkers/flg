@@ -98,11 +98,11 @@ EventScript::update(State *state,
 {
    // XXX: constify offsets
    uint8_t x=0;
-   uint8_t y=0;
+   uint8_t y=frame;
 
    if (y >= info->height) {
-      fprintf(stderr, "EventScript::update frame %d greater than PNG height %lu\n",
-              frame, info->height);
+      //fprintf(stderr, "EventScript::update frame %d greater than PNG height %lu\n",
+      //        frame, info->height);
       return false;
    }
    png_byte* row = data[y];
@@ -137,25 +137,38 @@ EventScript::update(State *state,
    i = digitalNames.begin();
    x = 50; //digital poofers start at pixel 50
    for (i = digitalNames.begin(); i != digitalNames.end(); i++) {
-      png_byte* ptr = &(row[x*3]); //get pixel rgb
-      state->setDigitalOut(i->c_str(), ptr[0] + ptr[1] + ptr[2] == 0);
+      //png_byte* ptr = &(row[x*3]); //get pixel rgb
+      //fprintf(stderr, "Setting Poofer [x: %d, y: %d] %s\n",
+      //        x, y, ptr[0] + ptr[1] + ptr[2] == 0 ? "ON" : "OFF");
+      // XXX: WARNING trying to set non-existant digital out a8b
+      //state->setDigitalOut(i->c_str(), ptr[0] + ptr[1] + ptr[2] == 0);
       x++;
    }
 
-   return y >= info->height;
+   //fprintf(stderr, "EventScript::update return == %s\n", y < info->height ? "TRUE" : "FALSE");
+   return y < info->height;
 }
 
 
 bool
 EventMachine::addScript(string mask, string script)
 {
-   // load script file, add with name to scriptData
-   EventScript *es = new EventScript();
-   if (!es->load(script)) {
-      delete es;
-      fprintf(stderr, "EventMachine::addScript: failed to load script '%s'\n",
+   if (scriptData[script] != NULL) {
+      fprintf(stderr, "EventMachine::addScript: reusing loaded script '%s'\n",
               script.c_str());
-      return false;
+      return true;
+   }
+
+   // load script file, add with name to scriptData
+   EventScript *es = scriptData[script];
+   if (!es) {
+      es = new EventScript();
+      if (!es->load(script)) {
+         delete es;
+         fprintf(stderr, "EventMachine::addScript: failed to load script '%s'\n",
+                 script.c_str());
+         return false;
+      }
    }
 
    scriptMasks.push_back(pair<EventMask, string>(EventMask(mask), script));
@@ -177,10 +190,23 @@ EventMachine::update(State *state,
    for (vector< pair<EventMask, string> >::iterator i = scriptMasks.begin();
         i != scriptMasks.end(); i++) {
       if (i->first.stateMatch(state)) {
-         fprintf(stderr, "EventMachine::update: state matches for script: %s\n",
-                 i->second.c_str());
+         //fprintf(stderr, "EventMachine::update: state matches for script: %s\n",
+         //        i->second.c_str());
          EventScript *data = scriptData[i->second];
-         scriptStates.push_back(pair<EventScript *, uint>(data, 0));
+         bool isRunning = false;
+         for (vector< pair<EventScript*, uint> >::iterator i2 = scriptStates.begin();
+              i2 != scriptStates.end(); i2++) {
+            if (data == i2->first) {
+               //fprintf(stderr, "EventMachine::update: script %p already running.\n",
+               //        i2->first);
+               isRunning = true;
+            }
+         }
+         if (!isRunning) {
+            fprintf(stderr, "EventMachine::update: restarting script '%s'.\n",
+                    i->second.c_str());
+            scriptStates.push_back(pair<EventScript *, uint>(data, 0));
+         }
       }
    }
 
@@ -193,7 +219,7 @@ EventMachine::update(State *state,
 
       if (data && data->update(state, frame, lowerLedNames, axonLedNames,
                                upperLedNames, digitalNames)) {
-         fprintf(stderr, "EventMachine::update: advancing to frame %d: %p\n", frame, data);
+         //fprintf(stderr, "EventMachine::update: advancing to frame %d: %p\n", frame, data);
          nextStates.push_back(pair<EventScript*, uint>(data, frame + 1));
       } else {
          fprintf(stderr, "EventMachine::update: script completed: %p\n", data);
