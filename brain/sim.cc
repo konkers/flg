@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	soma = new Soma();
 
 
-	if (!soma->loadConfig("soma.xml"))
+	if (!soma->loadConfig("soma.xml", "events.xml"))
 		return 1;
 
 	soma->attachLink("flame", flameLink);

@@ -65,6 +65,8 @@ private:
         map<string, EventScript*> scriptData;
         vector< pair<EventScript*, uint> > scriptStates;
 
+	bool parseEvent(xmlNodePtr cur);
+
 public:
         EventMachine() {};
         ~EventMachine() {};
@@ -75,6 +77,8 @@ public:
                     vector<string> axonLedNames,
                     vector<string> upperLedNames,
                     vector<string> digitalNames);
+
+        bool loadConfig(const char *fileName);
 };
 
 #endif /* __Soma_hh__ */

@@ -211,13 +211,84 @@ EventMachine::update(State *state,
       EventScript *data = i2->first;
       uint frame = i2->second;
 
-      if (data && data->update(state, frame, lowerLedNames, axonLedNames,
-                               upperLedNames, digitalNames)) {
+      if (!data) {
+         fprintf(stderr, "EventMachine::update: invalid EventScript!\n");
+         continue;
+      }
+
+      if (data->update(state, frame, lowerLedNames, axonLedNames,
+                       upperLedNames, digitalNames)) {
          //fprintf(stderr, "EventMachine::update: advancing to frame %d: %p\n", frame, data);
          nextStates.push_back(pair<EventScript*, uint>(data, frame + 1));
-      } else {
-         fprintf(stderr, "EventMachine::update: script completed: %p\n", data);
       }
    }
    scriptStates = nextStates;
+}
+
+
+bool
+EventMachine::parseEvent(xmlNodePtr node)
+{
+	bool ret = false;
+	xmlChar *maskStr = xmlGetProp(node, (const xmlChar *)"mask");
+	xmlChar *scriptStr = xmlGetProp(node, (const xmlChar *)"script");
+
+	if (maskStr == NULL) {
+		fprintf(stderr, "%s has no mask\n", node->name);
+		goto err;
+	}
+	if (scriptStr == NULL) {
+		fprintf(stderr, "%s has no script\n", node->name);
+		goto err;
+	}
+
+	ret = addScript((char *)maskStr, (char *)scriptStr);
+
+err:
+	xmlFree(maskStr);
+	xmlFree(scriptStr);
+	return ret;
+}
+
+
+bool
+EventMachine::loadConfig(const char *fileName)
+{
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+	xmlNodePtr child;
+	bool ret = true;
+
+	doc = xmlParseFile(fileName);
+
+	if (doc == NULL) {
+		fprintf(stderr, "Document %s not parsed successfully\n",
+			fileName);
+		return false;
+	}
+
+	cur = xmlDocGetRootElement(doc);
+	if (cur == NULL) {
+		fprintf(stderr, "empty doc\n");
+		return false;
+	}
+
+	if (xmlStrcmp(cur->name, (const xmlChar *)"config")){
+		fprintf(stderr, "config file does not start with config element\n");
+		goto err0;
+	}
+
+	for (child = cur->xmlChildrenNode;
+	     child != NULL;
+	     child = child->next) {
+		if (!xmlStrcmp(child->name, (const xmlChar*)"event")) {
+			ret = parseEvent(child);
+			if (!ret)
+				goto err0;
+		}
+	}
+
+err0:
+	xmlFreeDoc(doc);
+	return ret;
 }

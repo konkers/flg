@@ -15,7 +15,6 @@
  */
 
 #include "Soma.hh"
-#include "EventMachine.hh"
 
 Soma::Soma()
 {
@@ -87,9 +86,9 @@ Soma::~Soma()
 
 }
 
-bool Soma::loadConfig(const char *fileName)
+bool Soma::loadConfig(const char *fileName, const char *eventsfileName)
 {
-	return state.loadConfig(fileName);
+	return state.loadConfig(fileName) && em.loadConfig(eventsfileName);
 }
 
 bool Soma::attachLink(const char *busName, Link *link)
@@ -110,36 +109,6 @@ void Soma::run(void)
 	frametime.tv_usec = 33000;
 
 	state.run();
-
-        EventMachine em;
-        em.addScript("l6", "btn1.png");
-        em.addScript("l7", "btn1.png");
-        em.addScript("l8", "btn1.png");
-        em.addScript("l9", "btn1.png");
-        em.addScript("l10", "btn1.png");
-        em.addScript("l11", "btn1.png");
-        em.addScript("l12", "btn1.png");
-        em.addScript("l13", "btn1.png");
-        em.addScript("l6 l7", "btn2.png");
-        em.addScript("l8 l9", "btn2.png");
-        em.addScript("l10 l11", "btn2.png");
-        em.addScript("l12 l13", "btn2.png");
-        /*
-        em.addScript("l6", "btn1.png");
-        em.addScript("l7", "btn2.png");
-        em.addScript("l8", "btn3.png");
-        em.addScript("l9", "btn4.png");
-        em.addScript("l10", "btn5.png");
-        em.addScript("l11", "btn6.png");
-        em.addScript("l12", "btn7.png");
-        em.addScript("l13", "btn8.png");
-        em.addScript("l6 l7", "btn12.png");
-        em.addScript("l8 l9", "btn34.png");
-        em.addScript("l10 l11", "btn56.png");
-        em.addScript("l12 l13", "btn78.png");
-        em.addScript("l6 l7 l8 l9 l10 l11 l12 l13", "btnall.png");
-        */
-        em.addScript("", "idle.png");
 
 	printf("run\n");
 

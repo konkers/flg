@@ -24,6 +24,7 @@
 using namespace std;
 
 
+#include "EventMachine.hh"
 #include <State.hh>
 #include <Link.hh>
 
@@ -31,6 +32,7 @@ class Soma
 {
 private:
 	State state;
+	EventMachine em;
 
 	vector<string> lowerLedNames;
 	vector<string> axonLedNames;
@@ -41,7 +43,7 @@ public:
 	Soma();
 	~Soma();
 
-	bool loadConfig(const char *fileName);
+	bool loadConfig(const char *fileName, const char *eventsfileName);
 	bool attachLink(const char *busName, Link *link);
 
 	void run(void);
