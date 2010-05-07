@@ -27,58 +27,59 @@ using namespace std;
 
 #include <State.hh>
 
+
 class EventMask
 {
 private:
-        vector<string> names;
+	vector<string> names;
 
 public:
 	EventMask(string mask);
-        bool stateMatch(State *state);
+	bool stateMatch(State *state);
 };
 
 
 class EventScript
 {
 private:
-        png_structp png;
-        png_infop info;
-        png_bytepp data;
+	png_structp png;
+	png_infop info;
+	png_bytepp data;
 
 public:
-        EventScript() {};
+	EventScript() {};
 	~EventScript();
-        bool load(string script);
-        uint get_frames();
-        bool update(State *state, uint frame,
-                    vector<string> lowerLedNames,
-                    vector<string> axonLedNames,
-                    vector<string> upperLedNames,
-                    vector<string> digitalNames);
+	bool load(string script);
+	uint get_frames();
+	bool update(State *state, uint frame,
+		    vector<string> lowerLedNames,
+		    vector<string> axonLedNames,
+		    vector<string> upperLedNames,
+		    vector<string> digitalNames);
 };
 
 
 class EventMachine
 {
 private:
-        vector< pair<EventMask, string> > scriptMasks;
-        map<string, EventScript*> scriptData;
-        vector< pair<EventScript*, uint> > scriptStates;
+	vector< pair<EventMask, string> > scriptMasks;
+	map<string, EventScript*> scriptData;
+	vector< pair<EventScript*, uint> > scriptStates;
 
 	bool parseEvent(xmlNodePtr cur);
 
 public:
-        EventMachine() {};
-        ~EventMachine() {};
+	EventMachine() {};
+	~EventMachine() {};
 
-        bool addScript(string mask, string script);
-        void update(State *state,
-                    vector<string> lowerLedNames,
-                    vector<string> axonLedNames,
-                    vector<string> upperLedNames,
-                    vector<string> digitalNames);
+	bool addScript(string mask, string script);
+	void update(State *state,
+		    vector<string> lowerLedNames,
+		    vector<string> axonLedNames,
+		    vector<string> upperLedNames,
+		    vector<string> digitalNames);
 
-        bool loadConfig(const char *fileName);
+	bool loadConfig(const char *fileName);
 };
 
 #endif /* __Soma_hh__ */

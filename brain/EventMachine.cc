@@ -14,215 +14,220 @@
  * limitations under the License.
  */
 
+#include "EventMachine.hh"
+
 #include <sstream>
 #include <png.h>
 
-#include "EventMachine.hh"
 
 EventMask::EventMask(string mask)
 {
-   istringstream iss(mask, istringstream::in);
-   string word;
-   while(iss >> word) {
-      fprintf(stderr, "EventMask: mask=%s\n", word.c_str());
-      names.push_back(word);
-   }
+	istringstream iss(mask, istringstream::in);
+	string word;
+	while(iss >> word) {
+		names.push_back(word);
+	}
 }
+
 
 bool
 EventMask::stateMatch(State *state)
 {
-   vector<string>::iterator i;
-   for (i = names.begin(); i != names.end(); i++) {
-      if (!state->getDigitalIn((*i).c_str())) {
-         return false;
-      }
-   }
-   return true;
+	vector<string>::iterator i;
+	for (i = names.begin(); i != names.end(); i++) {
+		if (!state->getDigitalIn((*i).c_str())) {
+			return false;
+		}
+	}
+	return true;
 }
 
 
 EventScript::~EventScript()
 {
-   for (uint y=0; y < info->height; y++) {
-      free(data[y]);
-   }
-   png_read_destroy(png, info, NULL);
+	for (uint y=0; y < info->height; y++) {
+		free(data[y]);
+	}
+	png_read_destroy(png, info, NULL);
 }
 
 
 uint
 EventScript::get_frames()
 {
-   return info->height;
+	return info->height;
 }
 
 
 bool
 EventScript::load(string script)
 {
-   /* open file and test for it being a png */
-   FILE *fp = fopen(script.c_str(), "rb");
-   if (!fp) {
-      fprintf(stderr, "EventMachine::loadScript: File %s could not be opened for reading",
-              script.c_str());
-      return false;
-   }
+	/* open file and test for it being a png */
+	FILE *fp = fopen(script.c_str(), "rb");
+	if (!fp) {
+		fprintf(stderr, "Script %s could not be opened for reading", script.c_str());
+		return false;
+	}
 
-   /* initialize stuff */
-   png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-   info = png_create_info_struct(png);
+	/* initialize stuff */
+	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	info = png_create_info_struct(png);
 
-   png_init_io(png, fp);
-   png_read_info(png, info);
-   png_read_update_info(png, info);
+	png_init_io(png, fp);
+	png_read_info(png, info);
+	png_read_update_info(png, info);
 
-   data = (png_bytepp) malloc(sizeof(png_bytep) * info->height);
-   for (uint y=0; y < info->height; y++) {
-      data[y] = (png_byte*) malloc(info->rowbytes);
-   }
-   png_read_image(png, data);
+        if (info->width != 58) {
+		fprintf(stderr, "Script %s is not the correct width (expected 58, got %lu).\n",
+                        script.c_str(), info->width);
+                png_read_destroy(png, info, NULL);
+                fclose(fp);
+		return false;
+        }
 
-   fclose(fp);
-   return true;
+	data = (png_bytepp) malloc(sizeof(png_bytep) * info->height);
+	for (uint y=0; y < info->height; y++) {
+		data[y] = (png_byte*) malloc(info->rowbytes);
+	}
+	png_read_image(png, data);
+
+	fclose(fp);
+	return true;
 }
 
 
 bool
 EventScript::update(State *state,
-                    uint frame,
-                    vector<string> lowerLedNames,
-                    vector<string> axonLedNames,
-                    vector<string> upperLedNames,
-                    vector<string> digitalNames)
+		    uint frame,
+		    vector<string> lowerLedNames,
+		    vector<string> axonLedNames,
+		    vector<string> upperLedNames,
+		    vector<string> digitalNames)
 {
-   // XXX: constify offsets
-   uint8_t x=0;
-   uint8_t y=frame;
+	// XXX: constify offsets
+	uint8_t x=0;
+	uint8_t y=frame;
 
-   if (y >= info->height) {
-      //fprintf(stderr, "EventScript::update frame %d greater than PNG height %lu\n",
-      //        frame, info->height);
-      return false;
-   }
-   png_byte* row = data[y];
+	if (y >= info->height) {
+		fprintf(stderr, "Frame %d greater than PNG height %lu\n",
+			frame, info->height);
+		return false;
+	}
+	png_byte* row = data[y];
 
-   vector<string>::iterator i = axonLedNames.begin();
-   x = 0; //axon LED's start at pixel 0
-   for (i = axonLedNames.begin(); i != axonLedNames.end(); i++) {
-      png_byte* ptr = &(row[x*3]); //get pixel rgb
-      //fprintf(stderr, "Pixel [x: %d, y: %d] R:%d G:%d B:%d\n",
-      //        x, y, ptr[0], ptr[1], ptr[2]);
-      state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
-      //printf("%d %d %d | ", ptr[0], ptr[1], ptr[2]);
-      x++;
-   }
+	vector<string>::iterator i = axonLedNames.begin();
+	x = 0; //axon LED's start at pixel 0
+	for (i = axonLedNames.begin(); i != axonLedNames.end(); i++) {
+		png_byte* ptr = &(row[x*3]); //get pixel rgb
+		//fprintf(stderr, "Pixel [x: %d, y: %d] R:%d G:%d B:%d\n",
+		//	x, y, ptr[0], ptr[1], ptr[2]);
+		state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
+		//printf("%d %d %d | ", ptr[0], ptr[1], ptr[2]);
+		x++;
+	}
 
-   i = upperLedNames.begin();
-   x = 10; //upper soma LED's start at pixel 10
-   for (i = upperLedNames.begin(); i != upperLedNames.end(); i++) {
-      png_byte* ptr = &(row[x*3]); //get pixel rgb
-      state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
-      x++;
-   }
+	i = upperLedNames.begin();
+	x = 10; //upper soma LED's start at pixel 10
+	for (i = upperLedNames.begin(); i != upperLedNames.end(); i++) {
+		png_byte* ptr = &(row[x*3]); //get pixel rgb
+		state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
+		x++;
+	}
 
-   i = lowerLedNames.begin();
-   x = 40; //lower soma LED's start at pixel 40
-   for (i = lowerLedNames.begin(); i != lowerLedNames.end(); i++) {
-      png_byte* ptr = &(row[x*3]); //get pixel rgb
-      state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
-      x++;
-   }
+	i = lowerLedNames.begin();
+	x = 40; //lower soma LED's start at pixel 40
+	for (i = lowerLedNames.begin(); i != lowerLedNames.end(); i++) {
+		png_byte* ptr = &(row[x*3]); //get pixel rgb
+		state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
+		x++;
+	}
 
-   i = digitalNames.begin();
-   x = 50; //digital poofers start at pixel 50
-   for (i = digitalNames.begin(); i != digitalNames.end(); i++) {
-      //png_byte* ptr = &(row[x*3]); //get pixel rgb
-      //fprintf(stderr, "Setting Poofer [x: %d, y: %d] %s\n",
-      //        x, y, ptr[0] + ptr[1] + ptr[2] == 0 ? "ON" : "OFF");
-      // XXX: WARNING trying to set non-existant digital out a8b
-      //state->setDigitalOut(i->c_str(), ptr[0] + ptr[1] + ptr[2] == 0);
-      x++;
-   }
+	i = digitalNames.begin();
+	x = 50; //digital poofers start at pixel 50
+	for (i = digitalNames.begin(); i != digitalNames.end(); i++) {
+		png_byte* ptr = &(row[x*3]); //get pixel rgb
+		state->setDigitalOut(i->c_str(), ptr[0] + ptr[1] + ptr[2] == 0);
+		x++;
+	}
 
-   //fprintf(stderr, "EventScript::update return == %s\n", y < info->height ? "TRUE" : "FALSE");
-   return y < info->height;
+	return y < info->height - 1;
 }
 
 
 bool
 EventMachine::addScript(string mask, string script)
 {
-   EventScript *es = scriptData[script];
-   if (!es) {
-      // load script file, add with name to scriptData
-      es = new EventScript();
-      if (!es->load(script)) {
-         delete es;
-         fprintf(stderr, "EventMachine::addScript: failed to load script '%s'\n",
-                 script.c_str());
-         return false;
-      }
-   }
+	EventScript *es = scriptData[script];
+	if (!es) {
+		// load script file, add with name to scriptData
+		es = new EventScript();
+		if (!es->load(script)) {
+			delete es;
+			fprintf(stderr, "Failed to load script '%s'\n", script.c_str());
+			return false;
+		}
+	}
 
-   scriptMasks.push_back(pair<EventMask, string>(EventMask(mask), script));
-   scriptData[script] = es;
+	scriptMasks.push_back(pair<EventMask, string>(EventMask(mask), script));
+	scriptData[script] = es;
 
-   fprintf(stderr, "EventMachine::addScript: mask=%s, script=%s, total scripts: %d\n",
-           mask.c_str(), script.c_str(), (int)scriptMasks.size());
-   return true;
+	fprintf(stderr, "Added script '%s' with event mask '%s'\n",
+		script.c_str(), mask.c_str());
+
+	return true;
 }
 
 
 void
 EventMachine::update(State *state,
-                     vector<string> lowerLedNames,
-                     vector<string> axonLedNames,
-                     vector<string> upperLedNames,
-                     vector<string> digitalNames)
+		     vector<string> lowerLedNames,
+		     vector<string> axonLedNames,
+		     vector<string> upperLedNames,
+		     vector<string> digitalNames)
 {
-   for (vector< pair<EventMask, string> >::iterator i = scriptMasks.begin();
-        i != scriptMasks.end(); i++) {
-      if (i->first.stateMatch(state)) {
-         //fprintf(stderr, "EventMachine::update: state matches for script: %s\n",
-         //        i->second.c_str());
-         EventScript *data = scriptData[i->second];
-         bool isRunning = false;
-         for (vector< pair<EventScript*, uint> >::iterator i2 = scriptStates.begin();
-              i2 != scriptStates.end(); i2++) {
-            if (data == i2->first) {
-               //fprintf(stderr, "EventMachine::update: script %p already running.\n",
-               //        i2->first);
-               isRunning = true;
-            }
-         }
-         if (!isRunning) {
-            fprintf(stderr, "EventMachine::update: restarting script '%s'.\n",
-                    i->second.c_str());
-            scriptStates.push_back(pair<EventScript *, uint>(data, 0));
-         }
-      }
-   }
+	for (vector< pair<EventMask, string> >::iterator i = scriptMasks.begin();
+	     i != scriptMasks.end(); i++) {
+		if (i->first.stateMatch(state)) {
+			//fprintf(stderr, "Event state matches for script: %s\n",
+			//	i->second.c_str());
+			EventScript *data = scriptData[i->second];
+			bool isRunning = false;
+			vector< pair<EventScript*, uint> >::iterator i2;
+			for (i2 = scriptStates.begin(); i2 != scriptStates.end(); i2++) {
+				if (data == i2->first) {
+					//fprintf(stderr, "Script %p already running.\n",
+					//	i2->first);
+					isRunning = true;
+				}
+			}
 
-   vector< pair<EventScript*, uint> > nextStates;
-   for (vector< pair<EventScript*, uint> >::iterator i2 = scriptStates.begin();
-        i2 != scriptStates.end(); i2++) {
-      // Call Ben's event updating for the row at index i2->second.
-      EventScript *data = i2->first;
-      uint frame = i2->second;
+			if (!isRunning) {
+				fprintf(stderr, "Restarting script '%s'.\n",
+				i->second.c_str());
+				scriptStates.push_back(pair<EventScript *, uint>(data, 0));
+			}
+	      }
+	}
 
-      if (!data) {
-         fprintf(stderr, "EventMachine::update: invalid EventScript!\n");
-         continue;
-      }
+	vector< pair<EventScript*, uint> > nextStates;
+	for (vector< pair<EventScript*, uint> >::iterator i2 = scriptStates.begin();
+	     i2 != scriptStates.end(); i2++) {
+		// Call Ben's event updating for the row at index i2->second.
+		EventScript *data = i2->first;
+		uint frame = i2->second;
 
-      if (data->update(state, frame, lowerLedNames, axonLedNames,
-                       upperLedNames, digitalNames)) {
-         //fprintf(stderr, "EventMachine::update: advancing to frame %d: %p\n", frame, data);
-         nextStates.push_back(pair<EventScript*, uint>(data, frame + 1));
-      }
-   }
-   scriptStates = nextStates;
+		if (!data) {
+			fprintf(stderr, "Invalid script data!\n");
+			continue;
+		}
+
+		if (data->update(state, frame, lowerLedNames, axonLedNames,
+				 upperLedNames, digitalNames)) {
+			//fprintf(stderr, "Advancing to frame %d of script %p\n", frame, data);
+			nextStates.push_back(pair<EventScript*, uint>(data, frame + 1));
+		}
+	}
+	scriptStates = nextStates;
 }
 
 
