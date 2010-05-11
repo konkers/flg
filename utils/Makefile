@@ -17,7 +17,7 @@ sender: ${SENDER_OBJS}
 	${LINKXX}
 
 sender485: ${SENDER485_OBJS}
-	${LINKXX}
+	${LINKXX} -lftdi
 
 brain: ${BRAIN_OBJS}
 	${LINKXX}
