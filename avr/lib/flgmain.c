@@ -138,7 +138,7 @@ int main(void)
 	 *
 	 * Fosc / Fping / 1024 = 180;
 	 */
-	set_timer2(_BV(CS22) | _BV(CS21) | _BV(CS20), 180);
+	set_timer2(_BV(CS22) | _BV(CS20), 180);
 #elif (FOSC == 7372800UL)
 	/*
 	 * Fosc = 7372800
