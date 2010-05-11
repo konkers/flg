@@ -69,8 +69,7 @@ void ProtoThread::sendBoard(Board *b)
 			if ((*di) && (*di)->state[page])
 				val |= 1 << (*di)->index;
 		}
-		proto->setRelay(b->addr, val);
-		proto->clearRelay(b->addr, ~val);
+		proto->updateRelay(b->addr, val);
 	}
 
 	for (ai = b->analogOuts.begin();
