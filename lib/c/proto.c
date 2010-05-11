@@ -76,6 +76,27 @@ static void proto_clear_relay(struct proto *p, uint8_t mask)
 	}
 }
 
+static void proto_update_relay(struct proto *p, uint8_t mask)
+{
+	uint8_t i;
+
+	for (i = 0; i < p->n_widgets; i++) {
+		struct proto_widget *w = &p->widgets[i];
+
+		if (w->type == PROTO_WIDGET_TYPE_RELAY) {
+			if (p->handlers->relay) {
+				if((1 << w->idx) & mask) {
+					w->relay.counter = w->relay.timeout;
+					p->handlers->relay(p->handler_data, w->idx,0);
+				} else {
+					w->relay.counter = 0;
+					p->handlers->relay(p->handler_data, w->idx,0);
+				}
+			}
+		}
+	}
+}
+
 static void proto_set_light(struct proto *p, uint8_t idx, uint8_t val)
 {
 	uint8_t i;
@@ -176,6 +197,8 @@ static void proto_handle_packet(struct proto *p)
 		proto_set_relay(p,pkt->val);
 	else if (pkt->cmd == PROTO_CMD_RELAY_CLEAR)
 		proto_clear_relay(p,pkt->val);
+	else if (pkt->cmd == PROTO_CMD_RELAY_UPDATE)
+		proto_update_relay(p,pkt->val);
 	else if (pkt->cmd >= PROTO_CMD_LIGHT0_SET &&
 		 pkt->cmd <= PROTO_CMD_LIGHTF_SET)
 		proto_set_light(p, pkt->cmd - PROTO_CMD_LIGHT0_SET, pkt->val);

@@ -100,6 +100,7 @@ struct proto_handlers {
 enum proto_cmd {
 	PROTO_CMD_RELAY_SET =		0x00,
 	PROTO_CMD_RELAY_CLEAR =		0x01,
+	PROTO_CMD_RELAY_UPDATE =	0x02,
 
 	PROTO_CMD_LIGHT0_SET =		0x20,
 	PROTO_CMD_LIGHT1_SET =		0x21,
