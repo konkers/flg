@@ -29,7 +29,7 @@ class ProtoThread : public Thread, public ProtoHandler
 {
 private:
 	static const int nRetries = 4;
-	static const int timeoutUs = 10000;
+	static const int timeoutUs = 100000;
 
 	Link *link;
 	Bus *bus;
