@@ -85,7 +85,7 @@ bool TtyLink::send(const void *data, int len)
 	if (linkEcho) {
 		while (retval--) {
 			uint8_t c;
-			read(fd, &c, 1);
+			c = read(fd, &c, 1);
 		}
 	}
 
