@@ -54,6 +54,9 @@ FtdiLink::FtdiLink(int vid, int pid, ftdi_interface interface)
 		return;
 	}
 
+	err = ftdi_usb_purge_rx_buffer(&ftdi);
+	err = ftdi_usb_purge_tx_buffer(&ftdi);
+
 	ftdi_set_baudrate(&ftdi, 115200);
 	ftdi_set_line_property(&ftdi, BITS_8, STOP_BIT_1, NONE);
 	ftdi_set_event_char(&ftdi, PROTO_EOF, 1);
