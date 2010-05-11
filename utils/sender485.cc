@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <TtyLink.hh>
+#include <FtdiLink.hh>
 #include <Proto.hh>
 
 class Handler : public ProtoHandler {
@@ -79,7 +79,7 @@ public:
 
 int main(int argc, char *argv[])
 {
-	TtyLink link("/dev/tty.usbserial-0000201AA");
+	FtdiLink link(0x0403, 0x6010, INTERFACE_A);
 	Handler h;
 	Proto p(&link, &h, NULL, 0, 0);
 	uint8_t addr;
