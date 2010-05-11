@@ -109,14 +109,14 @@ void Soma::run(void)
 	gettimeofday(&last_tv, NULL);
 	while (1) {
 		state.sync();
-		state.setDigitalOut("a1b", state.getDigitalIn("l6"));
-		state.setDigitalOut("a2b", state.getDigitalIn("l7"));
-		state.setDigitalOut("a3b", state.getDigitalIn("l8"));
-		state.setDigitalOut("a4b", state.getDigitalIn("l9"));
-		state.setDigitalOut("a5b", state.getDigitalIn("l10"));
-		state.setDigitalOut("a6b", state.getDigitalIn("l11"));
-		state.setDigitalOut("a7b", state.getDigitalIn("l12"));
-		state.setDigitalOut("a8b", state.getDigitalIn("l13"));
+		state.setDigitalOut("a1b", !state.getDigitalIn("l6"));
+		state.setDigitalOut("a2b", !state.getDigitalIn("l7"));
+		state.setDigitalOut("a3b", !state.getDigitalIn("l8"));
+		state.setDigitalOut("a4b", !state.getDigitalIn("l9"));
+		state.setDigitalOut("a5b", !state.getDigitalIn("l10"));
+		state.setDigitalOut("a6b", !state.getDigitalIn("l11"));
+		state.setDigitalOut("a7b", !state.getDigitalIn("l12"));
+		state.setDigitalOut("a8b", !state.getDigitalIn("l13"));
 
 		for (i = axonLedNames.begin(); i != axonLedNames.end(); i++ )
 			state.setLightOut(i->c_str(), val, 0x0, 0x0);
@@ -135,7 +135,8 @@ void Soma::run(void)
 			timersub(&frametime, &tmp_tv, &tv);
 			usleep(tv.tv_usec);
 		} else {
-			fprintf(stderr, "frame overrun: ");
+			fprintf(stderr, "frame overrun: %d %d",
+				(int)tmp_tv.tv_sec, (int)tmp_tv.tv_usec);
 			fprintf(stderr, "\n");
 		}
 		gettimeofday(&last_tv, NULL);
