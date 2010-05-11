@@ -15,6 +15,8 @@
  */
 
 
+#include <string.h>
+
 #include <util.hh>
 #include <State.hh>
 
