@@ -48,6 +48,7 @@ public:
 
 	bool setRelay(uint8_t addr, uint8_t relay);
 	bool clearRelay(uint8_t addr, uint8_t relay);
+	bool updateRelay(uint8_t addr, uint8_t relay);
 	bool setLight(uint8_t addr, int light, uint8_t val);
 	bool setLights(uint8_t addr, uint32_t *data, uint8_t words);
 	bool setDpot(uint8_t addr, int dpot, uint8_t val);

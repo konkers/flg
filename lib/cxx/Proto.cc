@@ -135,6 +135,11 @@ bool Proto::clearRelay(uint8_t addr, uint8_t relay)
 	return sendMsg(addr, PROTO_CMD_RELAY_CLEAR, relay);
 }
 
+bool Proto::updateRelay(uint8_t addr, uint8_t relay)
+{
+	return sendMsg(addr, PROTO_CMD_RELAY_UPDATE, relay);
+}
+
 bool Proto::setLight(uint8_t addr, int light, uint8_t val)
 {
 	if (light < 0 || light > 0xf)
