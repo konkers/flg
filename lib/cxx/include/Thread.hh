@@ -53,6 +53,40 @@ public:
 		}
 	};
 
+	class Condition
+	{
+	private:
+		pthread_mutex_t mutex;
+		pthread_cond_t cond;
+
+	public:
+		Condition() {
+			pthread_mutex_init(&mutex, NULL);
+			pthread_cond_init(&cond, NULL);
+		}
+
+		~Condition() {
+			pthread_mutex_destroy(&mutex);
+			pthread_cond_destroy(&cond);
+		}
+
+		void lock(void) {
+			pthread_mutex_lock(&mutex);
+		}
+
+		void unlock(void) {
+			pthread_mutex_unlock(&mutex);
+		}
+
+		void wait(void) {
+			pthread_cond_wait(&cond, &mutex);
+		}
+
+		void signal(void) {
+			pthread_cond_signal(&cond);
+		}
+	};
+
 private:
 	bool running;
 	pthread_t pthread;
