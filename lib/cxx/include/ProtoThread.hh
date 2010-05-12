@@ -35,6 +35,9 @@ private:
 	Bus *bus;
 	Proto *proto;
 
+	bool done;
+	Condition cond;
+
 	int page;
 
 	uint8_t minLedAddr;
@@ -59,6 +62,21 @@ public:
 
 	void setPage(int p) {
 		page = p;
+	}
+
+	void clearDone(void) {
+		cond.lock();
+		done = false;
+		cond.signal();
+		cond.unlock();
+	}
+
+	void waitDone(void) {
+		cond.lock();
+		while (!done) {
+			cond.wait();
+		}
+		cond.unlock();
 	}
 
 	virtual void relay(uint8_t idx, uint8_t state);

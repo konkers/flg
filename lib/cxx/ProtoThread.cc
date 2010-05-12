@@ -28,7 +28,8 @@ ProtoThread::ProtoThread(Bus *b, Link *l) :
 	bus = b;
 	link = l;
 	page = 1;
-	bus->lock[page].lock();
+
+	done = false;
 
 	proto = new Proto(link, this, NULL, 0, 0, true);
 
@@ -124,10 +125,10 @@ bool ProtoThread::getDigitalIns(Board *b)
 	int retries = nRetries;
 	vector<DigitalIn *>::iterator di;
 
+	dataValid = false;
+	proto->getSwitch(b->addr);
+	proto->flush();
 	do {
-		dataValid = false;
-		proto->getSwitch(b->addr);
-		proto->flush();
 		proto->waitForMsg(timeoutUs);
 		if (dataValid) {
 			for (di = b->digitalIns.begin();
@@ -146,21 +147,26 @@ bool ProtoThread::getDigitalIns(Board *b)
 
 bool ProtoThread::getAnalogIn(AnalogIn *in)
 {
-	int retries = nRetries;
-	uint16_t val;
+	int retries;
+	uint16_t val = 0x0;
 
+	retries = nRetries;
+	dataValid = false;
+	proto->getAdcLo(in->board->addr, in->index);
+	proto->flush();
 	do {
-		dataValid = false;
-		proto->getAdcLo(in->board->addr, in->index);
-		proto->flush();
 		proto->waitForMsg(timeoutUs);
-		if (!dataValid)
-			continue;
-		val = data;
+		if (dataValid) {
+			val = data;
+			break;
+		}
+	} while(--retries);
 
-		dataValid = false;
-		proto->getAdcHi(in->board->addr, in->index);
-		proto->flush();
+	retries = nRetries;
+	dataValid = false;
+	proto->getAdcHi(in->board->addr, in->index);
+	proto->flush();
+	do {
 		proto->waitForMsg(timeoutUs);
 		if (!dataValid)
 			continue;
@@ -171,7 +177,6 @@ bool ProtoThread::getAnalogIn(AnalogIn *in)
 	} while(--retries);
 
 	fprintf(stderr, "analog in timeout %02x %d\n", in->board->addr, in->index);
-
 	return false;
 }
 
@@ -181,6 +186,12 @@ int ProtoThread::run(void)
 	vector<Board *>::iterator bi;
 
 	while (1) {
+		cond.lock();
+		while (done) {
+			cond.wait();
+		}
+		cond.unlock();
+
 		for(bi = bus->boards.begin();
 		    bi != bus->boards.end();
 		    bi++) {
@@ -195,12 +206,13 @@ int ProtoThread::run(void)
 		    bi++) {
 			pollBoard(*bi);
 		}
+		cond.lock();
+		done = true;
+		cond.signal();
+		cond.unlock();
 
-		bus->lock[page].unlock();
 		page = !page;
-		bus->lock[page].lock();
 	}
-
 }
 
 void ProtoThread::relay(uint8_t idx, uint8_t state)
@@ -217,6 +229,13 @@ void ProtoThread::dpot(uint8_t idx, uint8_t val)
 
 void ProtoThread::resp(struct proto_packet *pkt)
 {
-	data = pkt->val;
-	dataValid = true;
+	switch (pkt->cmd) {
+	case PROTO_CMD_GET_STATUS:
+	case PROTO_CMD_SWITCH_QUERY:
+	case PROTO_CMD_ADC_QUERY_LO:
+	case PROTO_CMD_ADC_QUERY_HI:
+		data = pkt->val;
+		dataValid = true;
+	break;
+	}
 }

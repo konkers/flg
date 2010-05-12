@@ -35,7 +35,6 @@ public:
 	vector<Board *> boards;
 	map<uint8_t, Board *> addrMap;
 
-	Thread::Mutex lock[2];
 	ProtoThread *thread;
 };
 

@@ -199,16 +199,13 @@ void State::sync(void)
 {
 	vector<Bus *>::iterator i;
 
-	for (i = busses.begin(); i != busses.end(); i++) {
-		(*i)->lock[!activePage].lock();
-	}
+	for (i = busses.begin(); i != busses.end(); i++)
+		(*i)->thread->waitDone();
 
-	// we now hold all the locks
 	activePage = !activePage;
 
-	for (i = busses.begin(); i != busses.end(); i++) {
-		(*i)->lock[!activePage].unlock();
-	}
+	for (i = busses.begin(); i != busses.end(); i++)
+		(*i)->thread->clearDone();
 }
 
 /*
