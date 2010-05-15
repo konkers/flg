@@ -87,7 +87,7 @@ static void proto_update_relay(struct proto *p, uint8_t mask)
 			if (p->handlers->relay) {
 				if((1 << w->idx) & mask) {
 					w->relay.counter = w->relay.timeout;
-					p->handlers->relay(p->handler_data, w->idx,0);
+					p->handlers->relay(p->handler_data, w->idx,1);
 				} else {
 					w->relay.counter = 0;
 					p->handlers->relay(p->handler_data, w->idx,0);
