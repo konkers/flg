@@ -7,6 +7,7 @@ SIM_OBJS=EventMachine.o \
 
 BRAIN_OBJS=mongoose.o \
 	Soma.o \
+	EventMachine.o \
 	brain.o
 
 OBJS=${SIM_OBJS}
