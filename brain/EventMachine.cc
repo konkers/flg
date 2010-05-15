@@ -125,7 +125,8 @@ EventScript::update(State *state,
 		png_byte* ptr = &(row[x*3]); //get pixel rgb
 		//fprintf(stderr, "Pixel [x: %d, y: %d] R:%d G:%d B:%d\n",
 		//	x, y, ptr[0], ptr[1], ptr[2]);
-		state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
+		if (ptr[0] > 5 || ptr[1] > 5 || ptr[2] > 5)
+			state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
 		//printf("%d %d %d | ", ptr[0], ptr[1], ptr[2]);
 		x++;
 	}
@@ -134,7 +135,8 @@ EventScript::update(State *state,
 	x = 10; //upper soma LED's start at pixel 10
 	for (i = upperLedNames.begin(); i != upperLedNames.end(); i++) {
 		png_byte* ptr = &(row[x*3]); //get pixel rgb
-		state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
+		if (ptr[0] > 5 || ptr[1] > 5 || ptr[2] > 5)
+			state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
 		x++;
 	}
 
@@ -142,7 +144,8 @@ EventScript::update(State *state,
 	x = 40; //lower soma LED's start at pixel 40
 	for (i = lowerLedNames.begin(); i != lowerLedNames.end(); i++) {
 		png_byte* ptr = &(row[x*3]); //get pixel rgb
-		state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
+		if (ptr[0] > 5 || ptr[1] > 5 || ptr[2] > 5)
+			state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
 		x++;
 	}
 
@@ -150,7 +153,8 @@ EventScript::update(State *state,
 	x = 50; //digital poofers start at pixel 50
 	for (i = digitalNames.begin(); i != digitalNames.end(); i++) {
 		png_byte* ptr = &(row[x*3]); //get pixel rgb
-		state->setDigitalOut(i->c_str(), ptr[0] + ptr[1] + ptr[2] == 0);
+		if (ptr[0] > 5 && ptr[1] > 5 && ptr[2] > 5)
+			state->setDigitalOut(i->c_str(), true);
 		x++;
 	}
 
@@ -189,6 +193,11 @@ EventMachine::update(State *state,
 		     vector<string> upperLedNames,
 		     vector<string> digitalNames)
 {
+	vector<string>::iterator i;
+
+	for (i = digitalNames.begin(); i != digitalNames.end(); i++)
+		state->setDigitalOut(i->c_str(), false);
+
 	for (vector< pair<EventMask, string> >::iterator i = scriptMasks.begin();
 	     i != scriptMasks.end(); i++) {
 		if (i->first.stateMatch(state)) {
