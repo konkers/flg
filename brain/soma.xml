@@ -77,6 +77,14 @@
       <pot index="0" name="lns1" />
       <pot index="1" name="lns2" />
     </dpot>
+    <relay3 addr="0xd0">
+      <relay index="0" name="unpower1" />
+      <relay index="1" name="unpower2" />
+    </relay3>
+    <relay3 addr="0xd1">
+      <relay index="0" name="lnpower1" />
+      <relay index="1" name="lnpower2" />
+    </relay3>
   </bus>
   <bus name="led">
     <ledRgb addr="0x10">
