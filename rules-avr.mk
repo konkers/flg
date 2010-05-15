@@ -62,7 +62,7 @@ else ifeq ("${CROSS_CPU}","atmega168")
 AVRDUDE_CPU=m168
 else ifeq ("${CROSS_CPU}","atmega8")
 AVRDUDE_CPU=m8
-FUSES=
+FUSES=-U lfuse:w:0x3f:m -U hfuse:w:0xd9:m
 endif
 
 flash: flash-${basename ${firstword ${filter %.bin, ${TARGETS}}}}
