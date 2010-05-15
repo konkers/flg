@@ -109,8 +109,8 @@ EventScript::update(State *state,
 		    vector<string> digitalNames)
 {
 	// XXX: constify offsets
-	uint8_t x=0;
-	uint8_t y=frame;
+	unsigned int x=0;
+	unsigned int y=frame;
 
 	if (y >= info->height) {
 		fprintf(stderr, "Frame %d greater than PNG height %lu\n",
