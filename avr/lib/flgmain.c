@@ -146,7 +146,7 @@ int main(void)
 	 *
 	 * Fosc / Fping / 1024 = 72;
 	 */
-	set_timer2(_BV(CS22) | _BV(CS21) | _BV(CS20), 72);
+	set_timer2(_BV(CS22) | _BV(CS20), 72);
 #else
 #error "FLGMAIN: unsupported FOSC freq"
 #endif
