@@ -13,6 +13,6 @@ LIBS += -ldl -lpthread
 endif
 
 ifeq ("${SYSTEM}","Darwin")
-CFLAGS += -I/opt/local/include -I/opt/local/include/libxml2
+CFLAGS += -I/opt/local/include -I/opt/local/include/libxml2 -DOSX
 LDFLAGS += -L/opt/local/lib
 endif

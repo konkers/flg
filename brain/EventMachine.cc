@@ -48,7 +48,9 @@ EventScript::~EventScript()
 	for (uint y=0; y < info->height; y++) {
 		free(data[y]);
 	}
+#ifndef OSX
 	png_read_destroy(png, info, NULL);
+#endif
 }
 
 
@@ -80,7 +82,9 @@ EventScript::load(string script)
         if (info->width != 58) {
 		fprintf(stderr, "Script %s is not the correct width (expected 58, got %lu).\n",
                         script.c_str(), info->width);
+#ifndef OSX
                 png_read_destroy(png, info, NULL);
+#endif
                 fclose(fp);
 		return false;
         }
