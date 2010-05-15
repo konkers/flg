@@ -1,12 +1,12 @@
 <config>
-  <event mask="l6" script="btn1.png" />
-  <event mask="l7" script="btn1.png" />
-  <event mask="l8" script="btn1.png" />
-  <event mask="l9" script="btn1.png" />
-  <event mask="l10" script="btn1.png" />
-  <event mask="l11" script="btn1.png" />
-  <event mask="l12" script="btn1.png" />
-  <event mask="l13" script="btn1.png" />
+  <event mask="l6" script="button.png" />
+  <event mask="l7" script="button.png" />
+  <event mask="l8" script="button.png" />
+  <event mask="l9" script="button.png" />
+  <event mask="l10" script="button.png" />
+  <event mask="l11" script="button.png" />
+  <event mask="l12" script="button.png" />
+  <event mask="l13" script="button.png" />
 
   <event mask="l6 l7" script="btn2.png" />
   <event mask="l7 l8" script="btn2.png" />
