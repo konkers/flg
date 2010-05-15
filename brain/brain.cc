@@ -27,10 +27,10 @@ Soma *soma;
 int main(int argc, char *argv[])
 {
 	FtdiLink *flameLink;
-//	FtdiLink *ledLink;
+	FtdiLink *ledLink;
 
 	flameLink = new FtdiLink(0x0403, 0x6010, INTERFACE_A);
-//	ledLink = new FtdiLink(0x0403, 0x6010, INTERFACE_B);
+	ledLink = new FtdiLink(0x0403, 0x6010, INTERFACE_B, 230400);
 
 
 	soma = new Soma();
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 		return 1;
 
 	soma->attachLink("flame", flameLink);
-//	soma->attachLink("led", ledLink);
+	soma->attachLink("led", ledLink);
 
 //	state->startWebServer(8080);
 
