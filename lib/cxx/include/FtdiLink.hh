@@ -28,7 +28,8 @@ private:
 	struct ftdi_context ftdi;
 
 public:
-	FtdiLink(int vid, int pid, ftdi_interface interface);
+	FtdiLink(int vid, int pid, ftdi_interface interface,
+		 unsigned int baud = 115200);
 	virtual ~FtdiLink();
 
 	virtual bool send(const void *data, int len);
