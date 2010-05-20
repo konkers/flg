@@ -6,7 +6,7 @@ LEDSEND_OBJS=ledsend.o
 RATETEST_OBJS=ratetest.o
 OBJS=${WAITER_OBJS} ${SENDER_OBJS} ${SENDER485_OBJS} ${BRAIN_OBJS} ${LEDSEND_OBJS} ${RATETEST_OBJS}
 
-TARGETS=waiter sender sender485 brain ledsend ratetest
+TARGETS=waiter sender sender485 brain ledsend ratetest poofertest
 
 all: ${TARGETS}
 
@@ -28,6 +28,9 @@ ledsend: ${LEDSEND_OBJS}
 ratetest: ${RATETEST_OBJS}
 	${LINKXX} -lftdi
 
+poofertest: poofertest.o
+	${LINKXX} -lftdi
+
 
 
 waiter: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
@@ -36,5 +39,6 @@ sender485: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/li
 brain: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 ledsend: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 ratetest: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
+poofertest: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 
 include ${FLG_DIR}/rules.mk
