@@ -140,12 +140,32 @@ bool Soma::attachLink(const char *busName, Link *link)
 	return state.attachLink(busName, link);
 }
 
+#define min(x, y)	((x) < (y) ? (x) : (y))
+
+uint8_t Soma::handleMotor(uint16_t input, uint8_t value,
+			  uint8_t max, uint8_t slewRate)
+{
+	uint8_t out;
+
+	out = input * max / 0x400;
+
+	if (out < value)
+		value -= min(value - out, slewRate);
+	else if (out > value)
+		value += min(out - value, slewRate);
+
+	return out;
+}
+
+
 void Soma::run(void)
 {
 	struct timeval tv;
 	struct timeval last_tv;
 	struct timeval tmp_tv;
 	struct timeval frametime;
+	uint8_t motor1 = 0;
+	uint8_t motor2 = 0;
 
 	vector<string>::iterator i;
 
@@ -163,6 +183,21 @@ void Soma::run(void)
 		state.sync();
 
 		em.update(&state, allLedNames, digitalNames);
+
+		state.setDigitalOut("unpower1", true);
+		state.setDigitalOut("unpower2", true);
+
+		motor1 = handleMotor(state.getAnalogIn("u_knob_a"),
+				     motor1, 0x80, 0x1);
+		motor2 = handleMotor(state.getAnalogIn("u_knob_b"),
+				     motor2, 0x80, 0x1);
+
+		state.setAnalogOut("uns1", motor1);
+		state.setAnalogOut("uns2", motor1);
+		state.setAnalogOut("lns1", motor2);
+		state.setAnalogOut("lns2", motor2);
+
+		printf("%02x %02x\n", motor1, motor2);
 
 		gettimeofday(&tv, NULL);
 		timersub(&tv, &last_tv, &tmp_tv);

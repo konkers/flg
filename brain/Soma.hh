@@ -40,6 +40,9 @@ private:
 	vector<string> allLedNames;
         vector<string> digitalNames;
 
+	uint8_t handleMotor(uint16_t input, uint8_t value,
+			    uint8_t max, uint8_t slewRate);
+
 public:
 	Soma();
 	~Soma();
