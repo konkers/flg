@@ -153,6 +153,11 @@ bool Proto::setLights(uint8_t addr, uint32_t *data, uint8_t words)
 	return sendLongMsg(addr, 0, data, words);
 }
 
+bool Proto::sendSync(uint8_t addr)
+{
+	return sendMsg(addr, PROTO_CMD_SYNC, 0);
+}
+
 bool Proto::setDpot(uint8_t addr, int dpot, uint8_t val)
 {
 	if (dpot < 0 || dpot > 0x1)
