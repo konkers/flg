@@ -101,6 +101,7 @@ void ProtoThread::sendLeds(void)
 	}
 
 	proto->setLights(minLedAddr, ledData, maxLedAddr - minLedAddr + 1);
+	proto->sendSync(0xff);
 	proto->flush();
 }
 
