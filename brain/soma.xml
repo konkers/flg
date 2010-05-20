@@ -16,7 +16,7 @@
       <button index="0" name="l14" />
       <button index="1" name="l15" />
     </input>
-    <input addr="0x82">
+    <input addr="0x83">
       <knob index="0" name="u_knob_a" />
       <knob index="1" name="u_knob_b" />
     </input>
