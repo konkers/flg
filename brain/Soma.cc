@@ -197,8 +197,6 @@ void Soma::run(void)
 		state.setAnalogOut("lns1", motor2);
 		state.setAnalogOut("lns2", motor2);
 
-		printf("%02x %02x\n", motor1, motor2);
-
 		gettimeofday(&tv, NULL);
 		timersub(&tv, &last_tv, &tmp_tv);
 		if (timercmp(&tmp_tv, &frametime, <)) {
