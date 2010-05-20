@@ -29,6 +29,11 @@ Soma::Soma()
 	axonLedNames.push_back("a9");
 	axonLedNames.push_back("a10");
 
+	lowerLedNames.push_back("l11");
+	lowerLedNames.push_back("l12");
+	lowerLedNames.push_back("l13");
+	lowerLedNames.push_back("l14");
+	lowerLedNames.push_back("l15");
 	lowerLedNames.push_back("l16a");
 	lowerLedNames.push_back("l16c");
 	lowerLedNames.push_back("l17a");
@@ -40,6 +45,11 @@ Soma::Soma()
 	lowerLedNames.push_back("l20a");
 	lowerLedNames.push_back("l20c");
 
+	upperLedNames.push_back("u1");
+	upperLedNames.push_back("u2");
+	upperLedNames.push_back("u3");
+	upperLedNames.push_back("u4");
+	upperLedNames.push_back("u5");
 	upperLedNames.push_back("u6a");
 	upperLedNames.push_back("u6c");
 	upperLedNames.push_back("u7a");
@@ -71,14 +81,35 @@ Soma::Soma()
 	upperLedNames.push_back("u20a");
 	upperLedNames.push_back("u20c");
 
+        digitalNames.push_back("a1a");
         digitalNames.push_back("a1b");
+        digitalNames.push_back("a1c");
+        digitalNames.push_back("a2a");
         digitalNames.push_back("a2b");
+        digitalNames.push_back("a2c");
+        digitalNames.push_back("a3a");
         digitalNames.push_back("a3b");
+        digitalNames.push_back("a3c");
+        digitalNames.push_back("a4a");
         digitalNames.push_back("a4b");
+        digitalNames.push_back("a4c");
+        digitalNames.push_back("a5a");
         digitalNames.push_back("a5b");
+        digitalNames.push_back("a5c");
+        digitalNames.push_back("a6a");
         digitalNames.push_back("a6b");
+        digitalNames.push_back("a6c");
+        digitalNames.push_back("a7a");
         digitalNames.push_back("a7b");
+        digitalNames.push_back("a7c");
+        digitalNames.push_back("a8a");
         digitalNames.push_back("a8b");
+        digitalNames.push_back("a8c");
+        digitalNames.push_back("s1");
+        digitalNames.push_back("s2");
+        digitalNames.push_back("s3");
+        digitalNames.push_back("s4");
+        digitalNames.push_back("s5");
 }
 
 Soma::~Soma()

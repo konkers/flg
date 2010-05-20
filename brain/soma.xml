@@ -237,5 +237,35 @@
     <ledRgb addr="0x41">
       <led index="0" name="l20c" />
     </ledRgb>
+    <ledRgb addr="0x42">
+      <led index="0" name="u1" />
+    </ledRgb>
+    <ledRgb addr="0x43">
+      <led index="0" name="u2" />
+    </ledRgb>
+    <ledRgb addr="0x44">
+      <led index="0" name="u3" />
+    </ledRgb>
+    <ledRgb addr="0x45">
+      <led index="0" name="u4" />
+    </ledRgb>
+    <ledRgb addr="0x46">
+      <led index="0" name="u5" />
+    </ledRgb>
+    <ledRgb addr="0x47">
+      <led index="0" name="l11" />
+    </ledRgb>
+    <ledRgb addr="0x48">
+      <led index="0" name="l12" />
+    </ledRgb>
+    <ledRgb addr="0x49">
+      <led index="0" name="l13" />
+    </ledRgb>
+    <ledRgb addr="0x4a">
+      <led index="0" name="l14" />
+    </ledRgb>
+    <ledRgb addr="0x4b">
+      <led index="0" name="l15" />
+    </ledRgb>
   </bus>
 </config>
