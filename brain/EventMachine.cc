@@ -35,7 +35,7 @@ EventMask::stateMatch(State *state)
 {
 	vector<string>::iterator i;
 	for (i = names.begin(); i != names.end(); i++) {
-		if (!state->getDigitalIn((*i).c_str())) {
+		if (state->getDigitalIn((*i).c_str())) {
 			return false;
 		}
 	}
