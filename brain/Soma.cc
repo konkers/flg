@@ -81,35 +81,48 @@ Soma::Soma()
 	upperLedNames.push_back("u20a");
 	upperLedNames.push_back("u20c");
 
-        digitalNames.push_back("a1a");
-        digitalNames.push_back("a1b");
-        digitalNames.push_back("a1c");
-        digitalNames.push_back("a2a");
-        digitalNames.push_back("a2b");
-        digitalNames.push_back("a2c");
-        digitalNames.push_back("a3a");
-        digitalNames.push_back("a3b");
-        digitalNames.push_back("a3c");
-        digitalNames.push_back("a4a");
-        digitalNames.push_back("a4b");
-        digitalNames.push_back("a4c");
-        digitalNames.push_back("a5a");
-        digitalNames.push_back("a5b");
-        digitalNames.push_back("a5c");
-        digitalNames.push_back("a6a");
-        digitalNames.push_back("a6b");
-        digitalNames.push_back("a6c");
-        digitalNames.push_back("a7a");
-        digitalNames.push_back("a7b");
-        digitalNames.push_back("a7c");
-        digitalNames.push_back("a8a");
-        digitalNames.push_back("a8b");
-        digitalNames.push_back("a8c");
-        digitalNames.push_back("s1");
-        digitalNames.push_back("s2");
-        digitalNames.push_back("s3");
-        digitalNames.push_back("s4");
-        digitalNames.push_back("s5");
+	allLedNames.insert(allLedNames.end(),
+			   lowerLedNames.begin(), lowerLedNames.end());
+	allLedNames.insert(allLedNames.end(),
+			   axonLedNames.begin(), axonLedNames.end());
+	allLedNames.insert(allLedNames.end(),
+			   upperLedNames.begin(), upperLedNames.end());
+
+	digitalNames.push_back("a1a");
+	digitalNames.push_back("a1b");
+	digitalNames.push_back("a1c");
+	digitalNames.push_back("a2a");
+	digitalNames.push_back("a2b");
+	digitalNames.push_back("a2c");
+	digitalNames.push_back("a3a");
+	digitalNames.push_back("a3b");
+	digitalNames.push_back("a3c");
+	digitalNames.push_back("a4a");
+	digitalNames.push_back("a4b");
+	digitalNames.push_back("a4c");
+	digitalNames.push_back("a5a");
+	digitalNames.push_back("a5b");
+	digitalNames.push_back("a5c");
+	digitalNames.push_back("a6a");
+	digitalNames.push_back("a6b");
+	digitalNames.push_back("a6c");
+	digitalNames.push_back("a7a");
+	digitalNames.push_back("a7b");
+	digitalNames.push_back("a7c");
+	digitalNames.push_back("a8a");
+	digitalNames.push_back("a8b");
+	digitalNames.push_back("a8c");
+	digitalNames.push_back("s1");
+	digitalNames.push_back("s2");
+	digitalNames.push_back("s3");
+	digitalNames.push_back("s4");
+	digitalNames.push_back("s5");
+
+	printf("lower:%d axon:%d upper:%d poofer:%d\n",
+	       (int) lowerLedNames.size(),
+	       (int) axonLedNames.size(),
+	       (int) upperLedNames.size(),
+	       (int) digitalNames.size());
 }
 
 Soma::~Soma()
@@ -143,14 +156,13 @@ void Soma::run(void)
 
 	printf("run\n");
 
-	// XXX: gettimeofday is not garunteet to be regular as the clock can be
+	// XXX: gettimeofday is not garunteed to be regular as the clock can be
 	//      set at any time (by user, ntp, etc.)
 	gettimeofday(&last_tv, NULL);
 	while (1) {
 		state.sync();
 
-		em.update(&state, lowerLedNames, axonLedNames, upperLedNames,
-			  digitalNames);
+		em.update(&state, allLedNames, digitalNames);
 
 		gettimeofday(&tv, NULL);
 		timersub(&tv, &last_tv, &tmp_tv);

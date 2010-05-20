@@ -52,9 +52,7 @@ public:
 	bool load(string script);
 	uint get_frames();
 	bool update(State *state, uint frame,
-		    vector<string> lowerLedNames,
-		    vector<string> axonLedNames,
-		    vector<string> upperLedNames,
+		    vector<string> ledNames,
 		    vector<string> digitalNames);
 };
 
@@ -74,12 +72,10 @@ public:
 
 	bool addScript(string mask, string script);
 	void update(State *state,
-		    vector<string> lowerLedNames,
-		    vector<string> axonLedNames,
-		    vector<string> upperLedNames,
+		    vector<string> ledNames,
 		    vector<string> digitalNames);
 
 	bool loadConfig(const char *fileName);
 };
 
-#endif /* __Soma_hh__ */
+#endif /* __EventMachine_hh__ */

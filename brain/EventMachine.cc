@@ -79,8 +79,8 @@ EventScript::load(string script)
 	png_read_info(png, info);
 	png_read_update_info(png, info);
 
-        if (info->width != 58) {
-		fprintf(stderr, "Script %s is not the correct width (expected 58, got %lu).\n",
+        if (info->width != 89) {
+		fprintf(stderr, "Script %s is not the correct width (expected 89, got %lu).\n",
                         script.c_str(), info->width);
 #ifndef OSX
                 png_read_destroy(png, info, NULL);
@@ -103,9 +103,7 @@ EventScript::load(string script)
 bool
 EventScript::update(State *state,
 		    uint frame,
-		    vector<string> lowerLedNames,
-		    vector<string> axonLedNames,
-		    vector<string> upperLedNames,
+		    vector<string> ledNames,
 		    vector<string> digitalNames)
 {
 	// XXX: constify offsets
@@ -119,43 +117,20 @@ EventScript::update(State *state,
 	}
 	png_byte* row = data[y];
 
-	vector<string>::iterator i = axonLedNames.begin();
-	x = 0; //axon LED's start at pixel 0
-	for (i = axonLedNames.begin(); i != axonLedNames.end(); i++) {
+	vector<string>::iterator i = ledNames.begin();
+	for (i = ledNames.begin(), x = 0; i != ledNames.end(); i++, x++) {
 		png_byte* ptr = &(row[x*3]); //get pixel rgb
-		//fprintf(stderr, "Pixel [x: %d, y: %d] R:%d G:%d B:%d\n",
-		//	x, y, ptr[0], ptr[1], ptr[2]);
-		if (ptr[0] > 5 || ptr[1] > 5 || ptr[2] > 5)
-			state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
-		//printf("%d %d %d | ", ptr[0], ptr[1], ptr[2]);
-		x++;
-	}
 
-	i = upperLedNames.begin();
-	x = 10; //upper soma LED's start at pixel 10
-	for (i = upperLedNames.begin(); i != upperLedNames.end(); i++) {
-		png_byte* ptr = &(row[x*3]); //get pixel rgb
 		if (ptr[0] > 5 || ptr[1] > 5 || ptr[2] > 5)
 			state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
-		x++;
-	}
-
-	i = lowerLedNames.begin();
-	x = 40; //lower soma LED's start at pixel 40
-	for (i = lowerLedNames.begin(); i != lowerLedNames.end(); i++) {
-		png_byte* ptr = &(row[x*3]); //get pixel rgb
-		if (ptr[0] > 5 || ptr[1] > 5 || ptr[2] > 5)
-			state->setLightOut(i->c_str(), ptr[0], ptr[1], ptr[2]);
-		x++;
 	}
 
 	i = digitalNames.begin();
-	x = 50; //digital poofers start at pixel 50
-	for (i = digitalNames.begin(); i != digitalNames.end(); i++) {
+	for (i = digitalNames.begin(); i != digitalNames.end(); i++, x++) {
 		png_byte* ptr = &(row[x*3]); //get pixel rgb
+
 		if (ptr[0] > 5 && ptr[1] > 5 && ptr[2] > 5)
 			state->setDigitalOut(i->c_str(), true);
-		x++;
 	}
 
 	return y < info->height - 1;
@@ -188,9 +163,7 @@ EventMachine::addScript(string mask, string script)
 
 void
 EventMachine::update(State *state,
-		     vector<string> lowerLedNames,
-		     vector<string> axonLedNames,
-		     vector<string> upperLedNames,
+		     vector<string> ledNames,
 		     vector<string> digitalNames)
 {
 	vector<string>::iterator i;
@@ -234,8 +207,7 @@ EventMachine::update(State *state,
 			continue;
 		}
 
-		if (data->update(state, frame, lowerLedNames, axonLedNames,
-				 upperLedNames, digitalNames)) {
+		if (data->update(state, frame, ledNames, digitalNames)) {
 			//fprintf(stderr, "Advancing to frame %d of script %p\n", frame, data);
 			nextStates.push_back(pair<EventScript*, uint>(data, frame + 1));
 		}

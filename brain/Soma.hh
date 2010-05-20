@@ -37,6 +37,7 @@ private:
 	vector<string> lowerLedNames;
 	vector<string> axonLedNames;
 	vector<string> upperLedNames;
+	vector<string> allLedNames;
         vector<string> digitalNames;
 
 public:
