@@ -131,7 +131,7 @@ SimState::SimState(void)
 	memset(lightState, 0x0, sizeof(lightState));
 
 	for (i = 0; i < nButtons; i++)
-		buttonState[i] = false;
+		buttonState[i] = true;
 
 	for (i = 0; i < nRelays; i++)
 		relayState[i] = false;
@@ -200,6 +200,7 @@ void SimState::addRelay3(string name, uint8_t addr)
 void SimState::addInput(string name, uint8_t addr)
 {
 	SimProto *p = new SimProto;
+	int i;
 
 	p->name = name;
 	p->sim = this;
@@ -213,6 +214,9 @@ void SimState::addInput(string name, uint8_t addr)
 	p->p.n_widgets = ARRAY_SIZE(input_widgets);
 
 	proto_init(&p->p, addr);
+
+	for (i = 0; i < 8; i++)
+		proto_switch_set(&p->p.widgets[0], i);
 
 	flameProtos.insert(flameProtos.end(), p);
 	protoMap[addr] = p;
@@ -280,9 +284,9 @@ void SimState::buttonPage(struct mg_connection *conn,
 	}
 
 	if (!strcmp(dir, "down")) {
-		s = 1;
-	} else if (!strcmp(dir, "up")) {
 		s = 0;
+	} else if (!strcmp(dir, "up")) {
+		s = 1;
 	} else {
 		fprintf(stderr, "buttonPage: unkown button action %s\n", dir);
 		return;
