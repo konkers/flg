@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+$numout = 80;
+$first = 0;
+if (scalar(@ARGV) > 0) {
+  $numout = $ARGV[0];
+}
+if (scalar(@ARGV) > 1) {
+  $first = $ARGV[1];
+}
+
+@reds   = (1, 1, 0, 0, 0, 1);
+@greens = (0, 1, 1, 1, 0, 0);
+@blues  = (0, 0, 0, 1, 1, 1);
+$steps = 15;
+$steps = 3;
+$steps = 200;
+#  for ($i = 0; $i < 6; ++$i) { print "$reds[$i]\n"; } print "=======\n";
+#  for ($i = 0; $i < 6; ++$i) { print "$greens[$i]\n"; } print "=======\n";
+#  for ($i = 0; $i < 6; ++$i) { print "$blues[$i]\n"; } print "=======\n";
+
+for (;;) {
+  for ($i = 0; $i < 6; ++$i) {
+    $ii = ($i + 1) % 6;
+    #print $i, " and ",$ii, "\n";
+    interp($reds[$i], $greens[$i], $blues[$i],
+      $reds[$ii], $greens[$ii], $blues[$ii]);
+  }
+}
+
+sub interp {
+  my ($r1, $g1, $b1, $r2, $g2, $b2) = @_;
+  #printf "interp %d - %d  %d - %d  %d - %d\n",$r1,$r2,$g1,$g2,$b1,$b2;
+
+  $max = 32;
+  $max = 200;
+  $max = 255;
+
+  for ($s = 0; $s < $steps; ++$s) {
+    $r = $max * ($r1 + ($r2 - $r1) * ($s/$steps));
+    $g = $max * ($g1 + ($g2 - $g1) * ($s/$steps));
+    $b = $max * ($b1 + ($b2 - $b1) * ($s/$steps));
+    $str = sprintf "%d %d",$first,$numout;
+    for ($n = 0; $n < $numout; ++$n) {
+      $str = sprintf "%s %d %d %d 0",$str, $r,$g,$b;
+    }
+    $str = $str . "\n";
+    syswrite STDOUT, $str;
+    #select undef, undef, undef, 0.02;
+  }
+}

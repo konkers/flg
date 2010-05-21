@@ -2,9 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <vector>
+
+#include <sys/time.h>
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include <FtdiLink.hh>
 #include <Proto.hh>
@@ -70,40 +74,67 @@ bool get_uint8(char *s, uint8_t *val)
 	 return true;
  }
 
+double now()
+{
+	struct timeval n;
+	gettimeofday(&n, 0);
+	return n.tv_sec + n.tv_usec * 1e-6;
+}
+
 int main(int argc, char *argv[])
 {
 	FtdiLink link(0x0403, 0x6010, INTERFACE_A, 115200 * 2);
 	Handler h;
 	Proto p(&link, &h, NULL, 0, 1);
 	std::string line;
+	double start_time = now();
+	double last_time = start_time;
+	int n = 0;
 
+//	std::vector<uint8_t> vals;
+//	vals.resize(led_cnt*4);
+	uint8_t vals[4 * 80];
 	for (;;) {
 		getline(std::cin, line);
 		if ( ! std::cin)
 			break;
-		int r1, r2, g1, g2, g3, b1, b2, b3;
-		if (sscanf(line.c_str(), "%d %d %d %d %d %d %d %d", 
-			&r1, &r2, &g1, &g2, &g3, &b1, &b2, &b3) != 8) {
-			printf("bad line: %s\n", line.c_str());
+		std::istringstream linestream(line);
+
+		unsigned led_cnt;
+		int addr;
+
+		linestream >> addr >> led_cnt;
+		if (led_cnt == 0 || led_cnt > 100) {
+			std::cerr << "bad led count " << led_cnt << std::endl;
 			continue;
 		}
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 0, r1);
-		p.setLight(0, 0, r1);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 3, r2);
-		p.setLight(0, 3, r2);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 1, g1);
-		p.setLight(0, 1, g1);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 4, g2);
-		p.setLight(0, 4, g2);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 6, g3);
-		p.setLight(0, 6, g3);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 2, b1);
-		p.setLight(0, 2, b1);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 5, b2);
-		p.setLight(0, 5, b2);
-		printf( "setLight(0x%02x, 0x%02x, 0x%02x)\n", 0, 7, b3);
-		p.setLight(0, 7, b3);
+		for (unsigned i = 0; i < led_cnt; ++i) {
+			unsigned v;
+			linestream >> v;
+			vals[i*4] = v;
+			linestream >> v;
+			vals[i*4+1] = v;
+			linestream >> v;
+			vals[i*4+2] = v;
+			linestream >> v;
+			vals[i*4+3] = v;
+		}
+		if ( ! linestream) {
+			std::cerr << "bad line " << line << std::endl;
+		
+		}
+		double curr_time = now();
+		printf( "%d t=%f avgHz=%f instHz=%f setLights(0x%02x, 0x%02x, "
+			"[[0x%02x, 0x%02x, 0x%02x, 0x%02x, ...]])\n",
+			n, curr_time-start_time, n/(curr_time-start_time),
+			1/(curr_time-last_time), addr, led_cnt, vals[0],
+			vals[1], vals[2], vals[3]);
+		last_time = curr_time;
+		++n;
+		p.setLights(addr, (uint32_t *) &vals[0], led_cnt);
+		p.sendSync(0xff);
 		p.flush();
+//		usleep(30000);
 	}
 
 	return 0;
