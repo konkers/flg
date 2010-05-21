@@ -83,7 +83,7 @@ double now()
 
 int main(int argc, char *argv[])
 {
-	FtdiLink link(0x0403, 0x6010, INTERFACE_A, 115200 * 2);
+	FtdiLink link(0x0403, 0x6010, INTERFACE_B, 115200 * 2);
 	Handler h;
 	Proto p(&link, &h, NULL, 0, 1);
 	std::string line;
