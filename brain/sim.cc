@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 	state->addInput("li1", 0x80);
 	state->addInput("li2", 0x81);
-	state->addInput("ui1", 0x82);
+	state->addInput("ui1", 0x83);
 
 	state->addRelay3("a1", 0x90);
 	state->addRelay3("a2", 0x91);
