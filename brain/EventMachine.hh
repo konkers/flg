@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 using namespace std;
 
 #include <png.h>
@@ -32,10 +33,17 @@ class EventMask
 {
 private:
 	vector<string> names;
+	vector<string> layers;
 
 public:
-	EventMask(string mask);
+	EventMask(string mask, string layers);
 	bool stateMatch(State *state);
+	vector<string>::iterator layersBegin() {
+		return layers.begin();
+	}
+	vector<string>::iterator layersEnd() {
+		return layers.end();
+	}
 };
 
 
@@ -60,17 +68,19 @@ public:
 class EventMachine
 {
 private:
-	vector< pair<EventMask, string> > scriptMasks;
+	deque< pair<EventMask, string> > scriptMasks;
 	map<string, EventScript*> scriptData;
 	vector< pair<EventScript*, uint> > scriptStates;
+
+	map<string, int> layerNames;
 
 	bool parseEvent(xmlNodePtr cur);
 
 public:
-	EventMachine() {};
+	EventMachine();
 	~EventMachine() {};
 
-	bool addScript(string mask, string script);
+	bool addScript(string mask, string layers, string script);
 	void update(State *state,
 		    vector<string> ledNames,
 		    vector<string> digitalNames);
