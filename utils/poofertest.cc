@@ -101,10 +101,10 @@ void do_write(Proto *p, uint8_t addr)
 
 
 static uint8_t addrs[] = {
-	0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99,
+	0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,// 0x98, 0x99,
 };
 
-#define SEEEP 100000
+#define SLEEP 100000
 int main(int argc, char *argv[])
 {
 	FtdiLink link(0x0403, 0x6010, INTERFACE_A);
@@ -116,15 +116,15 @@ int main(int argc, char *argv[])
 		for (i = 0; i < ARRAY_SIZE(addrs); i++) {
 			p.updateRelay(addrs[i], 0x1);
 			p.flush();
-			usleep(100000);
+			usleep(SLEEP);
 			p.updateRelay(addrs[i], 0x2);
 			p.flush();
-			usleep(100000);
+			usleep(SLEEP);
 			if (addrs[i] == 0x99)
 				continue;
 			p.updateRelay(addrs[i], 0x4);
 			p.flush();
-			usleep(100000);
+			usleep(SLEEP);
 		}
 	}
 
