@@ -10,9 +10,9 @@
   <event mask="l14" layers="9" script="patterns/a4c.png" />
   <event mask="l15" layers="10" script="patterns/a5c.png" />
 
-  <event mask="l6 l7" layers="1 2" script="patterns/chase_a.png" />
-  <event mask="l8 l9" layers="3 4" script="patterns/chase_b.png" />
-  <event mask="l10 l11" layers="5 6" script="patterns/chase_c.png" />
+  <event mask="l6 l11" layers="1 5" script="patterns/chase_a.png" />
+  <event mask="l7 l12" layers="2 6" script="patterns/chase_b.png" />
+  <event mask="l8 l13" layers="3 7" script="patterns/chase_c.png" />
 
   <event mask="" layers="bg" script="idle.png" />
 </config>
