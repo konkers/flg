@@ -155,16 +155,8 @@ EventMachine::EventMachine()
 	layerNames["9"] = 9;
 	layerNames["10"] = 10;
 
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
-	scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
+	for (int i = 0; i < 11; i++)
+		scriptStates.push_back(pair<EventScript *, uint>(NULL, 0));
 }
 
 
