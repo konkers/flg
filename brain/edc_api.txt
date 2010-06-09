@@ -1,0 +1,37 @@
+protocol is HTTP
+
+requests will be made to some configurable base url (i.e. http://soma:1080/).
+url base is omitted from paths below
+
+Channels:
+
+/channel
+	returns a single integer specifiyng the number of channels
+
+/channel/<n>/state
+	returns the state (off, single, loop) of channel n
+
+/channel/<n>/state/(off|single|loop)
+	sets the state of channel n
+
+/channel/<n>/pattern
+	returns the current pattern set on channel n
+
+/channel/<n>/pattern/<name>
+	sets the pattern of channel n to name
+
+Patterns:
+
+/patterns
+	returns a list of available pattern names seperated by new lines
+
+/patterns/<name>
+	returns the png asociated with pattern name
+
+Rate:
+
+/rate
+	returns the current rate in BPM * 100
+
+/rate/<BPM * 100>
+	sets the current rate
