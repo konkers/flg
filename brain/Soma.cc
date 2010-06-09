@@ -16,6 +16,8 @@
 
 #include "Soma.hh"
 
+#include "mongoose.h"
+
 Soma::Soma()
 {
 	axonLedNames.push_back("a1");
@@ -158,6 +160,44 @@ uint8_t Soma::handleMotor(uint16_t input, uint8_t value,
 }
 
 
+void Soma::startWebServer(int port)
+{
+	char buff[16];
+	snprintf(buff, 16, "%d", port);
+	mg_ctx = mg_start();
+	mg_set_option(mg_ctx, "ports", buff);
+	mg_set_uri_callback(mg_ctx, "/channel*", &channel_page, this);
+	mg_set_uri_callback(mg_ctx, "/patterns*", &patterns_page, this);
+	mg_set_uri_callback(mg_ctx, "/rate*", &rate_page, this);
+}
+
+void Soma::channelPage(struct mg_connection *conn,
+		       const struct mg_request_info *ri)
+{
+	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
+		  "content-Type: text/plain\r\n\r\n");
+
+	mg_printf(conn, "channel %s\r\n", ri->uri);
+}
+
+void Soma::patternsPage(struct mg_connection *conn,
+		       const struct mg_request_info *ri)
+{
+	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
+		  "content-Type: text/plain\r\n\r\n");
+
+	mg_printf(conn, "patterns %s\r\n", ri->uri);
+}
+
+void Soma::ratePage(struct mg_connection *conn,
+		       const struct mg_request_info *ri)
+{
+	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
+		  "content-Type: text/plain\r\n\r\n");
+
+	mg_printf(conn, "rate %s\r\n", ri->uri);
+}
+
 void Soma::run(void)
 {
 	struct timeval tv;
@@ -173,6 +213,8 @@ void Soma::run(void)
 	frametime.tv_usec = 33000;
 
 	state.run();
+
+	startWebServer(1080);
 
 	printf("run\n");
 
@@ -210,5 +252,26 @@ void Soma::run(void)
 		gettimeofday(&last_tv, NULL);
 
 	}
+}
+
+void channel_page(struct mg_connection *conn,
+		const struct mg_request_info *ri, void *data)
+{
+	Soma *s = (Soma *)data;
+	s->channelPage(conn, ri);
+}
+
+void patterns_page(struct mg_connection *conn,
+		   const struct mg_request_info *ri, void *data)
+{
+	Soma *s = (Soma *)data;
+	s->patternsPage(conn, ri);
+}
+
+void rate_page(struct mg_connection *conn,
+	       const struct mg_request_info *ri, void *data)
+{
+	Soma *s = (Soma *)data;
+	s->ratePage(conn, ri);
 }
 

@@ -43,6 +43,23 @@ private:
 	uint8_t handleMotor(uint16_t input, uint8_t value,
 			    uint8_t max, uint8_t slewRate);
 
+	struct mg_context *mg_ctx;
+
+	friend void channel_page(struct mg_connection *conn,
+				 const struct mg_request_info *ri, void *data);
+	friend void patterns_page(struct mg_connection *conn,
+				  const struct mg_request_info *ri, void *data);
+	friend void rate_page(struct mg_connection *conn,
+			      const struct mg_request_info *ri, void *data);
+
+	void startWebServer(int port);
+	void channelPage(struct mg_connection *conn,
+			 const struct mg_request_info *ri);
+	void patternsPage(struct mg_connection *conn,
+			  const struct mg_request_info *ri);
+	void ratePage(struct mg_connection *conn,
+		      const struct mg_request_info *ri);
+
 public:
 	Soma();
 	~Soma();
