@@ -14,9 +14,33 @@
  * limitations under the License.
  */
 
+#include <StepSequencer.hh>
+
 #include "Soma.hh"
 
 #include "mongoose.h"
+
+void channel_page(struct mg_connection *conn,
+		const struct mg_request_info *ri, void *data)
+{
+	Soma *s = (Soma *)data;
+	s->channelPage(conn, ri);
+}
+
+void patterns_page(struct mg_connection *conn,
+		   const struct mg_request_info *ri, void *data)
+{
+	Soma *s = (Soma *)data;
+	s->patternsPage(conn, ri);
+}
+
+void rate_page(struct mg_connection *conn,
+	       const struct mg_request_info *ri, void *data)
+{
+	Soma *s = (Soma *)data;
+	s->ratePage(conn, ri);
+}
+
 
 Soma::Soma()
 {
@@ -120,6 +144,12 @@ Soma::Soma()
 	digitalNames.push_back("s4");
 	digitalNames.push_back("s5");
 
+	allNames.insert(allNames.end(),
+			   allLedNames.begin(), allLedNames.end());
+	allNames.insert(allNames.end(),
+			   digitalNames.begin(), digitalNames.end());
+	seqDB.load(&allNames, "patterns");
+
 	printf("lower:%d axon:%d upper:%d poofer:%d\n",
 	       (int) lowerLedNames.size(),
 	       (int) axonLedNames.size(),
@@ -134,7 +164,7 @@ Soma::~Soma()
 
 bool Soma::loadConfig(const char *fileName, const char *eventsfileName)
 {
-	return state.loadConfig(fileName) && em.loadConfig(eventsfileName);
+	return state.loadConfig(fileName);
 }
 
 bool Soma::attachLink(const char *busName, Link *link)
@@ -206,12 +236,16 @@ void Soma::run(void)
 	struct timeval frametime;
 	uint8_t motor1 = 0;
 	uint8_t motor2 = 0;
+	StepSequencer seq(8, &allNames);
 
 	vector<string>::iterator i;
 
 	frametime.tv_sec = 0;
 	frametime.tv_usec = 33000;
 
+
+	seq.setChannelSequence(0, seqDB.get("patterns/idle.png"));
+	seq.setChannelState(0, StepSequencer::STATE_LOOP);
 	state.run();
 
 	startWebServer(1080);
@@ -224,7 +258,8 @@ void Soma::run(void)
 	while (1) {
 		state.sync();
 
-		em.update(&state, allLedNames, digitalNames);
+		seq.step(&state);
+//		em.update(&state, allLedNames, digitalNames);
 
 		state.setDigitalOut("unpower1", true);
 		state.setDigitalOut("unpower2", true);
@@ -254,24 +289,4 @@ void Soma::run(void)
 	}
 }
 
-void channel_page(struct mg_connection *conn,
-		const struct mg_request_info *ri, void *data)
-{
-	Soma *s = (Soma *)data;
-	s->channelPage(conn, ri);
-}
-
-void patterns_page(struct mg_connection *conn,
-		   const struct mg_request_info *ri, void *data)
-{
-	Soma *s = (Soma *)data;
-	s->patternsPage(conn, ri);
-}
-
-void rate_page(struct mg_connection *conn,
-	       const struct mg_request_info *ri, void *data)
-{
-	Soma *s = (Soma *)data;
-	s->ratePage(conn, ri);
-}
 

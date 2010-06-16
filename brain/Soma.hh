@@ -26,12 +26,14 @@ using namespace std;
 
 #include "EventMachine.hh"
 #include <State.hh>
+#include <SequenceDB.hh>
 #include <Link.hh>
 
 class Soma
 {
 private:
 	State state;
+	SequenceDB seqDB;
 	EventMachine em;
 
 	vector<string> lowerLedNames;
@@ -39,6 +41,7 @@ private:
 	vector<string> upperLedNames;
 	vector<string> allLedNames;
         vector<string> digitalNames;
+        vector<string> allNames;
 
 	uint8_t handleMotor(uint16_t input, uint8_t value,
 			    uint8_t max, uint8_t slewRate);
