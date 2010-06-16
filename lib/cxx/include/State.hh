@@ -77,8 +77,25 @@ public:
 	void setDigitalOut(const char* name, bool state);
 	void setAnalogOut(const char* name, int val);
 	bool getDigitalIn(const char* name);
-	int getAnalogIn(const char* name);
+	int getAnalogIn(const char *name);
 	void setLightOut(const char *name, uint8_t red, uint8_t green, uint8_t blue);
+
+	bool hasDigitalOut(const char *name) {
+		return digitalOutMap.find(name) != digitalOutMap.end();
+	}
+	bool hasAnalogOut(const char *name) {
+		return analogOutMap.find(name) != analogOutMap.end();
+	}
+	bool hasDigitalIn(const char *name) {
+		return digitalInMap.find(name) != digitalInMap.end();
+	}
+	bool hasAnalogIn(const char *name) {
+		return analogInMap.find(name) != analogInMap.end();
+	}
+	bool hasLightOut(const char *name) {
+		return lightOutMap.find(name) != lightOutMap.end();
+	}
+
 
 	bool loadConfig(const char *fileName);
 
