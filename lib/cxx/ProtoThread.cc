@@ -214,6 +214,8 @@ int ProtoThread::run(void)
 
 		page = !page;
 	}
+
+	return 0;
 }
 
 void ProtoThread::relay(uint8_t idx, uint8_t state)
