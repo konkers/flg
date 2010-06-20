@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-#include <StepSequencer.hh>
+#include <string.h>
+
+#include <pcre++.h>
+
+using namespace pcrepp;
 
 #include "Soma.hh"
 
@@ -150,6 +154,12 @@ Soma::Soma()
 			   digitalNames.begin(), digitalNames.end());
 	seqDB.load(&allNames, "patterns");
 
+	seq = new StepSequencer(8, &allNames);
+
+	int i;
+	for (i = 0; i < 8; i++)
+		seq->setChannelSequence(i, seqDB.get("patterns/none.png"));
+
 	printf("lower:%d axon:%d upper:%d poofer:%d\n",
 	       (int) lowerLedNames.size(),
 	       (int) axonLedNames.size(),
@@ -197,26 +207,96 @@ void Soma::startWebServer(int port)
 	mg_ctx = mg_start();
 	mg_set_option(mg_ctx, "ports", buff);
 	mg_set_uri_callback(mg_ctx, "/channel*", &channel_page, this);
-	mg_set_uri_callback(mg_ctx, "/patterns*", &patterns_page, this);
+	mg_set_uri_callback(mg_ctx, "/patterns", &patterns_page, this);
 	mg_set_uri_callback(mg_ctx, "/rate*", &rate_page, this);
 }
 
 void Soma::channelPage(struct mg_connection *conn,
 		       const struct mg_request_info *ri)
 {
+	Pcre getStateReg("^/channel/(\\d+)/state$");
+	Pcre setStateReg("^/channel/(\\d+)/state/(off|single|loop)$");
+	Pcre getPatternReg("^/channel/(\\d+)/pattern$");
+	Pcre setPatternReg("^/channel/(\\d+)/pattern/(.+)$");
+	int state;
+	unsigned int channel;
+	Sequence *s;
+
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
 		  "content-Type: text/plain\r\n\r\n");
 
-	mg_printf(conn, "channel %s\r\n", ri->uri);
+	if (!strcmp(ri->uri, "/channel")) {
+		seqLock.lock();
+		mg_printf(conn, "%d\r\n", seq->getNumChannels());
+		seqLock.unlock();
+	} else if (getStateReg.search(ri->uri)) {
+		channel = atoi(getStateReg.get_match(0).c_str());
+		seqLock.lock();
+		state = seq->getChannelState(channel);
+		seqLock.unlock();
+
+		if (state == -1)
+			mg_printf(conn, "channel %d out of range\r\n", channel);
+		else if (state == StepSequencer::STATE_SINGLE)
+			mg_printf(conn, "single\r\n");
+		else if (state == StepSequencer::STATE_LOOP)
+			mg_printf(conn, "loop\r\n");
+		else
+			mg_printf(conn, "off\r\n");
+
+	} else if (setStateReg.search(ri->uri)) {
+		channel = atoi(setStateReg.get_match(0).c_str());
+
+		if(!setStateReg.get_match(1).compare("loop"))
+			state = StepSequencer::STATE_LOOP;
+		else if(!setStateReg.get_match(1).compare("single"))
+			state = StepSequencer::STATE_SINGLE;
+		else
+			state = StepSequencer::STATE_OFF;
+
+		seqLock.lock();
+		seq->setChannelState(channel, state);
+		seqLock.unlock();
+		mg_printf(conn, "set state %d %d\r\n", channel, state);
+	} else if (getPatternReg.search(ri->uri)) {
+		channel = atoi(getPatternReg.get_match(0).c_str());
+
+		seqLock.lock();
+		s = seq->getChannelSequence(channel);
+		if (s)
+			mg_printf(conn, "%s\r\n", s->getName().c_str());
+		else
+			mg_printf(conn, "channel %d out of range\r\n", channel);
+		seqLock.unlock();
+	} else if (setPatternReg.search(ri->uri)) {
+		channel = atoi(setPatternReg.get_match(0).c_str());
+
+		seqLock.lock();
+		s = seqDB.get(setPatternReg.get_match(1).c_str());
+		seq->setChannelSequence(channel, s);
+		seqLock.unlock();
+		mg_printf(conn, "set pattern %d %s\r\n", channel, s->getName().c_str());
+	} else {
+		mg_printf(conn, "channel %s\r\n", ri->uri);
+	}
+
 }
 
 void Soma::patternsPage(struct mg_connection *conn,
-		       const struct mg_request_info *ri)
+			const struct mg_request_info *ri)
 {
+	map<string, Sequence *>::iterator i;
+
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
 		  "content-Type: text/plain\r\n\r\n");
 
-	mg_printf(conn, "patterns %s\r\n", ri->uri);
+
+	seqLock.lock();
+
+	for (i = seqDB.begin(); i != seqDB.end(); i++) {
+		mg_printf(conn, "%s\n", i->first.c_str());
+	}
+	seqLock.unlock();
 }
 
 void Soma::ratePage(struct mg_connection *conn,
@@ -236,16 +316,12 @@ void Soma::run(void)
 	struct timeval frametime;
 	uint8_t motor1 = 0;
 	uint8_t motor2 = 0;
-	StepSequencer seq(8, &allNames);
 
 	vector<string>::iterator i;
 
 	frametime.tv_sec = 0;
 	frametime.tv_usec = 33000;
 
-
-	seq.setChannelSequence(0, seqDB.get("patterns/idle.png"));
-	seq.setChannelState(0, StepSequencer::STATE_LOOP);
 	state.run();
 
 	startWebServer(1080);
@@ -258,8 +334,9 @@ void Soma::run(void)
 	while (1) {
 		state.sync();
 
-		seq.step(&state);
-//		em.update(&state, allLedNames, digitalNames);
+		seqLock.lock();
+		seq->step(&state);
+		seqLock.unlock();
 
 		state.setDigitalOut("unpower1", true);
 		state.setDigitalOut("unpower2", true);

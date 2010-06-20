@@ -17,10 +17,10 @@ TARGETS=sim brain
 all: ${TARGETS}
 
 sim: ${SIM_OBJS}
-	${LINKXX} -lxml2
+	${LINKXX} -lxml2 -lpcre++
 
 brain: ${BRAIN_OBJS}
-	${LINKXX} -lxml2 -lftdi
+	${LINKXX} -lxml2 -lftdi -lpcre++
 
 sim: ${FLG_DIR}/lib/cxx/libflgxx.a ${FLG_DIR}/lib/c/libflg.a ${FLG_DIR}/lib/lua/src/liblua.a
 

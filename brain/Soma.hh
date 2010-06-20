@@ -24,17 +24,19 @@
 using namespace std;
 
 
-#include "EventMachine.hh"
 #include <State.hh>
 #include <SequenceDB.hh>
+#include <StepSequencer.hh>
 #include <Link.hh>
+#include <Thread.hh>
 
 class Soma
 {
 private:
 	State state;
 	SequenceDB seqDB;
-	EventMachine em;
+	StepSequencer *seq;
+	Thread::Mutex seqLock;
 
 	vector<string> lowerLedNames;
 	vector<string> axonLedNames;
