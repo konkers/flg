@@ -17,12 +17,17 @@
 #ifndef __Sequence_hh__
 #define __Sequence_hh__
 
+#include <string>
+using namespace std;
+
 #include <State.hh>
 
 class Sequence
 {
 private:
 	unsigned refCount;
+	string name;
+
 public:
 	virtual void start(void) = 0;
 	virtual void stop(void) = 0;
@@ -35,6 +40,15 @@ public:
 	int put(void) {
 		return --refCount;
 	}
+
+	string getName(void) {
+		return this->name;
+	}
+
+	void setName(string name) {
+		this->name = name;
+	}
+
 };
 
 
