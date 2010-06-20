@@ -47,6 +47,9 @@ void StepSequencer::setChannelSequence(unsigned channel, Sequence *seq)
 	if (channel >= numChannels)
 		return;
 
+	if (channels[channel].seq)
+		channels[channel].seq->put();
+
 	channels[channel].state = STATE_OFF;
 	channels[channel].seq = seq;
 }
