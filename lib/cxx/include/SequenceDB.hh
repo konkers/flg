@@ -45,6 +45,14 @@ public:
 	void load(const vector<string> *pixelMap, const char *dirName);
 	Sequence *get(const char *name);
 	void put(Sequence *seq);
+
+	map<string, Sequence *>::iterator begin(void) {
+		return sequences.begin();
+	}
+
+	map<string, Sequence *>::iterator end(void) {
+		return sequences.end();
+	}
 };
 
 #endif /* __SequenceDB_hh__ */
