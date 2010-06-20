@@ -57,9 +57,23 @@ public:
 	~StepSequencer();
 
 	void setChannelSequence(unsigned channel, Sequence *seq);
+	Sequence *getChannelSequence(unsigned channel) {
+		if (channel >= numChannels)
+			return NULL;
+		return channels[channel].seq;
+	}
 	void setChannelState(unsigned channel, int mode);
+	int getChannelState(unsigned channel) {
+		if (channel >= numChannels)
+			return -1;
+		return channels[channel].state;
+	}
 
 	void step(State *state);
+
+	unsigned getNumChannels(void) {
+		return numChannels;
+	}
 };
 
 
