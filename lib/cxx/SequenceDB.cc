@@ -42,6 +42,7 @@ void SequenceDB::loadDir(string dirName)
 				fileName = dirName + "/" + de.d_name;
 				if (s->load(fileName.c_str(), pixelMap->size())) {
 					s->get();
+					s->setName(fileName);
 					sequences[fileName] = s;
 				} else {
 					delete s;
