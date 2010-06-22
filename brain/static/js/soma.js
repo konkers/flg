@@ -116,13 +116,14 @@ soma.page.player.getChannelMarkup = function (thisChannel) {
 	thisStateChecked['single'] = '';
 	thisStateChecked['loop'] = '';
 	
-	thisStateChecked[thisState] = ' checked="checked"';
+	thisStateChecked[thisState] = ' active';
 			
 	var markup = '';
 	
 	markup += '<tr id="row_'+thisChannel+'"><td> channel '+thisChannel+'</td><td>';
-	markup += '<input type="radio" name="state_'+thisChannel+'" id="state_'+thisChannel+'_off" value="off"'+thisStateChecked['off']+'/><label for="state_'+thisChannel+'_off" id="state_'+thisChannel+'_off-label">off</label><input type="radio" name="state_'+thisChannel+'" id="state_'+thisChannel+'_single" value="single"'+thisStateChecked['single']+'/><label for="state_'+thisChannel+'_single" id="state_'+thisChannel+'_single-label">single</label><input type="radio" name="state_'+thisChannel+'" id="state_'+thisChannel+'_loop" value="loop"'+thisStateChecked['loop']+'/><label for="state_'+thisChannel+'_loop" id="state_'+thisChannel+'_loop-label">loop</label></td><td>';
+	//markup += '<input type="radio" name="state_'+thisChannel+'" id="state_'+thisChannel+'_off" value="off"'+thisStateChecked['off']+'/><label for="state_'+thisChannel+'_off" id="state_'+thisChannel+'_off-label">off</label><input type="radio" name="state_'+thisChannel+'" id="state_'+thisChannel+'_single" value="single"'+thisStateChecked['single']+'/><label for="state_'+thisChannel+'_single" id="state_'+thisChannel+'_single-label">single</label><input type="radio" name="state_'+thisChannel+'" id="state_'+thisChannel+'_loop" value="loop"'+thisStateChecked['loop']+'/><label for="state_'+thisChannel+'_loop" id="state_'+thisChannel+'_loop-label">loop</label></td><td>';
 	
+	markup += '<button name="state_'+thisChannel+'" id="state_'+thisChannel+'_off" class="button'+thisStateChecked['off']+'" value="off">off</button> <button name="state_'+thisChannel+'" id="state_'+thisChannel+'_single" class="button'+thisStateChecked['single']+'" value="single">single</button> <button name="state_'+thisChannel+'" id="state_'+thisChannel+'_loop" class="button'+thisStateChecked['loop']+'" value="loop">loop</button><td>';
 	
 	markup += '<select id="pattern_'+thisChannel+'"><option value="">-            -</option>';
 	
@@ -144,9 +145,34 @@ soma.page.player.getChannelMarkup = function (thisChannel) {
 
 soma.page.player.initChannelRow = function(thisRow) {
 	
-	thisRow.find('input[type=radio]').bind('change', function(event) {
+	//thisRow.find('input[type=radio]').bind('change', function(event) {
 		
-		soma.page.player.changeState($(this).attr('name').substr(6), $(this).val());
+	//	soma.page.player.changeState($(this).attr('name').substr(6), $(this).val());
+		
+	//});
+	
+	thisRow.find('.button').bind('click', function(event) {
+		event.preventDefault();
+		//trace($(this).attr('name').substr(6)+' '+$(this).val());
+		var thisState = $(this).val();
+		var thisChannel = $(this).attr('name').substr(6);
+		
+		
+		soma.page.player.changeState(thisChannel, thisState);
+		
+		if (thisState == 'off') {
+			$('#state_'+thisChannel+'_off').addClass('active');
+			$('#state_'+thisChannel+'_single').removeClass('active');
+			$('#state_'+thisChannel+'_loop').removeClass('active');
+		} else if (thisState == 'single') {
+			$('#state_'+thisChannel+'_off').removeClass('active');
+			$('#state_'+thisChannel+'_single').addClass('active');
+			$('#state_'+thisChannel+'_loop').removeClass('active');
+		} else if (thisState == 'loop') {
+			$('#state_'+thisChannel+'_off').removeClass('active');
+			$('#state_'+thisChannel+'_single').removeClass('active');
+			$('#state_'+thisChannel+'_loop').addClass('active');
+		}
 		
 	});
 	
@@ -175,6 +201,20 @@ soma.page.player.changeStateCB = function(thisChannel, data) {
 		$('.status').fadeOut('fast', function() {
 			$(this).html('changed state of channel '+thisChannel+' to '+data.state).fadeIn();
 		})
+		
+		if (data.state == 'single') {
+			$.timer(1000, function(t) {
+				t.stop();
+				
+				if (!$('#state_'+thisChannel+'_loop').hasClass('active')) {
+					$('#state_'+thisChannel+'_off').addClass('active');
+					$('#state_'+thisChannel+'_single').removeClass('active');
+					$('#state_'+thisChannel+'_loop').removeClass('active');
+
+				}
+				
+			})
+		}
 		
 	} else {
 		//failure case
@@ -211,7 +251,7 @@ soma.page.player.changePatternCB = function(thisChannel, data) {
 }
 
 soma.page.player.getPatterns = function() {
-	somaWS.serviceCall("pattern", null, soma.page.player.getPatternsCB, soma.page.player.getPatternsCB);	
+	somaWS.serviceCall("patterns", null, soma.page.player.getPatternsCB, soma.page.player.getPatternsCB);	
 }
 
 soma.page.player.getPatternsCB = function(data) {

@@ -46,7 +46,7 @@ strong {
 em {
 	font-style: italic;
 }
-input, textarea {outline-style:none;} /* turn off safari's highlight */
+input, textarea, button, a {outline-style:none;} /* turn off safari's highlight */
 
 /* 	
 	YUI EM calculation: 
@@ -121,3 +121,31 @@ br {
 .initial-values {
 	list-style-type: none;
 }
+
+.button {
+   border-top: 1px solid #96d1f8;
+   background: #65a9d7;
+   background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#65a9d7));
+   background: -moz-linear-gradient(top, #3e779d, #65a9d7);
+   padding: 5.5px 11px;
+   -webkit-border-radius: 8px;
+   -moz-border-radius: 8px;
+   border-radius: 8px;
+   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   box-shadow: rgba(0,0,0,1) 0 1px 0;
+   text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: white;
+   font-size: 108%;
+   text-decoration: none;
+   vertical-align: middle;
+   }
+.button:hover {
+   border-top-color: #28597a;
+   background: #28597a;
+   color: #ccc;
+   }
+.button:active, .button.active {
+   border-top-color: #d47a1a;
+   background: #d47a1a;
+   }

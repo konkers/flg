@@ -6,9 +6,8 @@ var somaWS = {};
 //	somaWS.serviceQueue = [];
 //	somaWS.queueLocked = false;
 	somaWS.queueFlag = true;
-  //  somaWS.serviceMessageURL = "/soma/services";
+  	somaWS.serviceMessageURL = "";
 
-  somaWS.serviceMessageURL = "";
 
 // Common function used by all pages that wish to communicate with
 // the soma web services. 
