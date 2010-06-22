@@ -278,9 +278,14 @@ void Soma::channelPage(struct mg_connection *conn,
 
 		seqLock.lock();
 		s = seqDB.get(setPatternReg.get_match(1).c_str());
-		seq->setChannelSequence(channel, s);
+		if (s) {
+			seq->setChannelSequence(channel, s);
+			mg_printf(conn, "{\"result\": true, \"msg\": \"set pattern %d %s\"}\r\n", channel, s->getName().c_str());
+		} else {
+			mg_printf(conn, "{\"result\": false, \"msg\": \"pattern %s does not exist\"}\r\n",
+				  setPatternReg.get_match(1).c_str());
+		}
 		seqLock.unlock();
-		mg_printf(conn, "{\"result\": true, \"msg\": \"set pattern %d %s\"}\r\n", channel, s->getName().c_str());
 	} else {
 		mg_printf(conn, "channel %s\r\n", ri->uri);
 	}
