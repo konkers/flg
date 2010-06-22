@@ -227,23 +227,28 @@ void Soma::channelPage(struct mg_connection *conn,
 
 	if (!strcmp(ri->uri, "/channel")) {
 		seqLock.lock();
-		mg_printf(conn, "%d\r\n", seq->getNumChannels());
+		mg_printf(conn, "{\"result\": true, \"channels\": %d}\r\n", seq->getNumChannels());
 		seqLock.unlock();
 	} else if (getStateReg.search(ri->uri)) {
+		const char *val;
+
 		channel = atoi(getStateReg.get_match(0).c_str());
 		seqLock.lock();
 		state = seq->getChannelState(channel);
 		seqLock.unlock();
 
-		if (state == -1)
-			mg_printf(conn, "channel %d out of range\r\n", channel);
-		else if (state == StepSequencer::STATE_SINGLE)
-			mg_printf(conn, "single\r\n");
-		else if (state == StepSequencer::STATE_LOOP)
-			mg_printf(conn, "loop\r\n");
-		else
-			mg_printf(conn, "off\r\n");
+		if (state == -1) {
+			mg_printf(conn, "{\"result\": flase, \"error\": \"channel %d out of range\"}\r\n", channel);
+		} else {
+			if (state == StepSequencer::STATE_SINGLE)
+				val = "single";
+			else if (state == StepSequencer::STATE_LOOP)
+				val = "loop";
+			else
+				val = "off";
 
+			mg_printf(conn, "{\"result\": ture, \"state\": \"%s\"}\r\n", val);
+		}
 	} else if (setStateReg.search(ri->uri)) {
 		channel = atoi(setStateReg.get_match(0).c_str());
 
@@ -257,16 +262,16 @@ void Soma::channelPage(struct mg_connection *conn,
 		seqLock.lock();
 		seq->setChannelState(channel, state);
 		seqLock.unlock();
-		mg_printf(conn, "set state %d %d\r\n", channel, state);
+		mg_printf(conn, "{\"result\": ture, \"msg\": \"set state %d %d\"}\r\n", channel, state);
 	} else if (getPatternReg.search(ri->uri)) {
 		channel = atoi(getPatternReg.get_match(0).c_str());
 
 		seqLock.lock();
 		s = seq->getChannelSequence(channel);
 		if (s)
-			mg_printf(conn, "%s\r\n", s->getName().c_str());
+			mg_printf(conn, "{\"result\": ture, \"pattern\": \"%s\"}\r\n", s->getName().c_str());
 		else
-			mg_printf(conn, "channel %d out of range\r\n", channel);
+			mg_printf(conn, "{\"result\": flase, \"error\": \"channel %d out of range\"}\r\n", channel);
 		seqLock.unlock();
 	} else if (setPatternReg.search(ri->uri)) {
 		channel = atoi(setPatternReg.get_match(0).c_str());
@@ -275,7 +280,7 @@ void Soma::channelPage(struct mg_connection *conn,
 		s = seqDB.get(setPatternReg.get_match(1).c_str());
 		seq->setChannelSequence(channel, s);
 		seqLock.unlock();
-		mg_printf(conn, "set pattern %d %s\r\n", channel, s->getName().c_str());
+		mg_printf(conn, "{\"result\": ture, \"msg\": \"set pattern %d %s\"}\r\n", channel, s->getName().c_str());
 	} else {
 		mg_printf(conn, "channel %s\r\n", ri->uri);
 	}
@@ -291,12 +296,14 @@ void Soma::patternsPage(struct mg_connection *conn,
 		  "content-Type: text/plain\r\n\r\n");
 
 
+	mg_printf(conn, "{\"result\": true, \"patterns\": [\r\n");
 	seqLock.lock();
 
 	for (i = seqDB.begin(); i != seqDB.end(); i++) {
-		mg_printf(conn, "%s\n", i->first.c_str());
+		mg_printf(conn, "\t\"%s\",\r\n", i->first.c_str());
 	}
 	seqLock.unlock();
+	mg_printf(conn, "]}\r\n");
 }
 
 void Soma::ratePage(struct mg_connection *conn,
@@ -305,7 +312,7 @@ void Soma::ratePage(struct mg_connection *conn,
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
 		  "content-Type: text/plain\r\n\r\n");
 
-	mg_printf(conn, "rate %s\r\n", ri->uri);
+	mg_printf(conn, "{\"result\":true, \"rate\": %d}\r\n", 12000);
 }
 
 void Soma::run(void)
