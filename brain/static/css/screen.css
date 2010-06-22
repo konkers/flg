@@ -1,0 +1,123 @@
+/*
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 3.0.0pr1
+*/
+/* YUI Font Lookup Table
+
+For pixels (px)  	Declare this percent (%)
+10				 	77
+11 					85
+12 					93
+13 					100
+14 					108
+15 					116
+16 					123.1
+17 					131
+18 					138.5
+19 					146.5
+20 					153.9
+21 					161.6
+22 					167
+23 					174
+24 					182
+25 					189
+26 					197
+
+*/
+
+html{color:#000;background:#333; height: 100%;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:text-top;}sub{vertical-align:text-bottom;}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}input,textarea,select{*font-size:100%;}legend{color:#000;}
+body{font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}select,input,button,textarea{font:99% arial,helvetica,clean,sans-serif;}table{font-size:inherit;font:100%;}pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+body {
+	text-align:center;
+	margin-left:auto;margin-right:auto;
+	height: 100%;
+	font-family: helvetica, arial,helvetica,"FreeSans","Utkal","Nimbus Sans L","Malayalam","Phetsarath OT","Garuda",clean,sans-serif; /* extra arial-like fonts to ensure sans-serif on Linux browsers */
+	color:#000000; 
+	padding: 0; margin: 0;
+}
+li {
+	margin: 0;
+}
+strong {
+	font-weight: bold;
+}
+em {
+	font-style: italic;
+}
+input, textarea {outline-style:none;} /* turn off safari's highlight */
+
+/* 	
+	YUI EM calculation: 
+	Pixel width / 13px = "EM Width"
+	"EM Width" x 0.9759 = "IE's EM Width" 
+*/
+.main {
+	width:76.923em;
+	*width:75.069em; /* 1000px equiv. */
+	margin: auto; 
+	background-color: transparent;
+	height: 100%;
+	border-left: 1px solid #333;
+	border-right: 1px solid #333;
+	background: #fff;
+} 
+.clear {
+	clear: both;
+}
+.header {
+	text-align: left;
+	width: 100%;
+	padding: 1em;
+	border-bottom: 2px solid #333;
+}
+.header h1 {
+	font-size: 120%;
+	font-weight: bold;
+}
+.main-content {
+	/* height: 100%; */
+	text-align: left;
+	clear:both;
+	margin-top: 0;
+	position: relative;
+	padding: 1em;
+}
+#leds table {
+	float: left;
+}
+#leds table th { 
+	font-weight: bold;
+	padding: 1em;
+}
+#leds table td { 
+	border: 1px solid #333;
+	padding: 1em;
+	text-align: right;
+}
+#leds table td.hover {
+	background-color: #CCCCCC;
+}
+#leds #rightcol {
+	width: 200px;
+	float: left;
+	margin-left: 20px;
+}
+#leds #led-submit {
+	clear: both;
+}
+#leds label {
+	padding: 0px 15px 0px 5px;
+}
+
+.status {
+	color: #ba0000;
+}
+
+br {
+	clear: both;
+}
+.initial-values {
+	list-style-type: none;
+}
