@@ -314,10 +314,27 @@ void Soma::patternsPage(struct mg_connection *conn,
 void Soma::ratePage(struct mg_connection *conn,
 		       const struct mg_request_info *ri)
 {
+	Pcre setRateReg("^/rate/(\\d+)$");
+	float pitch;
+
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n"
 		  "content-Type: text/plain\r\n\r\n");
 
-	mg_printf(conn, "{\"result\":true, \"rate\": %d}\r\n", 12000);
+
+	if (setRateReg.search(ri->uri)) {
+		pitch = atoi(setRateReg.get_match(0).c_str());
+		pitch /= 12000.0;
+		seqLock.lock();
+		seq->setPitch(pitch);
+		seqLock.unlock();
+	} else {
+		unsigned rate;
+
+		seqLock.lock();
+		rate = seq->getPitch() * 12000;
+		seqLock.unlock();
+		mg_printf(conn, "{\"result\":true, \"rate\": %d}\r\n", 12000);
+	}
 }
 
 void Soma::run(void)
