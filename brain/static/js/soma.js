@@ -15,6 +15,7 @@ soma.page.player.init = function() {
 	soma.page.player.getPatterns();
 	soma.page.player.getRate();
 	
+	
 }
 
 soma.page.player.getNumberOfChannels = function() {
@@ -28,7 +29,7 @@ soma.page.player.getNumberOfChannelsCB = function(data) {
 	if (data.result) {
 		//success case
 		
-		$('.init-channels').html(data.channels);
+		//$('.init-channels').html(data.channels);
 		
 		soma.page.player.getInitialChannelStates(data.channels);
 		
@@ -92,7 +93,7 @@ soma.page.player.getChannelPatternCB = function(thisChannel, data) {
 
 soma.page.player.displayChannelData = function() {
 	
-	$('.init-channel-data').html(JSON.stringify(soma.page.player.CHANNEL_DATA));
+	//$('.init-channel-data').html(JSON.stringify(soma.page.player.CHANNEL_DATA));
 	
 	
 	for (var i = 0; i < soma.page.player.NUM_CHANNELS; i++) {
@@ -193,16 +194,47 @@ soma.page.player.changeState = function(thisChannel, thisState) {
 	
 }
 
+soma.page.player.parseMsg = function (thisMsg, thisType) {
+	
+	thisType = thisType || 'state';
+	
+	var resultStateInt = "";
+	var resultState = "";
+
+	if (thisType == 'state') {
+		resultStateInt = parseInt(thisMsg.substr(12));
+		
+		if (resultStateInt == 0) {
+			resultState = "off";
+		} else if (resultStateInt == 1) {
+			resultState = "single";
+		} else if (resultStateInt == 2) {
+			resultState = "loop";
+		}
+		
+	} else if (thisType == 'pattern') {
+		resultState = thisMsg.substr(14);
+		
+	}
+	
+	
+	
+	return resultState;
+}
+
 soma.page.player.changeStateCB = function(thisChannel, data) {
 
 	if (data.result) {
 		//success case
 		
+		var thisState = soma.page.player.parseMsg(data.msg, 'state');
+		
 		$('.status').fadeOut('fast', function() {
-			$(this).html('changed state of channel '+thisChannel+' to '+data.state).fadeIn();
+			$(this).html('changed state of channel '+thisChannel+' to '+thisState).fadeIn();
+			//$(this).html('channel: '+thisChannel+' result: '+data.msg).fadeIn();
 		})
 		
-		if (data.state == 'single') {
+		if (thisState == 'single') {
 			$.timer(1000, function(t) {
 				t.stop();
 				
@@ -238,8 +270,10 @@ soma.page.player.changePatternCB = function(thisChannel, data) {
 	if (data.result) {
 		//success case
 		
+		var thisPattern = soma.page.player.parseMsg(data.msg, 'pattern');
+		
 		$('.status').fadeOut('fast', function() {
-			$(this).html('changed pattern of channel '+thisChannel+' to '+data.pattern).fadeIn();
+			$(this).html('changed pattern of channel '+thisChannel+' to '+thisPattern).fadeIn();
 		})
 		
 	} else {
@@ -259,7 +293,7 @@ soma.page.player.getPatternsCB = function(data) {
 	if (data.result) {
 		//success case
 
-		$('.init-patterns').html(data.patterns);		
+		//$('.init-patterns').html(data.patterns);		
 		
 		soma.page.player.PATTERNS = data.patterns.split('\n');
 		
@@ -273,16 +307,52 @@ soma.page.player.getPatternsCB = function(data) {
 	
 }
 
+
+soma.page.player.setRate = function(thisBpm) {
+
+	
+		var thisAction = 'rate/'+(thisBpm * 100);
+
+		somaWS.serviceCall(thisAction, null, function(data) { soma.page.player.setRateCB(thisBpm, data) }, function(data) { soma.page.player.setRateCB(thisBpm, data) });	
+		
+	
+	
+}
+
+soma.page.player.setRateCB = function(thisBpm, data) {
+
+	//do nothing
+
+}
+
+
 soma.page.player.getRate = function() {
 	somaWS.serviceCall("rate", null, soma.page.player.getRateCB, soma.page.player.getRateCB);	
 }
+
 
 soma.page.player.getRateCB = function(data) {
 
 	if (data.result) {
 		//success case
 		
-		$('.init-rate').html(Math.floor(parseInt(data.rate) / 100));		
+		var thisBpm = Math.floor(parseInt(data.rate) / 100);
+		
+		//$('.init-rate').html(Math.floor(parseInt(data.rate) / 100));		
+		$('#bpm').html(thisBpm);	
+		
+		$('#bpm-slider').slider({
+			min: 0,
+			max: 300,
+			value: thisBpm, 
+			slide: function(event, ui) {
+				$("#bpm").html(ui.value);
+				
+				soma.page.player.setRate(ui.value);
+				
+			
+			}
+		});
 		
 		
 	} else {

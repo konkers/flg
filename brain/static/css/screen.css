@@ -111,6 +111,10 @@ input, textarea, button, a {outline-style:none;} /* turn off safari's highlight 
 	padding: 0px 15px 0px 5px;
 }
 
+.status-cont {
+	height: 1em;
+	padding: 1em 0;
+}
 .status {
 	color: #ba0000;
 }
@@ -149,3 +153,17 @@ br {
    border-top-color: #d47a1a;
    background: #d47a1a;
    }
+h2 {
+	clear: both;
+	padding-top: 2em;
+	font-weight: bold;
+	font-size: 108%;
+}
+#bpm-slider-cont {
+	clear: both;
+	padding: 1em;
+	width: 500px;
+	background-color: #CCCCCC;
+	border: 1px solid #000;
+	margin: 0.4em 0 0 0;
+}
