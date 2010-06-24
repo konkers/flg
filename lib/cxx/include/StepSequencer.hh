@@ -51,6 +51,7 @@ private:
 	vector<string> *pixelMap;
 
 	struct timeval lastStep;
+	float pitch;
 
 public:
 	StepSequencer(unsigned numChannels, vector<string> *pixelMap);
@@ -67,6 +68,14 @@ public:
 		if (channel >= numChannels)
 			return -1;
 		return channels[channel].state;
+	}
+
+	void setPitch(float pitch) {
+		this->pitch = pitch;
+	}
+
+	float getPitch(void) {
+		return pitch;
 	}
 
 	void step(State *state);

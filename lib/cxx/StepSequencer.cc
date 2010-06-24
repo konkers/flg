@@ -24,6 +24,7 @@ StepSequencer::StepSequencer(unsigned numChannels, vector<string> *pixelMap)
 
 	this->numChannels = numChannels;
 	this->pixelMap = pixelMap;
+	pitch = 1.0;
 
 	frame = new uint32_t[pixelMap->size()];
 	channels = new ChannelState[numChannels];
@@ -76,7 +77,7 @@ void StepSequencer::step(State *state)
 
 	timersub(&thisStep, &lastStep, &stepDelta);
 
-	step = stepDelta.tv_sec + stepDelta.tv_usec / 1000000.0;
+	step = stepDelta.tv_sec + stepDelta.tv_usec / 1000000.0 * pitch;
 
 	memset(frame, 0x0, sizeof(uint32_t) * pixelMap->size());
 	for (c = 0; c < numChannels; c++) {
