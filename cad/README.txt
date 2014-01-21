@@ -7,3 +7,6 @@ Notes from Ruza:
 - Other file formats are available just ping if you need a different one.
 
 - these CAD files are made starting with the Soma *model*  -- off the model, not sculpture.
+
+
+Ref's: The source of these files is Jake Bjeldanes bjeldanes@gmail.com
