@@ -1,0 +1,27 @@
+G04 start of page 6 for group -4062 idx -4062 *
+G04 Title: LED driver v. 0.1, soldermask *
+G04 Creator: pcb 1.99x *
+G04 CreationDate: Sat Jul 16 06:31:28 2011 UTC *
+G04 For: davidellsworth *
+G04 Format: Gerber/RS-274X *
+G04 PCB-Dimensions: 113000 481000 *
+G04 PCB-Coordinate-Origin: lower left *
+%MOIN*%
+%FSLAX24Y24*%
+%LNBACKMASK*%
+%ADD11C,0.0200*%
+%ADD34C,0.0972*%
+%ADD35C,0.2480*%
+G54D11*G36*
+X8014Y2385D02*Y1414D01*
+X8985D01*
+Y2385D01*
+X8014D01*
+G37*
+G54D34*X6531Y1900D03*
+X4563D03*
+X2594D03*
+G54D35*X8500Y20700D03*
+X2000Y5500D03*
+X2900Y42100D03*
+M02*
