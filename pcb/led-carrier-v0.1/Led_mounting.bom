@@ -1,0 +1,9 @@
+refdes	device	description	value	footprint	
+CN1	CONNECTOR_4	solder pads on board	unknown	PADS_4	
+LD1	LED	LED	Red Rebel	rebel	
+LD2	LED	LED	Red Rebel	rebel	
+LD3	LED	LED	Red Rebel	rebel	
+LD4	LED	LED	Green Rebel	rebel	
+LD5	LED	LED	Green Rebel	rebel	
+LD6	LED	LED	Blue Rebel	rebel	
+LD7	LED	LED	Blue Rebel	rebel	

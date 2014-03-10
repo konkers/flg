@@ -1,0 +1,60 @@
+refdes	device	description	value	footprint	
+C1	CAPACITOR	multilayer ceramic capacitor	100n	0805_2	
+C10	CAPACITOR	multilayer ceramic capacitor	100n	0805_2	
+C2	CAPACITOR	multilayer ceramic capacitor	100n	0805_2	
+C3	CAPACITOR	ceramic capacitor	15p	0805_2	
+C4	CAPACITOR	ceramic capacitor	15p	0805_2	
+C5	CAPACITOR	multilayer ceramic capacitor	100n	0805_2	
+C6	POLARIZED_CAPACITOR	polarized capacitor	100u	cap_electro_8x10	
+C7	CAPACITOR	multilayer ceramic capacitor	100n	0805_2	
+C8	CAPACITOR	multilayer ceramic capacitor	330n	0805_2	
+C9	CAPACITOR	multilayer ceramic capacitor	100n	0805_2	
+CN1	CONNECTOR_6	ISP	3x2 header	header_2x3_smd	
+CN2	CONNECTOR_4	4 pos terminal strip	unknown	TS_PT5.0PVH_4	
+CN3	CONNECTOR_4	solder pads on board	unknown	PADS_4	
+J1	JUMPER	optionally stuffed 0 ohm resistor	unknown	0805_2	
+LD1	LED	LED	LH N974-KN (red)	1206_diode	
+LD2	LED	LED	LG N971-KN (green)	1206_diode	
+Q1	NMOS_TRANSISTOR	generic N channel MOS transistor (enhancement type)	FDD8778	TO252	
+Q2	NMOS_TRANSISTOR	generic N channel MOS transistor (enhancement type)	FDD8778	TO252	
+Q3	NMOS_TRANSISTOR	generic N channel MOS transistor (enhancement type)	FDD8778	TO252	
+R1	RESISTOR	5%	1.3K	0805_2	
+R10	RESISTOR	1%	0.2	1206_2	
+R11	RESISTOR	1%	5.36K	0805_2	
+R12	RESISTOR	1%	5.36K	0805_2	
+R13	RESISTOR	1%	5.36K	0805_2	
+R14	RESISTOR	1%	75.0	0805_2	
+R15	RESISTOR	5%	2.2M	0805_2	
+R16	RESISTOR	5%	1K	0805_2	
+R17	RESISTOR	5%	2.2K	0805_2	
+R18	RESISTOR	1%	0.2	1206_2	
+R19	RESISTOR	1%	5.36K	0805_2	
+R2	RESISTOR	5%	1.3K	0805_2	
+R20	RESISTOR	1%	5.36K	0805_2	
+R21	RESISTOR	1%	5.36K	0805_2	
+R22	RESISTOR	1%	75.0	0805_2	
+R23	RESISTOR	5%	2.2M	0805_2	
+R24	RESISTOR	5%	1K	0805_2	
+R25	RESISTOR	5%	2.2K	0805_2	
+R26	RESISTOR	1%	0.2	1206_2	
+R3	RESISTOR	5%	100	1206_2	
+R4	RESISTOR	1%	5.36K	0805_2	
+R5	RESISTOR	1%	5.36K	0805_2	
+R6	RESISTOR	1%	75.0	0805_2	
+R7	RESISTOR	5%	2.2M	0805_2	
+R8	RESISTOR	5%	1K	0805_2	
+R9	RESISTOR	5%	2.2K	0805_2	
+TP1	TP	unknown	unknown	TP_smd_50	
+TP10	TP	unknown	unknown	TP_smd_50	
+TP2	TP	unknown	unknown	TP_smd_50	
+TP3	TP	unknown	unknown	TP_smd_50	
+TP4	TP	unknown	unknown	TP_smd_50	
+TP5	TP	unknown	unknown	TP_smd_50	
+TP7	TP	unknown	unknown	TP_smd_50	
+TP8	TP	unknown	unknown	TP_smd_50	
+TP9	TP	unknown	unknown	TP_smd_50	
+U1	mega88	Atmel MEGA88 microcontroller	unknown	QFP32_7_2	
+U2	KA78L05A	5V regulator in 8-SOIC	unknown	SOIC8_1	
+U3	SN75176B	RS-485 transceiver	SN75176B	SOIC8_1	
+U4	LM324	unknown	unknown	SOIC14_1	
+X1	CRYSTAL	crystal	18.432MHz	crystal_smd_2	

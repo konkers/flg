@@ -1,0 +1,17 @@
+G04 start of page 4 for group 2 idx 6 *
+G04 Title: LED carrier v. 0.1, outline *
+G04 Creator: pcb 1.99x *
+G04 CreationDate: Sat Jul 25 11:21:37 2009 UTC *
+G04 For: davidellsworth *
+G04 Format: Gerber/RS-274X *
+G04 PCB-Dimensions: 120000 122000 *
+G04 PCB-Coordinate-Origin: lower left *
+%MOIN*%
+%FSLAX24Y24*%
+%LNOUTLINE*%
+%ADD25C,0.0100*%
+G54D25*X12000Y0D02*X0D01*
+X12000D02*Y12200D01*
+X0D02*Y0D01*
+X12000Y12200D02*X0D01*
+M02*
