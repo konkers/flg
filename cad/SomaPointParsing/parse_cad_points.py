@@ -2,7 +2,7 @@ import csv
 import sys
 import os.path
 
-def parse_cad_points_to_json(file):
+def parse_cad_points_to_json(file, region):
     output_string = "[\n"
 
     with open(file, 'rb') as f:
@@ -16,10 +16,18 @@ def parse_cad_points_to_json(file):
             for x in row_array:
                  new_array.append(float(x)/1000)
             output_string += '{"point": ' + str(new_array) + '},\n'
+
     output_string = output_string[:-2]
     output_string += "\n]"
 
-    json_file_name = file.replace(".txt", ".json")
+    return output_string
+
+def create_json(input1, region1, input2, region2, input3, region3):
+    parse_cad_points_to_json(input1, region1)
+    parse_cad_points_to_json(input2, region2)
+    parse_cad_points_to_json(input3, region3)
+
+    json_file_name = input1.replace(".txt", ".json")
 
     write_to_file = open(json_file_name, 'w')
     write_to_file.write(output_string)
@@ -27,9 +35,14 @@ def parse_cad_points_to_json(file):
 
     return json_file_name
 
-input_file = sys.argv[1]
+input_file_1 = sys.argv[1]
+region1 = sys.argv[2]
+input_file_2 = sys.argv[3]
+region2 = sys.argv[4]
+input_file_3 = sys.argv[5]
+region3 = sys.argv[6]
 if os.path.isfile(input_file):
-    json_file = parse_cad_points_to_json(input_file)
+    json_file = create_json(input_file_1,region1,input_file_2,region2,input_file_3,region3)
     print json_file + " created"
 else:
     print "Booooo-urns"
