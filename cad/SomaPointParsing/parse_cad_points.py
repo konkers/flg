@@ -8,8 +8,14 @@ def parse_cad_points_to_json(file):
     with open(file, 'rb') as f:
         reader = csv.reader(f, delimiter=',')
         for row in reader:
-            new_row = str(row).replace(" ","").replace("'","")
-            output_string += '{"point": ' + new_row + '},\n'
+            new_row = str(row)
+            for ch in [" ","'","[","]"]:
+                new_row = new_row.replace(ch,"")
+            row_array = new_row.split(",")
+            new_array = []
+            for x in row_array:
+                 new_array.append(float(x)/1000)
+            output_string += '{"point": ' + str(new_array) + '},\n'
     output_string = output_string[:-2]
     output_string += "\n]"
 
