@@ -29,9 +29,9 @@ extern "C" {
 #define PROTO_ADDR_MASTER	0x00
 #define PROTO_ADDR_BCAST	0xff
 
-#define PROTO_SOF	0x53
-#define PROTO_SOF_LONG	0x54
-#define PROTO_EOF	0x45
+#define PROTO_SOF       0x53    // 'S'
+#define PROTO_SOF_LONG  0x54    // 'T'
+#define PROTO_EOF       0x45    // 'E'
 
 enum proto_widget_type {
 	PROTO_WIDGET_TYPE_RELAY,

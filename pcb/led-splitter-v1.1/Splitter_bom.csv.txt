@@ -1,0 +1,19 @@
+refdes	device	description	value	footprint	
+C1	POLARIZED_CAPACITOR	electrolytic capacitor	100u	RCY_6.3_.1P	
+C2	CAPACITOR	multilayer ceramic capacitor	100n	BOX.1x.2	
+C3	POLARIZED_CAPACITOR	electrolytic capacitor	100u	RCY_6.3_.1P	
+C4	CAPACITOR	multilayer ceramic capacitor	100n	BOX.1x.2	
+C5	CAPACITOR	multilayer ceramic capacitor	100n	BOX.1x.2	
+CN1	CONNECTOR_2	generic connector	unknown	TS_PT5.0H_2	
+CN2	CONNECTOR_2	generic connector	DATA_IN	TS_PT5.0H_2	
+CN3	CONNECTOR_2	generic connector	DATA_OUT	TS_PT5.0H_2	
+CN4	CONNECTOR_2	generic connector	DATA_BUF_OUT	TS_PT5.0H_2	
+CN5	CONNECTOR_4	generic connector	LED3	TS_PT5.0H_4	
+CN6	CONNECTOR_6	generic connector	LED1	DIN6RA.fp	
+CN7	CONNECTOR_4	generic connector	LED2	TS_PT5.0H_4	
+LD1	LED	LED	generic 5mm green	LED5	
+R1	RESISTOR	unknown	300	RN55_type_0.1W_Resistor	
+R2	RESISTORPACK_9	unknown	100	SIP8	
+U1	SN75176B	RS-485 transceiver	unknown	DIP8	
+U2	7805	unknown	LM7805	TO220LAYHS	
+U3	75174	quad 485 receiver	unknown	DIP16	
